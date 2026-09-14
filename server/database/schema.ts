@@ -1,13 +1,6 @@
 import { relations, sql } from 'drizzle-orm'
 import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
-/**
- * Card status is a label the user sets. It never drives scheduling, and the
- * four colours that render it are fixed across every theme.
- */
-export const CARD_STATUSES = ['difficult', 'hesitant', 'good', 'mastered'] as const
-export type CardStatus = typeof CARD_STATUSES[number]
-
 const createdAt = () =>
   integer('created_at', { mode: 'timestamp' })
     .notNull()
@@ -15,29 +8,32 @@ const createdAt = () =>
 
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  email: text('email').notNull(),
-  /** Chosen citrus theme, persisted per user rather than only in localStorage. */
-  theme: text('theme').notNull().default('ponkan'),
+  /** What you sign in with. Lowercased on write, so Lupin and lupin are one account. */
+  username: text('username').notNull(),
+  /**
+   * scrypt, via nuxt-auth-utils' hashPassword. The salt and parameters travel
+   * inside the string, so there is no second column to keep in step.
+   */
+  passwordHash: text('password_hash').notNull(),
+  /** Optional. Nothing in the app needs it, and nothing emails you. */
+  email: text('email'),
+  /** Chosen citrus theme, persisted per user rather than only in local storage. */
+  theme: text('theme').notNull().default('seville'),
+  /**
+   * The five rating names, as a JSON array, or null for the defaults.
+   *
+   * Text rather than a table: it is a fixed-length list of five strings that is
+   * always read and written whole, which is a column, not a relation.
+   */
+  ratingLabels: text('rating_labels'),
   createdAt: createdAt()
 }, table => [
-  uniqueIndex('users_email_idx').on(table.email)
-])
-
-export const units = sqliteTable('units', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  orderIndex: integer('order_index').notNull().default(0),
-  createdAt: createdAt()
-}, table => [
-  index('units_user_order_idx').on(table.userId, table.orderIndex)
+  uniqueIndex('users_username_idx').on(table.username)
 ])
 
 export const cards = sqliteTable('cards', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  unitId: integer('unit_id').references(() => units.id, { onDelete: 'set null' }),
-
   hanzi: text('hanzi').notNull(),
   pinyin: text('pinyin').notNull().default(''),
   /** Tone stripped and lowercased, so typing jiu finds 就. Derived on write. */
@@ -59,10 +55,24 @@ export const cards = sqliteTable('cards', {
   pinyinSearch: text('pinyin_search').notNull().default(''),
 
   translation: text('translation').notNull().default(''),
+  /**
+   * The meaning in Vietnamese, or null.
+   *
+   * Filled from the bundled dictionary when the card is written, and editable,
+   * because it is pivoted through the English gloss and a homograph pivots
+   * wrong: 爱好 "to like" lands on giống, meaning "similar". Stored rather than
+   * looked up at render, so a card keeps the wording it was filed with and a
+   * later dictionary rebuild cannot silently reword it.
+   */
+  translationVi: text('translation_vi'),
   pos: text('pos'),
-  hskLevel: integer('hsk_level'),
 
-  status: text('status').$type<CardStatus>().notNull().default('difficult'),
+  /**
+   * How well the user knows the card, 0 to 5, drawn as mandarins. Zero means
+   * unrated, which is what a new card is. A label the user sets: it never
+   * drives scheduling.
+   */
+  rating: integer('rating').notNull().default(0),
   /** Character count, derived on write so it can be filtered without a scan. */
   syllables: integer('syllables').notNull().default(0),
   notes: text('notes'),
@@ -74,10 +84,70 @@ export const cards = sqliteTable('cards', {
 }, table => [
   // Keyset pagination reads this index: filter by owner, walk id descending.
   index('cards_user_id_idx').on(table.userId, table.id),
-  index('cards_user_unit_idx').on(table.userId, table.unitId),
-  index('cards_user_status_idx').on(table.userId, table.status),
+  index('cards_user_rating_idx').on(table.userId, table.rating),
   index('cards_user_syllables_idx').on(table.userId, table.syllables),
-  index('cards_user_hsk_idx').on(table.userId, table.hskLevel)
+  /*
+   * One card per word per owner. A box with 时间 in it twice is a box you stop
+   * trusting, and the merge on sign-in leans on this to decide what to skip.
+   * Enforced here as well as in the route, because a unique index is the only
+   * check that survives a concurrent write.
+   */
+  uniqueIndex('cards_user_hanzi_idx').on(table.userId, table.hanzi)
+])
+
+/**
+ * A user's own way of dividing the box: HSK 1, verbs to drill, words from the
+ * news, whatever they want.
+ *
+ * This is the third attempt at grouping. Units were one-per-card folders and
+ * were removed in migration 0002 because a card had to be filed somewhere and
+ * a second place to keep tidy earned nothing. Groups are many-to-many and
+ * optional, which is the difference: a card can be in none, and being in two is
+ * not a conflict to resolve.
+ */
+export const groups = sqliteTable('groups', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  /** Hex, chosen by the user. Groups are theirs, so the colour is too. */
+  colour: text('colour').notNull().default('#8c7f76'),
+  orderIndex: integer('order_index').notNull().default(0),
+  createdAt: createdAt()
+}, table => [
+  index('groups_user_order_idx').on(table.userId, table.orderIndex),
+  // Two groups with the same name is a box you stop trusting, same reasoning as
+  // one card per word.
+  uniqueIndex('groups_user_name_idx').on(table.userId, table.name)
+])
+
+export const cardGroups = sqliteTable('card_groups', {
+  cardId: integer('card_id').notNull().references(() => cards.id, { onDelete: 'cascade' }),
+  groupId: integer('group_id').notNull().references(() => groups.id, { onDelete: 'cascade' })
+}, table => [
+  uniqueIndex('card_groups_pair_idx').on(table.cardId, table.groupId),
+  // Reading every card in a group is the whole point of a group.
+  index('card_groups_group_idx').on(table.groupId)
+])
+
+/**
+ * Vietnamese meanings, machine translated from the English gloss and kept.
+ *
+ * Keyed by hanzi and locale rather than by card, so the same word costs one
+ * inference across the whole app no matter how many people file it.
+ *
+ * This is a cache of a translation, not a dictionary: there is no licensable
+ * Chinese to Vietnamese source of usable quality, which is written up in
+ * docs/licences.md. A user's own wording on a card always wins over this.
+ */
+export const translations = sqliteTable('translations', {
+  hanzi: text('hanzi').notNull(),
+  locale: text('locale').notNull(),
+  text: text('text').notNull(),
+  /** Which model produced it, so a model change can invalidate the cache. */
+  model: text('model').notNull(),
+  createdAt: createdAt()
+}, table => [
+  uniqueIndex('translations_key_idx').on(table.hanzi, table.locale)
 ])
 
 export const stories = sqliteTable('stories', {
@@ -124,22 +194,28 @@ export const healthChecks = sqliteTable('health_checks', {
 })
 
 export const usersRelations = relations(users, ({ many }) => ({
-  units: many(units),
-  cards: many(cards)
+  cards: many(cards),
+  groups: many(groups)
 }))
 
-export const unitsRelations = relations(units, ({ one, many }) => ({
-  user: one(users, { fields: [units.userId], references: [users.id] }),
-  cards: many(cards)
-}))
-
-export const cardsRelations = relations(cards, ({ one }) => ({
+export const cardsRelations = relations(cards, ({ one, many }) => ({
   user: one(users, { fields: [cards.userId], references: [users.id] }),
-  unit: one(units, { fields: [cards.unitId], references: [units.id] })
+  cardGroups: many(cardGroups)
+}))
+
+export const groupsRelations = relations(groups, ({ one, many }) => ({
+  user: one(users, { fields: [groups.userId], references: [users.id] }),
+  cardGroups: many(cardGroups)
+}))
+
+export const cardGroupsRelations = relations(cardGroups, ({ one }) => ({
+  card: one(cards, { fields: [cardGroups.cardId], references: [cards.id] }),
+  group: one(groups, { fields: [cardGroups.groupId], references: [groups.id] })
 }))
 
 export type User = typeof users.$inferSelect
-export type Unit = typeof units.$inferSelect
 export type Card = typeof cards.$inferSelect
+export type Group = typeof groups.$inferSelect
+export type Translation = typeof translations.$inferSelect
 export type Story = typeof stories.$inferSelect
 export type HealthCheck = typeof healthChecks.$inferSelect

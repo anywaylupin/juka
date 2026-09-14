@@ -1,25 +1,36 @@
 export default defineAppConfig({
   ui: {
-    /*
-     * Ponkan is the default. The live values are repointed per theme in
-     * app/assets/css/themes.css, which is what the theme switcher drives.
-     */
     colors: {
       primary: 'ponkan',
       neutral: 'taupe'
     },
-    button: {
-      // The 3D press, applied once rather than per component.
+
+    /*
+     * Nuxt UI's own rings, with one change: on focus it rings a field in the
+     * accent colour and adds a translucent 3px outline on top, which on a warm
+     * palette reads as an orange glow around every box you touch.
+     *
+     * These lines swap that ring to neutral and drop the extra outline. The
+     * ring itself stays, because a field with no focus indicator is unusable
+     * from a keyboard. Nothing else about the components is overridden: this is
+     * a colour correction, not a bespoke effect.
+     */
+    input: {
+      slots: { base: 'focus-visible:ring-accented focus-visible:outline-none' }
+    },
+    textarea: {
+      slots: { base: 'focus-visible:ring-accented focus-visible:outline-none' }
+    },
+    selectMenu: {
       slots: {
-        base: 'juka-press font-semibold'
-      },
-      defaultVariants: {
-        size: 'md'
+        base: 'focus-visible:ring-accented focus-visible:outline-none',
+        input: 'focus-visible:ring-accented focus-visible:outline-none'
       }
     },
-    card: {
+    inputMenu: {
       slots: {
-        root: 'rounded-2xl'
+        base: 'focus-visible:ring-accented focus-visible:outline-none',
+        input: 'focus-visible:ring-accented focus-visible:outline-none'
       }
     }
   }

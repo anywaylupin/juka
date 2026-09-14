@@ -3,78 +3,191 @@
   "common": {
     "cancel": "Hủy",
     "delete": "Xóa",
-    "clear": "Xóa trắng"
+    "clear": "Xóa trắng",
+    "retry": "Thử lại",
+    "undo": "Hoàn tác"
   },
   "nav": {
     "cards": "Thẻ",
-    "units": "Nhóm",
-    "hanViet": "Hiện Hán Việt"
+    "language": "Ngôn ngữ"
   },
-  "status": {
-    "difficult": "Khó",
-    "hesitant": "Còn ngập ngừng",
-    "good": "Khá",
-    "mastered": "Thuộc"
+  "view": {
+    "stack": "Chồng thẻ",
+    "gallery": "Thư viện",
+    "chart": "Biểu đồ",
+    "flipSingle": "Lật từng thẻ một",
+    "flipAll": "Lật nhiều thẻ cùng lúc"
+  },
+  "filter": {
+    "title": "Bộ lọc",
+    "rating": "Mức độ thuộc",
+    "type": "Từ loại",
+    "length": "Số chữ",
+    "unrated": "Chưa đánh giá",
+    "clear": "Bỏ",
+    "clearAll": "Bỏ hết bộ lọc",
+    "group": "Nhóm"
+  },
+  "rating": {
+    "label": "Mức độ thuộc",
+    "value": "{rating} trên 5",
+    "settings": "Tên mức độ",
+    "settingsHint": "Tên của năm mức. Xóa trắng một ô để trả về mặc định.",
+    "nameFor": "Tên cho mức {level}",
+    "reset": "Đặt lại",
+    "saved": "Đã lưu tên mức độ",
+    "notSaved": "Chưa lưu được",
+    "default": {
+      "1": "mới",
+      "2": "khó",
+      "3": "lưỡng lự",
+      "4": "khá",
+      "5": "thuộc"
+    }
+  },
+  "stack": {
+    "keep": "Giữ",
+    "bin": "Bỏ",
+    "hint": "Kéo phải để giữ, trái để bỏ, lên để lật. Hoặc chỉ cần chạm.",
+    "practice": "Thứ tự ôn tập",
+    "practiceOn": "Ưu tiên thẻ chưa thuộc",
+    "practiceOff": "Theo thứ tự trong hộp",
+    "reshuffle": "Xáo lại"
+  },
+  "pos": {
+    "noun": "Danh từ",
+    "verb": "Động từ",
+    "adjective": "Tính từ",
+    "adverb": "Trạng từ",
+    "pronoun": "Đại từ",
+    "numeral": "Số từ",
+    "measure": "Lượng từ",
+    "preposition": "Giới từ",
+    "conjunction": "Liên từ",
+    "particle": "Trợ từ",
+    "interjection": "Thán từ",
+    "phrase": "Cụm từ",
+    "idiom": "Thành ngữ",
+    "name": "Danh từ riêng"
   },
   "cards": {
     "searchPlaceholder": "Tìm chữ Hán, pinyin hoặc nghĩa",
-    "showing": "Đang hiện {count}",
-    "clearFilters": "Bỏ bộ lọc",
-    "loadMore": "Tải thêm",
+    "count": "{count} thẻ",
+    "position": "{index} trên {total}",
+    "previous": "Trước",
+    "next": "Sau",
     "empty": "Chưa có thẻ nào",
-    "emptyHint": "Thêm thẻ đầu tiên, nó sẽ nằm trên cùng.",
+    "emptyHint": "Thêm thẻ đầu tiên, nó sẽ nằm đầu hộp.",
     "noMatches": "Không có kết quả",
-    "noMatchesHint": "Thử từ khóa ngắn hơn hoặc bỏ bộ lọc."
+    "noMatchesHint": "Thử từ khóa ngắn hơn hoặc bỏ bộ lọc.",
+    "failed": "Không tải được hộp thẻ",
+    "failedHint": "Tài khoản không phản hồi. Thẻ lưu trong máy vẫn nguyên."
   },
   "card": {
     "add": "Thêm thẻ",
+    "addHint": "Gõ pinyin hoặc chữ Hán. Phần còn lại tự điền.",
     "save": "Lưu",
     "edit": "Sửa",
     "hanzi": "Chữ Hán",
-    "pinyin": "Pinyin",
-    "pinyinHelp": "Để trống để tự suy ra từ chữ Hán",
+    "hanziPlaceholder": "shijian hoặc 时间",
+    "keepTyping": "Gõ tiếp để hiện chữ Hán",
     "translation": "Nghĩa",
-    "hanViet": "Hán Việt",
-    "hanVietHelp": "Âm Hán Việt, ví dụ thời gian",
-    "unit": "Nhóm",
-    "noUnit": "Chưa có nhóm",
-    "hskLevel": "Cấp HSK",
-    "anyLevel": "Chưa có cấp",
-    "pos": "Từ loại",
-    "status": "Trạng thái",
     "notes": "Ghi chú",
-    "syllables": "Số chữ",
+    "notesPlaceholder": "Vì sao từ này đáng nhớ",
     "added": "Đã thêm thẻ",
     "updated": "Đã cập nhật thẻ",
     "notSaved": "Chưa lưu được",
-    "invalid": "Kiểm tra lại thông tin thẻ",
-    "deleted": "Đã xóa thẻ",
+    "deleted": "Đã bỏ thẻ",
     "notDeleted": "Chưa xóa được",
-    "confirmDelete": "Xóa thẻ này?",
-    "tapToTurn": "Chạm để lật",
+    "notRestored": "Không khôi phục được",
+    "turnOver": "Lật thẻ",
     "listen": "Nghe",
-    "noTranslation": "Chưa có nghĩa"
+    "noTranslation": "Chưa có nghĩa",
+    "similar": "Gần nghĩa:",
+    "useInstead": "Làm thẻ cho {hanzi} thay vì từ này",
+    "copy": "Chép chữ Hán",
+    "copied": "Đã chép {hanzi}",
+    "notCopied": "Chưa chép được",
+    "translationViPlaceholder": "Nghĩa tiếng Việt"
   },
-  "unit": {
-    "add": "Thêm nhóm",
-    "namePlaceholder": "Đặt tên nhóm, ví dụ HSK 1 bài 3",
-    "empty": "Chưa có nhóm nào",
-    "emptyHint": "Nhóm giống như thư mục. Thẻ không cần nhóm vẫn dùng được.",
-    "mastered": "Thuộc {mastered} trên {total}",
-    "unfiled": "Chưa xếp nhóm: {count}",
-    "notSaved": "Chưa lưu được",
-    "deleted": "Đã xóa nhóm",
-    "notDeleted": "Chưa xóa được",
-    "confirmDelete": "Xóa {name}? Các thẻ vẫn còn và trở thành chưa xếp nhóm."
+  "auth": {
+    "title": "Giữ lại thẻ của bạn",
+    "subtitle": "Tài khoản giúp lưu thẻ ngoài trình duyệt này. Không có tài khoản vẫn dùng được.",
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất",
+    "signedOut": "Đã đăng xuất",
+    "backToLocal": "Quay lại các thẻ lưu trong trình duyệt này.",
+    "createAccount": "Tạo tài khoản",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "email": "Email",
+    "emailHelp": "Không bắt buộc. Chúng tôi không gửi email.",
+    "bringTitle": "Bạn có {count} thẻ trong trình duyệt này",
+    "bringHint": "Có thể sao chép lên tài khoản. Bản trong máy vẫn được giữ.",
+    "bringSwitch": "Sao chép lên",
+    "merged": "Đã thêm {added} thẻ vào tài khoản",
+    "mergedSkipped": "{skipped} thẻ đã có sẵn.",
+    "welcome": "Đã đăng nhập với {username}",
+    "failed": "Chưa thành công",
+    "checkDetails": "Kiểm tra lại thông tin",
+    "optional": "Bạn vẫn dùng Juka được mà không cần tài khoản."
+  },
+  "account": {
+    "menu": "Tài khoản",
+    "settings": "Cài đặt tài khoản",
+    "storedLocally": "{count} thẻ trong trình duyệt này",
+    "storedOnAccount": "Đang đăng nhập: {username}",
+    "changePassword": "Đổi mật khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "saved": "Đã cập nhật tài khoản",
+    "notSaved": "Chưa lưu được"
   },
   "theme": {
     "title": "Giao diện",
-    "notSaved": "Chưa lưu được giao diện"
+    "light": "Sáng",
+    "sepia": "Đọc truyện",
+    "dark": "Tối"
   },
   "health": {
     "title": "Kiểm tra kết nối",
     "ok": "Đã kết nối",
     "failing": "Chưa kết nối",
-    "recheck": "Kiểm tra lại"
+    "recheck": "Kiểm tra lại",
+    "database": "Kho thẻ",
+    "storage": "Tệp âm thanh"
+  },
+  "group": {
+    "title": "Nhóm",
+    "manage": "Quản lý nhóm",
+    "manageHint": "Cách bạn chia hộp thẻ. Một thẻ có thể thuộc nhiều nhóm hoặc không nhóm nào.",
+    "name": "Tên nhóm",
+    "namePlaceholder": "HSK 1, động từ cần luyện, từ trong tin tức",
+    "colour": "Màu",
+    "add": "Thêm nhóm",
+    "none": "Chưa có nhóm nào",
+    "emptyHint": "Tạo một nhóm ở trên, rồi xếp thẻ vào nhóm khi sửa thẻ.",
+    "deleteHint": "Xóa nhóm chỉ bỏ nhãn. Các thẻ vẫn còn.",
+    "confirmDelete": "Xóa nhóm {name}? Các thẻ vẫn còn.",
+    "notSaved": "Chưa lưu được"
+  },
+  "chart": {
+    "ripeness": "Mức độ thuộc cả hộp",
+    "knownOf": "Thuộc khá trở lên: {known} trên {total}",
+    "added": "Thẻ đã thêm",
+    "thisWeek": "Tuần này {count} thẻ",
+    "byType": "Theo từ loại",
+    "byGroup": "Theo nhóm",
+    "noType": "Chưa có từ loại",
+    "noGroup": "Chưa vào nhóm",
+    "noGroupsYet": "Chưa có nhóm nào. Tạo nhóm trong bảng bộ lọc."
+  },
+  "reminder": {
+    "welcomeTitle": "Thẻ của bạn lưu trong trình duyệt này",
+    "welcomeBody": "Không cần tài khoản vẫn dùng được. Đăng nhập khi nào bạn muốn giữ thẻ an toàn hơn.",
+    "title": "Giữ an toàn cho thẻ",
+    "body": "{count} thẻ chỉ đang lưu trong trình duyệt này. Tài khoản giúp giữ lại nếu bị xóa.",
+    "later": "Nhắc lại sau",
+    "never": "Đừng nhắc nữa"
   }
 }

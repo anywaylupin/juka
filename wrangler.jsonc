@@ -10,6 +10,13 @@
   //
   // This file is still the config that `wrangler d1 ...` and the nuxt dev binding
   // proxy read, so bindings belong here.
+  //
+  // The one exception is the Workers AI binding, which is declared in
+  // nuxt.config.ts under nitro.cloudflare.wrangler instead. Workers AI has no
+  // local emulation, and an "ai" block here makes miniflare fail to build the
+  // dev environment, which takes D1 and R2 down with it. Nitro merges that
+  // option into .output/server/wrangler.json at build time and never shows it
+  // to the dev emulator, so the binding exists in the deployed worker only.
 
   "observability": {
     "enabled": true

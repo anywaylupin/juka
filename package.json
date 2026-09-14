@@ -23,6 +23,7 @@
     "db:migrate:local": "wrangler d1 migrations apply juka --local",
     "db:migrate:remote": "wrangler d1 migrations apply juka --remote",
     "db:studio": "drizzle-kit studio",
+    "dict:build": "node scripts/build-dictionary.ts",
     "spike:fts5": "node scripts/fts5-spike.ts"
   },
   "dependencies": {
@@ -42,8 +43,11 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260911.1",
+    "@iconify-json/circle-flags": "^1.2.11",
     "@nuxt/eslint": "^1.9.0",
     "@nuxt/test-utils": "^4.3.2",
+    "@types/adm-zip": "^0.5.8",
+    "adm-zip": "^0.6.1",
     "drizzle-kit": "^0.31.10",
     "eslint": "^10.0.0",
     "happy-dom": "^20.0.0",

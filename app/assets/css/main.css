@@ -2,38 +2,45 @@
 @import "@nuxt/ui";
 @import "./themes.css";
 
+/*
+  Deliberately small. Nuxt UI's own rings, focus states and surfaces are used as
+  they come; nothing here re-implements them.
+
+  What is left is the handful of things Nuxt UI does not provide: the font
+  stacks, the fixed rating colour, the page colour, and a scrollbar that does
+  not look like it belongs to a different application.
+*/
 @theme static {
+  /*
+    A rounded geometric sans for Latin text and LXGW WenKai for hanzi. Both are
+    fetched and self hosted by @nuxt/fonts, which ships with Nuxt UI and scans
+    these declarations. The fallbacks are listed in full because a CJK face is
+    large enough that the first paint often lands before it arrives.
+  */
   --font-sans: 'Nunito', ui-rounded, 'Segoe UI Variable', system-ui, sans-serif;
-  --font-hanzi: 'LXGW WenKai', 'Songti SC', 'SimSun', serif;
+  --font-hanzi: 'LXGW WenKai TC', 'LXGW WenKai', 'Songti SC', 'SimSun', serif;
 
   /*
-    Card status is a ripening scale. These four are fixed across every theme, so
-    a state never gets confused with a button. No theme primary may be used here.
+    The rating mandarin. One fixed colour across every theme, because a rating
+    is information and must never be mistaken for the accent on a button.
   */
-  --color-status-difficult: #7a9a3c;
-  --color-status-hesitant: #c9ba2e;
-  --color-status-good: #e8a317;
-  --color-status-mastered: #2f7d52;
-
-  /* Chunky by default. The register is Duolingo, not clean SaaS. */
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.75rem;
+  --color-rating: #f5821f;
 }
 
+/*
+  White in light themes, black in dark ones. A reading mode overrides this with
+  its own paper colour in themes.css, which is generated.
+*/
 :root {
-  --ui-radius: var(--radius-lg);
-  color-scheme: light;
+  --ui-bg: #ffffff;
 }
 
-:root:has([data-theme-mode="dark"]),
 .dark {
-  color-scheme: dark;
+  --ui-bg: #000000;
 }
 
 body {
-  background-color: var(--juka-surface, #fff6ee);
+  background-color: var(--ui-bg);
   min-height: 100dvh;
 }
 
@@ -44,35 +51,73 @@ body {
 }
 
 /*
-  The 3D press. Defined once here and pointed at from the Nuxt UI button theme
-  in app.config.ts, rather than repeated per component.
+  The scrollbar, in the theme rather than in the operating system's grey.
+
+  Firefox takes the two keyword properties and Chromium takes the pseudo
+  elements, so both are declared. `scrollbar-gutter` keeps the page from
+  shifting sideways when a list grows past one screen.
 */
-.juka-press {
-  border-bottom-width: 4px;
-  transition: transform 75ms ease, border-bottom-width 75ms ease, box-shadow 75ms ease;
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ui-bg-accented) transparent;
 }
 
-.juka-press:active:not(:disabled) {
-  border-bottom-width: 0;
-  transform: translateY(4px);
+html {
+  scrollbar-gutter: stable;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .juka-press {
-    transition: none;
-  }
-
-  .juka-press:active:not(:disabled) {
-    transform: none;
-    border-bottom-width: 4px;
-  }
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-/* Hide the scrollbar on the horizontal filter rail without losing the scroll. */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--ui-bg-accented);
+  border-radius: 999px;
+  /* Inset by a transparent border, so the thumb reads as a slim pill. */
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ui-color-primary-400);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Hide the scrollbar on a horizontal rail without losing the scroll. */
 .no-scrollbar {
   scrollbar-width: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/*
+  Cards are dragged, so the browser must not try to scroll, select or long-press
+  them while a drag is in progress.
+*/
+.juka-draggable {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

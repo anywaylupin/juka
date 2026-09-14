@@ -1,27 +1,45 @@
 import type { H3Event } from 'h3'
 
 /**
- * Auth is not built yet, and the build order puts it after the card UI. Until
- * it ships the app runs as a single owner, seeded by migration 0001.
+ * Who is asking.
  *
- * Every query already filters by this id, so turning on real sessions later is
- * a change to this function and nothing else.
+ * The app is usable signed out, but not through this API: a signed out visitor
+ * keeps their cards in local storage and never calls a card route at all. So
+ * every route behind this either has a real session or gets a 401, and there is
+ * no fallback owner any more. The single owner seeded by migration 0001 was
+ * removed in 0006.
  */
-const SINGLE_OWNER_ID = 1
 
 /*
  * nuxt-auth-utils exposes User as an empty interface meant to be augmented, but
  * it is re-exported from #auth-utils rather than declared there, so a module
  * augmentation against that alias silently does not merge. Reading the shape
- * structurally works today and keeps working once auth adds the real fields.
+ * structurally works and keeps working.
  */
-interface SessionUser {
-  id?: number
+export interface SessionUser {
+  id: number
+  username: string
 }
 
-export async function requireUserId(event: H3Event): Promise<number> {
+/** The signed in user, or null. Use this where signed out is a valid answer. */
+export async function getCurrentUser(event: H3Event): Promise<SessionUser | null> {
   const session = await getUserSession(event)
-  const user: SessionUser | undefined = session.user
+  const user = session.user as SessionUser | undefined
 
-  return user?.id ?? SINGLE_OWNER_ID
+  return user?.id ? user : null
+}
+
+/** The signed in user's id, or a 401. Use this on anything that touches a card. */
+export async function requireUserId(event: H3Event): Promise<number> {
+  const user = await getCurrentUser(event)
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Not signed in',
+      message: 'Sign in to use the cards stored on your account.'
+    })
+  }
+
+  return user.id
 }

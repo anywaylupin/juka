@@ -13,7 +13,6 @@ export default defineEventHandler(async (event): Promise<HealthResponse> => {
 
   const database = probe === 'all' || probe === 'db' ? await probeDatabase(event) : null
   const storage = probe === 'all' || probe === 'r2' ? await probeStorage(event) : null
-
   const ok = (database?.ok ?? true) && (storage?.ok ?? true)
   if (!ok) {
     setResponseStatus(event, 503)

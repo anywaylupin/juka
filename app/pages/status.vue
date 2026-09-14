@@ -15,8 +15,8 @@ const { data: health, status, error, refresh } = await useFetch<HealthResponse>(
 })
 
 const probes = computed(() => [
-  { key: 'D1', probe: health.value?.database ?? null },
-  { key: 'R2', probe: health.value?.storage ?? null }
+  { key: 'D1', label: t('health.database'), probe: health.value?.database ?? null },
+  { key: 'R2', label: t('health.storage'), probe: health.value?.storage ?? null }
 ])
 </script>
 
@@ -55,11 +55,12 @@ const probes = computed(() => [
           :key="entry.key"
           class="flex items-start justify-between gap-4"
         >
-          <dt class="font-medium">
+          <dt class="font-bold text-highlighted">
             {{ entry.key }}
+            <span class="block text-xs font-normal text-dimmed">{{ entry.label }}</span>
           </dt>
           <dd class="text-right">
-            <span :class="entry.probe?.ok ? 'text-status-mastered' : 'text-status-difficult'">
+            <span :class="entry.probe?.ok ? 'text-status-mastered' : 'text-error'">
               {{ entry.probe?.detail ?? '-' }}
             </span>
             <span

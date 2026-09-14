@@ -3,78 +3,191 @@
   "common": {
     "cancel": "Cancel",
     "delete": "Delete",
-    "clear": "Clear"
+    "clear": "Clear",
+    "retry": "Try again",
+    "undo": "Undo"
   },
   "nav": {
     "cards": "Cards",
-    "units": "Units",
-    "hanViet": "Show Han-Viet"
+    "language": "Language"
   },
-  "status": {
-    "difficult": "Difficult",
-    "hesitant": "Hesitant",
-    "good": "Good",
-    "mastered": "Mastered"
+  "view": {
+    "stack": "Stack",
+    "gallery": "Gallery",
+    "chart": "Chart",
+    "flipSingle": "Turning one card at a time",
+    "flipAll": "Turning cards independently"
+  },
+  "filter": {
+    "title": "Filters",
+    "rating": "How well you know it",
+    "type": "Word type",
+    "length": "Characters",
+    "unrated": "Unrated",
+    "clear": "Clear",
+    "clearAll": "Clear all filters",
+    "group": "Group"
+  },
+  "rating": {
+    "label": "How well you know it",
+    "value": "{rating} of 5",
+    "settings": "Rating names",
+    "settingsHint": "What the five levels are called. Clear a box to restore its default.",
+    "nameFor": "Name for level {level}",
+    "reset": "Reset",
+    "saved": "Rating names saved",
+    "notSaved": "That did not save",
+    "default": {
+      "1": "new",
+      "2": "difficult",
+      "3": "hesitant",
+      "4": "good",
+      "5": "mastered"
+    }
+  },
+  "stack": {
+    "keep": "Keep",
+    "bin": "Bin",
+    "hint": "Drag right to keep, left to bin, up to turn over. Or just tap it.",
+    "practice": "Practice order",
+    "practiceOn": "Dealing weaker cards more often",
+    "practiceOff": "Dealing in box order",
+    "reshuffle": "Shuffle again"
+  },
+  "pos": {
+    "noun": "Noun",
+    "verb": "Verb",
+    "adjective": "Adjective",
+    "adverb": "Adverb",
+    "pronoun": "Pronoun",
+    "numeral": "Numeral",
+    "measure": "Measure word",
+    "preposition": "Preposition",
+    "conjunction": "Conjunction",
+    "particle": "Particle",
+    "interjection": "Interjection",
+    "phrase": "Phrase",
+    "idiom": "Idiom",
+    "name": "Proper noun"
   },
   "cards": {
     "searchPlaceholder": "Search hanzi, pinyin, or meaning",
-    "showing": "Showing {count}",
-    "clearFilters": "Clear filters",
-    "loadMore": "Load more",
+    "count": "{count} cards",
+    "position": "{index} of {total}",
+    "previous": "Back",
+    "next": "Next",
     "empty": "No cards yet",
-    "emptyHint": "Add the first one and it lands at the top of the box.",
+    "emptyHint": "Add the first one and it lands at the front of the box.",
     "noMatches": "Nothing matches",
-    "noMatchesHint": "Try a shorter search or clear the filters."
+    "noMatchesHint": "Try a shorter search or clear the filters.",
+    "failed": "The card box did not load",
+    "failedHint": "Your account did not answer. Your local cards are untouched."
   },
   "card": {
     "add": "Add card",
+    "addHint": "Type pinyin or hanzi. The rest fills itself in.",
     "save": "Save",
     "edit": "Edit",
     "hanzi": "Hanzi",
-    "pinyin": "Pinyin",
-    "pinyinHelp": "Leave blank to derive it from the hanzi",
+    "hanziPlaceholder": "shijian or 时间",
+    "keepTyping": "Keep typing to see characters",
     "translation": "Meaning",
-    "hanViet": "Han-Viet",
-    "hanVietHelp": "The Sino-Vietnamese reading, for example thời gian",
-    "unit": "Unit",
-    "noUnit": "No unit",
-    "hskLevel": "HSK level",
-    "anyLevel": "No level",
-    "pos": "Part of speech",
-    "status": "Status",
-    "notes": "Notes",
-    "syllables": "Characters",
+    "notes": "Note",
+    "notesPlaceholder": "Why this one is worth remembering",
     "added": "Card added",
     "updated": "Card updated",
     "notSaved": "That did not save",
-    "invalid": "Check the card details",
-    "deleted": "Card deleted",
+    "deleted": "Card binned",
     "notDeleted": "That did not delete",
-    "confirmDelete": "Delete this card?",
-    "tapToTurn": "Tap to turn over",
+    "notRestored": "Could not put that back",
+    "turnOver": "Turn over",
     "listen": "Listen",
-    "noTranslation": "No meaning yet"
+    "noTranslation": "No meaning yet",
+    "similar": "Similar:",
+    "useInstead": "Write a card for {hanzi} instead",
+    "copy": "Copy hanzi",
+    "copied": "Copied {hanzi}",
+    "notCopied": "Could not copy that",
+    "translationViPlaceholder": "Meaning in Vietnamese"
   },
-  "unit": {
-    "add": "Add unit",
-    "namePlaceholder": "Name a unit, for example HSK 1 lesson 3",
-    "empty": "No units yet",
-    "emptyHint": "Units are folders. Cards work fine without one.",
-    "mastered": "{mastered} of {total} mastered",
-    "unfiled": "Not in a unit: {count}",
-    "notSaved": "That did not save",
-    "deleted": "Unit deleted",
-    "notDeleted": "That did not delete",
-    "confirmDelete": "Delete {name}? The cards stay and become unfiled."
+  "auth": {
+    "title": "Keep your cards",
+    "subtitle": "An account stores them beyond this browser. The app works without one.",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signedOut": "Signed out",
+    "backToLocal": "Back to the cards saved in this browser.",
+    "createAccount": "Create account",
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "emailHelp": "Optional. Nothing here emails you.",
+    "bringTitle": "You have {count} cards in this browser",
+    "bringHint": "They can be copied to your account. The copy here is kept either way.",
+    "bringSwitch": "Copy them up",
+    "merged": "Added {added} cards to your account",
+    "mergedSkipped": "{skipped} were already there.",
+    "welcome": "Signed in as {username}",
+    "failed": "That did not work",
+    "checkDetails": "Check the details",
+    "optional": "You can keep using Juka without an account."
+  },
+  "account": {
+    "menu": "Account",
+    "settings": "Account settings",
+    "storedLocally": "{count} cards in this browser",
+    "storedOnAccount": "Signed in as {username}",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "saved": "Account updated",
+    "notSaved": "That did not save"
   },
   "theme": {
     "title": "Theme",
-    "notSaved": "The theme did not save"
+    "light": "Light",
+    "sepia": "Reading",
+    "dark": "Dark"
   },
   "health": {
     "title": "Connection check",
     "ok": "Connected",
     "failing": "Not connected",
-    "recheck": "Check again"
+    "recheck": "Check again",
+    "database": "Card storage",
+    "storage": "Audio files"
+  },
+  "group": {
+    "title": "Groups",
+    "manage": "Manage groups",
+    "manageHint": "Your own way of dividing the box. A card can be in several, or none.",
+    "name": "Group name",
+    "namePlaceholder": "HSK 1, verbs to drill, words from the news",
+    "colour": "Colour",
+    "add": "Add group",
+    "none": "No groups yet",
+    "emptyHint": "Make one above, then file cards into it from the card editor.",
+    "deleteHint": "Deleting a group removes the label. The cards stay.",
+    "confirmDelete": "Delete the group {name}? The cards stay.",
+    "notSaved": "That did not save"
+  },
+  "chart": {
+    "ripeness": "How well you know the box",
+    "knownOf": "{known} of {total} known well",
+    "added": "Cards added",
+    "thisWeek": "{count} this week",
+    "byType": "By word type",
+    "byGroup": "By group",
+    "noType": "No type",
+    "noGroup": "Not in a group",
+    "noGroupsYet": "No groups yet. Make one from the filters panel."
+  },
+  "reminder": {
+    "welcomeTitle": "Your cards live in this browser",
+    "welcomeBody": "That works with no account at all. Sign in whenever you want them kept somewhere safer.",
+    "title": "Keep these cards safe",
+    "body": "{count} cards are saved in this browser only. An account keeps them if it is cleared.",
+    "later": "Remind me later",
+    "never": "Do not remind me"
   }
 }

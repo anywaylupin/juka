@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 import { cardIdSchema, cardUpdateSchema } from '#shared/schemas/card'
 import type { CardRecord } from '#shared/types/card'
-import { cards, units } from '../../database/schema'
+import { cards } from '../../database/schema'
 
 export default defineEventHandler(async (event): Promise<CardRecord> => {
   const { id } = await getValidatedRouterParams(event, cardIdSchema.parse)
@@ -18,10 +18,6 @@ export default defineEventHandler(async (event): Promise<CardRecord> => {
     throw createError({ statusCode: 404, message: 'Card not found' })
   }
 
-  if (input.unitId) {
-    await assertUnitBelongsToUser(db, input.unitId, userId)
-  }
-
   const hanzi = input.hanzi ?? existing.hanzi
   const suppliedPinyin = input.pinyin ?? (input.hanzi ? undefined : existing.pinyin)
 
@@ -31,16 +27,35 @@ export default defineEventHandler(async (event): Promise<CardRecord> => {
     ? deriveCardFields(hanzi, suppliedPinyin)
     : {}
 
+  /*
+   * A rewritten hanzi must not collide with another card. Same reasoning as on
+   * create: a sentence rather than a constraint violation, with the unique
+   * index underneath as the real guarantee.
+   */
+  if (input.hanzi !== undefined && input.hanzi !== existing.hanzi) {
+    const [duplicate] = await db
+      .select({ id: cards.id })
+      .from(cards)
+      .where(and(eq(cards.userId, userId), eq(cards.hanzi, input.hanzi)))
+
+    if (duplicate) {
+      throw createError({
+        statusCode: 409,
+        data: { cardId: duplicate.id },
+        message: `${input.hanzi} is already in your box`
+      })
+    }
+  }
+
   const [updated] = await db
     .update(cards)
     .set({
       ...(input.hanzi !== undefined && { hanzi: input.hanzi }),
-      ...(input.unitId !== undefined && { unitId: input.unitId }),
       ...(input.hanViet !== undefined && { hanViet: input.hanViet }),
       ...(input.translation !== undefined && { translation: input.translation }),
+      ...(input.translationVi !== undefined && { translationVi: input.translationVi }),
       ...(input.pos !== undefined && { pos: input.pos }),
-      ...(input.hskLevel !== undefined && { hskLevel: input.hskLevel }),
-      ...(input.status !== undefined && { status: input.status }),
+      ...(input.rating !== undefined && { rating: input.rating }),
       ...(input.notes !== undefined && { notes: input.notes }),
       ...derived,
       updatedAt: new Date()
@@ -52,9 +67,14 @@ export default defineEventHandler(async (event): Promise<CardRecord> => {
     throw createError({ statusCode: 404, message: 'Card not found' })
   }
 
-  const unit = updated.unitId
-    ? (await db.select({ name: units.name }).from(units).where(eq(units.id, updated.unitId)))[0]
-    : undefined
+  /*
+   * Absent means leave the groups alone, which is not the same as an empty
+   * array meaning take it out of all of them. Both are reachable, so both are
+   * distinguished here rather than collapsed.
+   */
+  const groupIds = input.groupIds !== undefined
+    ? await setCardGroups(db, userId, updated.id, input.groupIds)
+    : (await groupsForCards(db, [updated.id])).get(updated.id) ?? []
 
-  return toCardRecord({ ...updated, unitName: unit?.name ?? null })
+  return toCardRecord(updated, groupIds)
 })

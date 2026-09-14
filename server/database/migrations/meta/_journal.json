@@ -15,6 +15,55 @@
       "when": 1789354643539,
       "tag": "0001_chubby_eddie_brock",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789366229751,
+      "tag": "0002_drop_units",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789366261057,
+      "tag": "0003_add_insights",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789376495874,
+      "tag": "0004_add_rating",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1789376510366,
+      "tag": "0005_drop_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1789379427695,
+      "tag": "0006_auth_and_drop_hsk",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1789396285271,
+      "tag": "0007_groups_and_translations",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1789402345394,
+      "tag": "0008_card_vietnamese",
+      "breakpoints": true
     }
   ]
 }

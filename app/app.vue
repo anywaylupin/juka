@@ -1,16 +1,9 @@
 <script setup lang="ts">
-import type { ThemeName } from '#shared/constants/themes'
-
 const { locale } = useI18n()
-const { theme } = useJukaTheme()
 
-// The saved theme has to be known before the first paint, so it is fetched here
-// rather than in a page.
-const { data: preferences } = await useFetch<{ theme: ThemeName }>('/api/preferences')
-
-if (preferences.value?.theme) {
-  theme.value = preferences.value.theme
-}
+// Reads the theme cookie and puts data-theme on <html> during SSR, so the first
+// paint is the right palette rather than the default one.
+useJukaTheme()
 
 useHead({
   htmlAttrs: { lang: locale }

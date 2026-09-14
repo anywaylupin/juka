@@ -1,4 +1,4 @@
-import type { D1Database, R2Bucket } from '@cloudflare/workers-types'
+import type { Ai, D1Database, R2Bucket } from '@cloudflare/workers-types'
 
 declare global {
   /**
@@ -8,6 +8,12 @@ declare global {
   interface JukaCloudflareEnv {
     DB: D1Database
     AUDIO: R2Bucket
+    /**
+     * Optional on purpose. Workers AI has no local emulation, so the binding is
+     * absent during `pnpm dev` and every caller treats translation as best
+     * effort: no binding means the English meaning simply stands.
+     */
+    AI?: Ai
   }
 }
 

@@ -1,7 +1,7 @@
-import { and, desc, eq, lt, sql } from 'drizzle-orm'
+import { and, desc, eq, inArray, lt, sql } from 'drizzle-orm'
 import { cardListQuerySchema } from '#shared/schemas/card'
 import type { CardListResponse } from '#shared/types/card'
-import { cards, units } from '../../database/schema'
+import { cardGroups, cards } from '../../database/schema'
 
 /**
  * Keyset pagination, never OFFSET: ids descending, the cursor is the last id
@@ -14,14 +14,16 @@ export default defineEventHandler(async (event): Promise<CardListResponse> => {
 
   const conditions = [eq(cards.userId, userId)]
 
-  if (query.unitId !== undefined) {
-    conditions.push(eq(cards.unitId, query.unitId))
+  if (query.rating !== undefined) {
+    conditions.push(eq(cards.rating, query.rating))
   }
-  if (query.status !== undefined) {
-    conditions.push(eq(cards.status, query.status))
+  if (query.pos !== undefined) {
+    conditions.push(eq(cards.pos, query.pos))
   }
-  if (query.hskLevel !== undefined) {
-    conditions.push(eq(cards.hskLevel, query.hskLevel))
+  if (query.groupId !== undefined) {
+    conditions.push(
+      inArray(cards.id, db.select({ id: cardGroups.cardId }).from(cardGroups).where(eq(cardGroups.groupId, query.groupId)))
+    )
   }
   if (query.syllables !== undefined) {
     conditions.push(eq(cards.syllables, query.syllables))
@@ -39,31 +41,18 @@ export default defineEventHandler(async (event): Promise<CardListResponse> => {
 
   // One row over the page size tells us whether another page exists.
   const rows = await db
-    .select({
-      id: cards.id,
-      unitId: cards.unitId,
-      unitName: units.name,
-      hanzi: cards.hanzi,
-      pinyin: cards.pinyin,
-      pinyinPlain: cards.pinyinPlain,
-      hanViet: cards.hanViet,
-      translation: cards.translation,
-      pos: cards.pos,
-      hskLevel: cards.hskLevel,
-      status: cards.status,
-      syllables: cards.syllables,
-      notes: cards.notes,
-      createdAt: cards.createdAt,
-      updatedAt: cards.updatedAt
-    })
+    .select()
     .from(cards)
-    .leftJoin(units, eq(units.id, cards.unitId))
     .where(and(...conditions))
     .orderBy(desc(cards.id))
     .limit(query.limit + 1)
 
   const hasMore = rows.length > query.limit
-  const items = (hasMore ? rows.slice(0, query.limit) : rows).map(toCardRecord)
+  const page = hasMore ? rows.slice(0, query.limit) : rows
+
+  // One query for the whole page's group membership, not one per card.
+  const byCard = await groupsForCards(db, page.map(row => row.id))
+  const items = page.map(row => toCardRecord(row, byCard.get(row.id) ?? []))
   const last = items[items.length - 1]
 
   return {

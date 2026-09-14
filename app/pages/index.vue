@@ -1,276 +1,271 @@
 <script setup lang="ts">
-import { CARD_STATUS_LIST } from '#shared/constants/card-status'
-import type { CardRecord, CardStatus, UnitListResponse } from '#shared/types/card'
+import type { Rating } from '#shared/constants/rating'
+import type { CardRecord } from '#shared/types/card'
 
 definePageMeta({ name: 'cards' })
 
 const { t } = useI18n()
-const localePath = useLocalePath()
+const toast = useToast()
 
 useSeoMeta({
   title: 'Juka',
-  description: 'Flashcard storage for HSK learners'
+  description: () => t('tagline')
 })
 
-const {
-  filters,
-  items,
-  status,
-  hasMore,
-  loadingMore,
-  loadMore,
-  reload,
-  clearFilters,
-  hasActiveFilters
-} = await useCardList()
+const session = useSession()
+const store = useCardStore()
+const groupStore = useGroups()
+const view = useBoxView()
+const flipMode = useFlipMode()
 
-const { data: unitsData, refresh: refreshUnits } = await useFetch<UnitListResponse>('/api/units')
-const units = computed(() => unitsData.value?.items ?? [])
+const { filters, results, activeCount, toggle, clearGroup, clearAll } = useCardFilters(store.cards)
 
-/* Search box, debounced so a request does not fire per keystroke. */
-const searchInput = ref(filters.value.q)
-let debounceTimer: ReturnType<typeof setTimeout> | undefined
+/*
+ * Everything loads on the client. Local storage is not readable on the server,
+ * and an account's cards would only have to be re-read once the session cookie
+ * resolves, so there is one load path rather than two.
+ */
+const reminder = useSignInReminder()
 
-watch(searchInput, (value) => {
-  clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(() => {
+onMounted(async () => {
+  await session.refresh()
+  await Promise.all([store.load(), groupStore.load()])
+  // Scheduled after the box is known, so the wording can count the cards at
+  // risk rather than guessing.
+  reminder.schedule()
+})
+
+/* The gallery pages; the stack walks. Both reset when the list changes. */
+const page = ref(1)
+const index = ref(0)
+const PAGE_SIZE = 12
+
+/**
+ * Practice order, weighted toward the cards you know least.
+ *
+ * Only the stack reads it. The gallery stays in the order the box is in,
+ * because a page you can come back to has to be the same page next time.
+ */
+const practice = useCookie<boolean>('juka_practice', { default: () => true, sameSite: 'lax' })
+const { ordered, reshuffle } = usePracticeOrder(results, computed(() => view.value === 'stack' && practice.value))
+
+watch(results, (list) => {
+  page.value = 1
+  if (index.value >= list.length) {
+    index.value = Math.max(0, list.length - 1)
+  }
+})
+
+/* Search, debounced so filtering does not run on every keystroke. */
+const search = ref(filters.value.q)
+let timer: ReturnType<typeof setTimeout> | undefined
+
+watch(search, (value) => {
+  clearTimeout(timer)
+  timer = setTimeout(() => {
     filters.value = { ...filters.value, q: value }
-  }, 250)
+  }, 180)
 })
 
-watch(() => filters.value.q, (value) => {
-  if (value !== searchInput.value) {
-    searchInput.value = value
+onBeforeUnmount(() => clearTimeout(timer))
+
+/* Panels */
+const filtersOpen = ref(false)
+const editorOpen = ref(false)
+const groupsOpen = ref(false)
+const editing = ref<CardRecord | null>(null)
+
+function openEditor(card: CardRecord | null = null) {
+  editing.value = card
+  editorOpen.value = true
+}
+
+function onSaved() {
+  editorOpen.value = false
+  editing.value = null
+}
+
+async function rate(card: CardRecord, rating: Rating) {
+  try {
+    await store.update(card.id, { rating })
   }
-})
-
-onBeforeUnmount(() => clearTimeout(debounceTimer))
-
-function toggleStatus(value: CardStatus) {
-  filters.value = {
-    ...filters.value,
-    status: filters.value.status === value ? undefined : value
+  catch {
+    toast.add({ title: t('card.notSaved'), icon: 'i-lucide-triangle-alert', color: 'error' })
   }
 }
 
-function toggleUnit(value: number) {
-  filters.value = {
-    ...filters.value,
-    unitId: filters.value.unitId === value ? undefined : value
+/**
+ * Binning a card offers it straight back, because a swipe is easy to do by
+ * accident and this is the only destructive gesture in the app.
+ */
+async function remove(card: CardRecord) {
+  try {
+    await store.remove(card.id)
+    toast.add({
+      title: t('card.deleted'),
+      icon: 'i-lucide-trash-2',
+      actions: [{
+        label: t('common.undo'),
+        color: 'neutral',
+        variant: 'outline',
+        onClick: async () => {
+          try {
+            await store.restore(card)
+          }
+          catch {
+            toast.add({ title: t('card.notRestored'), icon: 'i-lucide-triangle-alert', color: 'error' })
+          }
+        }
+      }]
+    })
   }
-}
-
-function toggleSyllables(value: number) {
-  filters.value = {
-    ...filters.value,
-    syllables: filters.value.syllables === value ? undefined : value
+  catch {
+    toast.add({ title: t('card.notDeleted'), icon: 'i-lucide-triangle-alert', color: 'error' })
   }
-}
-
-/* Infinite scroll. The button below stays as the accessible fallback. */
-const sentinel = ref<HTMLElement | null>(null)
-
-onMounted(() => {
-  if (!sentinel.value || typeof IntersectionObserver === 'undefined') {
-    return
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    if (entries.some(entry => entry.isIntersecting)) {
-      loadMore()
-    }
-  }, { rootMargin: '400px' })
-
-  observer.observe(sentinel.value)
-  onBeforeUnmount(() => observer.disconnect())
-})
-
-/* Add card */
-const addOpen = ref(false)
-
-async function onSaved(card: CardRecord) {
-  addOpen.value = false
-  await Promise.all([reload(), refreshUnits()])
-  await navigateTo(localePath(`/cards/${card.id}`))
 }
 </script>
 
 <template>
-  <div class="space-y-5">
-    <div class="flex items-center gap-3">
-      <UInput
-        v-model="searchInput"
-        icon="i-icon-park-outline-search"
-        size="xl"
-        class="flex-1"
-        :placeholder="t('cards.searchPlaceholder')"
-        :ui="{ base: 'rounded-2xl' }"
-      >
-        <template
-          v-if="searchInput"
-          #trailing
-        >
-          <UButton
-            icon="i-icon-park-outline-close"
-            color="neutral"
-            variant="link"
-            size="xs"
-            :aria-label="t('common.clear')"
-            @click="searchInput = ''"
-          />
-        </template>
-      </UInput>
+  <div>
+    <AppHeader
+      v-model:view="view"
+      v-model:search="search"
+      v-model:flip-mode="flipMode"
+      :filter-count="activeCount"
+      :matches="results.length"
+      @open-filters="filtersOpen = true"
+      @add="openEditor()"
+    />
 
-      <UButton
-        icon="i-icon-park-outline-plus"
-        color="primary"
-        size="xl"
-        class="juka-press"
-        :aria-label="t('card.add')"
-        @click="addOpen = true"
-      >
-        <span class="hidden sm:inline">{{ t('card.add') }}</span>
-      </UButton>
-    </div>
-
-    <!-- Filter rail. Scrolls sideways on a phone rather than wrapping to four rows. -->
-    <div class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-      <button
-        v-for="entry in CARD_STATUS_LIST"
-        :key="entry.value"
-        type="button"
-        class="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition"
-        :style="filters.status === entry.value
-          ? { backgroundColor: entry.colour, color: '#fff' }
-          : { backgroundColor: `color-mix(in oklab, ${entry.colour} 14%, transparent)`, color: entry.colour }"
-        @click="toggleStatus(entry.value)"
-      >
-        {{ t(`status.${entry.value}`) }}
-      </button>
-
-      <span class="mx-1 w-px shrink-0 bg-[var(--ui-border)]" />
-
-      <button
-        v-for="count in [1, 2, 3, 4]"
-        :key="`syllables-${count}`"
-        type="button"
-        class="shrink-0 rounded-full border px-3 py-1.5 text-sm transition"
-        :class="filters.syllables === count
-          ? 'border-primary-500 bg-primary-500 text-white'
-          : 'border-[var(--ui-border)] text-[var(--ui-text-muted)]'"
-        @click="toggleSyllables(count)"
-      >
-        {{ count }}字
-      </button>
-
-      <template v-if="units.length">
-        <span class="mx-1 w-px shrink-0 bg-[var(--ui-border)]" />
-        <button
-          v-for="unit in units"
-          :key="unit.id"
-          type="button"
-          class="shrink-0 rounded-full border px-3 py-1.5 text-sm transition"
-          :class="filters.unitId === unit.id
-            ? 'border-primary-500 bg-primary-500 text-white'
-            : 'border-[var(--ui-border)] text-[var(--ui-text-muted)]'"
-          @click="toggleUnit(unit.id)"
-        >
-          {{ unit.name }}
-        </button>
-      </template>
-    </div>
-
-    <div
-      v-if="hasActiveFilters"
-      class="flex items-center justify-between text-sm text-[var(--ui-text-muted)]"
-    >
-      <span>{{ t('cards.showing', { count: items.length }) }}</span>
-      <UButton
-        color="neutral"
-        variant="link"
-        size="xs"
-        @click="clearFilters"
-      >
-        {{ t('cards.clearFilters') }}
-      </UButton>
-    </div>
-
-    <div
-      v-if="status === 'pending' && items.length === 0"
-      class="space-y-3"
-    >
-      <USkeleton
-        v-for="placeholder in 4"
-        :key="placeholder"
-        class="h-28 rounded-2xl"
-      />
-    </div>
-
-    <div
-      v-else-if="items.length === 0"
-      class="rounded-2xl border border-dashed border-[var(--ui-border-accented)] p-10 text-center"
-    >
-      <p class="font-hanzi text-5xl text-primary-300">
-        空
-      </p>
-      <p class="mt-3 font-medium">
-        {{ hasActiveFilters ? t('cards.noMatches') : t('cards.empty') }}
-      </p>
-      <p class="mt-1 text-sm text-[var(--ui-text-muted)]">
-        {{ hasActiveFilters ? t('cards.noMatchesHint') : t('cards.emptyHint') }}
-      </p>
-      <UButton
-        v-if="!hasActiveFilters"
-        class="juka-press mt-4"
-        color="primary"
-        size="lg"
-        @click="addOpen = true"
-      >
-        {{ t('card.add') }}
-      </UButton>
-    </div>
-
-    <div
-      v-else
-      class="space-y-3"
-    >
-      <CardTile
-        v-for="card in items"
-        :key="card.id"
-        :card="card"
+    <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
+      <UAlert
+        v-if="store.failed.value"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-triangle-alert"
+        :title="t('cards.failed')"
+        :description="t('cards.failedHint')"
+        :actions="[{ label: t('common.retry'), color: 'error', variant: 'soft', onClick: () => store.load() }]"
       />
 
       <div
-        ref="sentinel"
-        class="h-px"
-      />
+        v-else-if="!store.loaded.value"
+        class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
+        <USkeleton
+          v-for="placeholder in 4"
+          :key="placeholder"
+          class="h-72 rounded-2xl"
+        />
+      </div>
 
       <div
-        v-if="hasMore"
-        class="pt-2 text-center"
+        v-else-if="results.length === 0"
+        class="mx-auto max-w-md rounded-2xl bg-default p-10 text-center ring ring-default"
       >
+        <p class="font-hanzi text-5xl text-muted">
+          空
+        </p>
+        <p class="mt-3 font-semibold text-highlighted">
+          {{ activeCount > 0 ? t('cards.noMatches') : t('cards.empty') }}
+        </p>
+        <p class="mt-1 text-sm text-muted">
+          {{ activeCount > 0 ? t('cards.noMatchesHint') : t('cards.emptyHint') }}
+        </p>
         <UButton
+          v-if="activeCount > 0"
+          class="mt-5"
           color="neutral"
           variant="soft"
-          :loading="loadingMore"
-          @click="loadMore"
+          icon="i-lucide-filter-x"
+          @click="clearAll"
         >
-          {{ t('cards.loadMore') }}
+          {{ t('filter.clearAll') }}
+        </UButton>
+        <UButton
+          v-else
+          class="mt-5"
+          color="primary"
+          size="lg"
+          icon="i-lucide-plus"
+          @click="openEditor()"
+        >
+          {{ t('card.add') }}
         </UButton>
       </div>
-    </div>
+
+      <CardGallery
+        v-else-if="view === 'gallery'"
+        v-model:page="page"
+        :cards="results"
+        :page-size="PAGE_SIZE"
+        :flip-mode="flipMode"
+        @edit="openEditor"
+        @remove="remove"
+        @rate="rate"
+      />
+
+      <CardStack
+        v-else-if="view === 'stack'"
+        v-model="index"
+        v-model:practice="practice"
+        :cards="ordered"
+        @reshuffle="reshuffle"
+        @edit="openEditor"
+        @remove="remove"
+        @rate="rate"
+      />
+
+      <CardChart
+        v-else
+        :cards="results"
+        :groups="groupStore.groups.value"
+      />
+    </main>
 
     <USlideover
-      v-model:open="addOpen"
-      :title="t('card.add')"
+      v-model:open="filtersOpen"
+      :title="t('filter.title')"
+      side="right"
     >
       <template #body>
-        <CardForm
-          :units="units"
-          @saved="onSaved"
-          @cancel="addOpen = false"
+        <FilterDrawer
+          :filters="filters"
+          :cards="store.cards.value"
+          :groups="groupStore.groups.value"
+          @toggle-rating="toggle('ratings', $event)"
+          @toggle-part="toggle('parts', $event)"
+          @toggle-length="toggle('lengths', $event)"
+          @toggle-group="toggle('groups', $event)"
+          @clear-group="clearGroup"
+          @clear-all="clearAll"
+          @manage-groups="groupsOpen = true"
         />
       </template>
     </USlideover>
+
+    <UModal
+      v-model:open="groupsOpen"
+      :title="t('group.manage')"
+      :description="t('group.manageHint')"
+    >
+      <template #body>
+        <GroupManager />
+      </template>
+    </UModal>
+
+    <UModal
+      v-model:open="editorOpen"
+      :title="editing ? t('card.edit') : t('card.add')"
+      :description="editing ? undefined : t('card.addHint')"
+    >
+      <template #body>
+        <CardEditor
+          :card="editing"
+          @saved="onSaved"
+          @cancel="editorOpen = false"
+        />
+      </template>
+    </UModal>
   </div>
 </template>
