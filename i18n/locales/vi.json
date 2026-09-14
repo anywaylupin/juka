@@ -1,0 +1,9 @@
+{
+  "tagline": "Kho thẻ từ vựng cho người học HSK",
+  "health": {
+    "title": "Kiểm tra kết nối",
+    "ok": "Đã kết nối",
+    "failing": "Chưa kết nối",
+    "recheck": "Kiểm tra lại"
+  }
+}

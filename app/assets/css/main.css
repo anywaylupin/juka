@@ -1,0 +1,63 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/*
+  Ponkan is the default theme. The remaining eleven cultivars land with the theme
+  switcher, each as another `@theme static` block plus a [data-theme] override.
+
+  Neutral is taupe, never stock grey. Grey reads cold against every colour here.
+*/
+@theme static {
+  --font-sans: 'Nunito', ui-rounded, 'Segoe UI Variable', system-ui, sans-serif;
+  --font-hanzi: 'LXGW WenKai', 'Songti SC', 'SimSun', serif;
+
+  --color-ponkan-50: #fff6ee;
+  --color-ponkan-100: #ffe8d5;
+  --color-ponkan-200: #ffcda8;
+  --color-ponkan-300: #ffaa70;
+  --color-ponkan-400: #fb7c33;
+  --color-ponkan-500: #e35205;
+  --color-ponkan-600: #c43f03;
+  --color-ponkan-700: #9c2f08;
+  --color-ponkan-800: #7c270e;
+  --color-ponkan-900: #66220f;
+  --color-ponkan-950: #3a0f05;
+
+  --color-taupe-50: #faf7f4;
+  --color-taupe-100: #f2ece6;
+  --color-taupe-200: #e4dad0;
+  --color-taupe-300: #cfc0b2;
+  --color-taupe-400: #b3a08e;
+  --color-taupe-500: #98836f;
+  --color-taupe-600: #7e6a58;
+  --color-taupe-700: #665548;
+  --color-taupe-800: #4a3e35;
+  --color-taupe-900: #2e2721;
+  --color-taupe-950: #1b1713;
+
+  /*
+    Card status is a ripening scale. These four are fixed across every theme,
+    so a state never gets confused with a button.
+  */
+  --color-status-difficult: #7a9a3c;
+  --color-status-hesitant: #c9ba2e;
+  --color-status-good: #e8a317;
+  --color-status-mastered: #2f7d52;
+
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+}
+
+:root {
+  --ui-radius: var(--radius-lg);
+}
+
+html {
+  background-color: var(--color-ponkan-50);
+}
+
+.font-hanzi {
+  font-family: var(--font-hanzi);
+}

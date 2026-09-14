@@ -1,0 +1,9 @@
+{
+  "tagline": "Flashcard storage for HSK learners",
+  "health": {
+    "title": "Connection check",
+    "ok": "Connected",
+    "failing": "Not connected",
+    "recheck": "Check again"
+  }
+}

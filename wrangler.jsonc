@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "juka",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // main and assets are intentionally absent. Nitro fills them in and writes the
+  // deployable config to .output/server/wrangler.json, pointed at by
+  // .wrangler/deploy/config.json. Declaring them here would be ignored with a warning.
+  //
+  // This file is still the config that `wrangler d1 ...` and the nuxt dev binding
+  // proxy read, so bindings belong here.
+
+  "observability": {
+    "enabled": true
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "juka",
+      // Replace after running: pnpm wrangler d1 create juka
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "server/database/migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "AUDIO",
+      "bucket_name": "juka-audio"
+    }
+  ]
+}

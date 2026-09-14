@@ -1,0 +1,63 @@
+export default defineNuxtConfig({
+  modules: [
+    '@nuxt/ui',
+    '@nuxtjs/i18n',
+    'nuxt-auth-utils',
+    'motion-v/nuxt',
+    '@nuxt/eslint',
+    '@nuxt/test-utils/module'
+  ],
+
+  // Nuxt 4 layout: app code in app/, server code in server/, isomorphic code in shared/.
+  css: ['~/assets/css/main.css'],
+
+  devtools: { enabled: true },
+
+  // Must stay at or after 2025-07-15 so Nitro selects the Cloudflare dev preset,
+  // which is what populates event.context.cloudflare.env during nuxt dev.
+  compatibilityDate: '2026-09-01',
+
+  nitro: {
+    preset: 'cloudflare_module',
+    cloudflare: {
+      // Nitro reads the root wrangler.jsonc, merges its own main and assets entries,
+      // and writes the result to .output/server/wrangler.json at build time.
+      deployConfig: true,
+      nodeCompat: true
+    }
+  },
+
+  runtimeConfig: {
+    // Name of the D1 database as declared in wrangler.jsonc. Read by scripts, never by handlers.
+    d1DatabaseName: 'juka',
+    public: {
+      releaseCodename: 'ponkan'
+    }
+  },
+
+  i18n: {
+    defaultLocale: 'en',
+    strategy: 'prefix_except_default',
+    locales: [
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+      { code: 'vi', language: 'vi-VN', name: 'Tiếng Việt', file: 'vi.json' }
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'juka_locale',
+      redirectOn: 'root'
+    }
+  },
+
+  icon: {
+    // Icons resolve from the locally installed collections, never the Iconify API,
+    // so a deployed worker makes no outbound call to render a button.
+    serverBundle: 'local',
+    clientBundle: { scan: true }
+  },
+
+  typescript: {
+    typeCheck: false,
+    strict: true
+  }
+})
