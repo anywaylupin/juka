@@ -1,5 +1,76 @@
 {
   "tagline": "Flashcard storage for HSK learners",
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "clear": "Clear"
+  },
+  "nav": {
+    "cards": "Cards",
+    "units": "Units",
+    "hanViet": "Show Han-Viet"
+  },
+  "status": {
+    "difficult": "Difficult",
+    "hesitant": "Hesitant",
+    "good": "Good",
+    "mastered": "Mastered"
+  },
+  "cards": {
+    "searchPlaceholder": "Search hanzi, pinyin, or meaning",
+    "showing": "Showing {count}",
+    "clearFilters": "Clear filters",
+    "loadMore": "Load more",
+    "empty": "No cards yet",
+    "emptyHint": "Add the first one and it lands at the top of the box.",
+    "noMatches": "Nothing matches",
+    "noMatchesHint": "Try a shorter search or clear the filters."
+  },
+  "card": {
+    "add": "Add card",
+    "save": "Save",
+    "edit": "Edit",
+    "hanzi": "Hanzi",
+    "pinyin": "Pinyin",
+    "pinyinHelp": "Leave blank to derive it from the hanzi",
+    "translation": "Meaning",
+    "hanViet": "Han-Viet",
+    "hanVietHelp": "The Sino-Vietnamese reading, for example thời gian",
+    "unit": "Unit",
+    "noUnit": "No unit",
+    "hskLevel": "HSK level",
+    "anyLevel": "No level",
+    "pos": "Part of speech",
+    "status": "Status",
+    "notes": "Notes",
+    "syllables": "Characters",
+    "added": "Card added",
+    "updated": "Card updated",
+    "notSaved": "That did not save",
+    "invalid": "Check the card details",
+    "deleted": "Card deleted",
+    "notDeleted": "That did not delete",
+    "confirmDelete": "Delete this card?",
+    "tapToTurn": "Tap to turn over",
+    "listen": "Listen",
+    "noTranslation": "No meaning yet"
+  },
+  "unit": {
+    "add": "Add unit",
+    "namePlaceholder": "Name a unit, for example HSK 1 lesson 3",
+    "empty": "No units yet",
+    "emptyHint": "Units are folders. Cards work fine without one.",
+    "mastered": "{mastered} of {total} mastered",
+    "unfiled": "Not in a unit: {count}",
+    "notSaved": "That did not save",
+    "deleted": "Unit deleted",
+    "notDeleted": "That did not delete",
+    "confirmDelete": "Delete {name}? The cards stay and become unfiled."
+  },
+  "theme": {
+    "title": "Theme",
+    "notSaved": "The theme did not save"
+  },
   "health": {
     "title": "Connection check",
     "ok": "Connected",

@@ -1,17 +1,25 @@
 export default defineAppConfig({
   ui: {
-    // Ponkan is the default theme. The other cultivars land with the theme switcher.
+    /*
+     * Ponkan is the default. The live values are repointed per theme in
+     * app/assets/css/themes.css, which is what the theme switcher drives.
+     */
     colors: {
       primary: 'ponkan',
       neutral: 'taupe'
     },
     button: {
-      // The 3D press, applied once here rather than per component.
+      // The 3D press, applied once rather than per component.
       slots: {
-        base: 'border-b-4 active:border-b-0 active:translate-y-1 transition-[border,transform] duration-75 font-medium'
+        base: 'juka-press font-semibold'
       },
       defaultVariants: {
-        size: 'lg'
+        size: 'md'
+      }
+    },
+    card: {
+      slots: {
+        root: 'rounded-2xl'
       }
     }
   }
