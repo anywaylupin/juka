@@ -173,9 +173,11 @@ colour is the actual colour of that fruit, so the name carries the colour.
 Implementation:
 
 - Each theme is a Tailwind v4 `@theme static` colour scale in
-  `app/assets/css/main.css`.
-- Switch through `app.config.ts` `ui.colors.primary` plus a `data-theme`
-  attribute on `<html>`.
+  `app/assets/css/themes.css`, which is **generated**. Edit
+  `shared/constants/themes.ts` and run `node scripts/generate-theme-css.ts`.
+- Switching repoints `--ui-color-primary-*` under a `[data-theme]` selector,
+  which is what Nuxt UI reads. `useJukaTheme` sets the attribute on `<html>` and
+  syncs light or dark from the cultivar's own mode.
 - Neutral is `taupe` in light modes and a warm dark in dark modes. Never stock
   grey, it reads cold against every colour in this palette.
 - Persist the choice per user in the database, not only in localStorage.
@@ -223,20 +225,42 @@ touch. Nuxt UI's defaults are clean SaaS, so push them.
    route proving the database connection works end to end.~~ Done.
 2. ~~FTS5 trigram spike. Settle the search design.~~ Done, see
    `docs/fts5-spike.md`.
-3. Schema and drizzle migrations.
-4. **Notion importer, run against the real database.** Do this before any UI.
-   Real data exposes schema problems that seed data hides.
-5. Card list with keyset pagination and virtual scroll. Search.
-6. Card detail, create, edit. Status setting.
-7. Web Speech audio.
-8. hanzi-writer stroke animation on the card face.
-9. Themes and i18n.
+3. ~~Schema and drizzle migrations.~~ Done, including `cards_fts` and its
+   triggers.
+4. ~~Notion importer.~~ Skipped at the author's request, cards are being entered
+   by hand. Revisit if a bulk import is ever needed.
+5. ~~Card list with keyset pagination and search.~~ Done. Not truly windowed:
+   infinite scroll plus `content-visibility` per row. Add real windowing only
+   when the collection justifies it.
+6. ~~Card detail, create, edit. Status setting.~~ Done.
+7. ~~Web Speech audio.~~ Done, tier one only.
+8. hanzi-writer stroke animation on the card face. **Not started, and it needs a
+   decision first:** `hanzi-writer-data` ships about 9,000 JSON files. Bundling
+   them all through Vite is not viable, and the brief forbids a CDN, so the data
+   has to be vendored into `public/` by a build step or narrowed to the
+   characters actually in use.
+9. ~~Themes and i18n.~~ Done, all twelve cultivars.
 10. Stories, with one seeded example. Do not copy text from any existing graded
     reader, it is copyrighted.
 11. Han-Viet column populated.
 12. Piper batch generation and R2 fallback.
 
 Keep Notion running in parallel until the app has been used daily for two weeks.
+
+## Current state
+
+- **No auth.** A single owner is seeded by migration 0001 and
+  `requireUserId` in `server/utils/session.ts` falls back to it. Every query
+  already filters by user id, so enabling real sessions is a change to that one
+  function. Do not deploy publicly before it is done.
+- **Theme colours are generated.** `app/assets/css/themes.css` is written by
+  `node scripts/generate-theme-css.ts` from `shared/constants/themes.ts`. Edit
+  the constants and regenerate, never the CSS.
+- **Derived card fields have one home.** `deriveCardFields` in
+  `server/utils/card-fields.ts` produces `pinyin`, `pinyin_plain`, `hanzi_chars`,
+  `pinyin_search`, and `syllables`. Nothing else may write those columns.
+- **Search input never reaches FTS5 as syntax.** `buildSearchMatch` extracts only
+  Han runs and alphanumeric runs, so quotes and operators are dropped.
 
 ## Repo hygiene
 

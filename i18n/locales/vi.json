@@ -1,5 +1,76 @@
 {
   "tagline": "Kho thẻ từ vựng cho người học HSK",
+  "common": {
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "clear": "Xóa trắng"
+  },
+  "nav": {
+    "cards": "Thẻ",
+    "units": "Nhóm",
+    "hanViet": "Hiện Hán Việt"
+  },
+  "status": {
+    "difficult": "Khó",
+    "hesitant": "Còn ngập ngừng",
+    "good": "Khá",
+    "mastered": "Thuộc"
+  },
+  "cards": {
+    "searchPlaceholder": "Tìm chữ Hán, pinyin hoặc nghĩa",
+    "showing": "Đang hiện {count}",
+    "clearFilters": "Bỏ bộ lọc",
+    "loadMore": "Tải thêm",
+    "empty": "Chưa có thẻ nào",
+    "emptyHint": "Thêm thẻ đầu tiên, nó sẽ nằm trên cùng.",
+    "noMatches": "Không có kết quả",
+    "noMatchesHint": "Thử từ khóa ngắn hơn hoặc bỏ bộ lọc."
+  },
+  "card": {
+    "add": "Thêm thẻ",
+    "save": "Lưu",
+    "edit": "Sửa",
+    "hanzi": "Chữ Hán",
+    "pinyin": "Pinyin",
+    "pinyinHelp": "Để trống để tự suy ra từ chữ Hán",
+    "translation": "Nghĩa",
+    "hanViet": "Hán Việt",
+    "hanVietHelp": "Âm Hán Việt, ví dụ thời gian",
+    "unit": "Nhóm",
+    "noUnit": "Chưa có nhóm",
+    "hskLevel": "Cấp HSK",
+    "anyLevel": "Chưa có cấp",
+    "pos": "Từ loại",
+    "status": "Trạng thái",
+    "notes": "Ghi chú",
+    "syllables": "Số chữ",
+    "added": "Đã thêm thẻ",
+    "updated": "Đã cập nhật thẻ",
+    "notSaved": "Chưa lưu được",
+    "invalid": "Kiểm tra lại thông tin thẻ",
+    "deleted": "Đã xóa thẻ",
+    "notDeleted": "Chưa xóa được",
+    "confirmDelete": "Xóa thẻ này?",
+    "tapToTurn": "Chạm để lật",
+    "listen": "Nghe",
+    "noTranslation": "Chưa có nghĩa"
+  },
+  "unit": {
+    "add": "Thêm nhóm",
+    "namePlaceholder": "Đặt tên nhóm, ví dụ HSK 1 bài 3",
+    "empty": "Chưa có nhóm nào",
+    "emptyHint": "Nhóm giống như thư mục. Thẻ không cần nhóm vẫn dùng được.",
+    "mastered": "Thuộc {mastered} trên {total}",
+    "unfiled": "Chưa xếp nhóm: {count}",
+    "notSaved": "Chưa lưu được",
+    "deleted": "Đã xóa nhóm",
+    "notDeleted": "Chưa xóa được",
+    "confirmDelete": "Xóa {name}? Các thẻ vẫn còn và trở thành chưa xếp nhóm."
+  },
+  "theme": {
+    "title": "Giao diện",
+    "notSaved": "Chưa lưu được giao diện"
+  },
   "health": {
     "title": "Kiểm tra kết nối",
     "ok": "Đã kết nối",

@@ -8,8 +8,9 @@ is no spaced repetition, no review queue, no cards due today. That constraint is
 the point: it makes the app something you can add to in seconds rather than
 something that nags you.
 
-> Status: early. The scaffold, the Cloudflare wiring, and the search spike are
-> done. The card model is next. See [where this is](#where-this-is).
+> Status: usable. Cards can be written, filed, found, and heard. Auth, stroke
+> animation, and the Han-Viet data are still to come. See
+> [where this is](#where-this-is).
 
 ## Han-Viet, the part you will not find elsewhere
 
@@ -28,9 +29,9 @@ text in a Vietnamese voice would be useless.
 
 ## Screenshots
 
-Pending. The card face, the stroke animation, and the unit progress ring are
-worth showing and none of them exist yet. This section gets a still of a card
-and a short recording of a card flipping with the stroke animation running.
+Pending. The card list, the card face mid-flip, and the ripeness ring on the
+units page are the three worth showing. This section gets stills of those plus a
+short recording of a card turning over, once the stroke animation lands with it.
 
 ## Live demo
 
@@ -145,13 +146,37 @@ ran, and whether R2 answers. It is read only and safe to poll.
 | `pnpm deploy` | Build and deploy to Cloudflare Workers |
 | `node scripts/fts5-spike.ts --scale` | Re-run the search spike |
 
+## Troubleshooting
+
+**`/api/health` returns 503 and every other route fails too.** No environment
+variable is missing. This is the D1 binding not resolving at dev server start:
+Nitro asks wrangler for a bindings proxy once at boot, and if that call fails it
+logs `Failed to initialize wrangler bindings proxy` and quietly falls back to a
+stub with no bindings, so every request keeps failing until the server is
+restarted. The usual cause is a second process holding the local D1 state, for
+example a `wrangler dev` left running in another terminal. Stop the strays and
+start `pnpm dev` again:
+
+```bash
+pkill -f "wrangler dev"
+```
+
+`/api/health` reports the cause in its `detail` field, so check that before
+anything else.
+
+**The only environment variable dev needs is `NUXT_SESSION_PASSWORD`**, and
+nuxt-auth-utils writes one into `.env` for you on first run. Leaving
+`CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` empty is fine, they are only
+read by `--remote` commands and deploys.
+
 ## Stack
 
 Nuxt 4 and Vue 3, Nuxt UI v4 with Tailwind CSS v4, `motion-v` for the springs.
 Cloudflare D1 through drizzle, Cloudflare R2 for audio, deployed to Workers with
 the Nitro `cloudflare_module` preset. `zod` validates every server route.
-`hanzi-writer` draws the strokes, `pinyin-pro` handles the readings, and
-`@nuxtjs/i18n` carries the two interface languages.
+`pinyin-pro` derives the readings and `@nuxtjs/i18n` carries the two interface
+languages. `hanzi-writer` is installed for the stroke animation, which has not
+been wired up yet.
 
 ## Design notes
 
@@ -171,16 +196,30 @@ with a button.
 - [x] Nuxt 4 scaffold, Cloudflare Workers deploy, D1 and R2 bindings, one
       validated route proving the database connection
 - [x] FTS5 trigram spike, search design settled
-- [ ] Schema and drizzle migrations
-- [ ] Notion importer, run against real data before any UI is built
-- [ ] Card list with keyset pagination, virtual scroll, search
-- [ ] Card detail, create, edit, status
-- [ ] Web Speech audio
+- [x] Schema and drizzle migrations, including the search index and its triggers
+- [x] Card list with keyset pagination and search
+- [x] Card detail, create, edit, status
+- [x] Web Speech audio
+- [x] Themes and i18n
+- [ ] Notion importer (cards are being entered by hand for now)
 - [ ] Stroke animation on the card face
-- [ ] Themes and i18n
 - [ ] Stories
 - [ ] Han-Viet column populated
 - [ ] Piper batch generation and the R2 fallback
+
+Three things are deliberately unfinished, and it is worth being plain about them:
+
+- **There is no auth yet.** The build order puts it after the card UI. Until it
+  lands the app runs as a single owner seeded by migration 0001, and every query
+  already filters by that user id, so switching it on is a change to
+  `requireUserId` in `server/utils/session.ts` and nothing else. Do not put this
+  on a public URL before then.
+- **The list is not truly windowed.** It pages with a keyset cursor and infinite
+  scroll, and each row uses `content-visibility` so off-screen rows cost almost
+  nothing to render. That holds up for tens of thousands of rows. Real windowing
+  is worth adding when the collection justifies it, not before.
+- **Han-Viet has a column, a form field, and a display toggle, but no data.**
+  The readings show as soon as a permissively licensed mapping is seeded.
 
 ## Attribution
 

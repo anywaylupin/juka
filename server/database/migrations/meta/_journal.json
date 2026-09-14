@@ -8,6 +8,13 @@
       "when": 1789323392828,
       "tag": "0000_freezing_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789354643539,
+      "tag": "0001_chubby_eddie_brock",
+      "breakpoints": true
     }
   ]
 }
