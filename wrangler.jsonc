@@ -11,12 +11,9 @@
   // This file is still the config that `wrangler d1 ...` and the nuxt dev binding
   // proxy read, so bindings belong here.
   //
-  // The one exception is the Workers AI binding, which is declared in
-  // nuxt.config.ts under nitro.cloudflare.wrangler instead. Workers AI has no
-  // local emulation, and an "ai" block here makes miniflare fail to build the
-  // dev environment, which takes D1 and R2 down with it. Nitro merges that
-  // option into .output/server/wrangler.json at build time and never shows it
-  // to the dev emulator, so the binding exists in the deployed worker only.
+  // There are two bindings and there is no third. A Workers AI binding lived in
+  // nuxt.config.ts for a while and was removed in migration 0009 along with the
+  // model it fed.
 
   "observability": {
     "enabled": true
@@ -26,8 +23,8 @@
     {
       "binding": "DB",
       "database_name": "juka",
-      // Replace after running: pnpm wrangler d1 create juka
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      // From the dashboard, or from: pnpm wrangler d1 create juka
+      "database_id": "1d43a18b-c5ea-4d89-a0f1-6b3a7b7f69fd",
       "migrations_dir": "server/database/migrations"
     }
   ],
