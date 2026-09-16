@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { PART_OF_SPEECH_LIST, partOfSpeechColour, type PartOfSpeech } from '#shared/constants/pos'
-import { RATING_ICON, RATING_VALUES, type Rating } from '#shared/constants/rating'
-import type { CardRecord, GroupRecord } from '#shared/types/card'
-import type { CardFilters } from '~/composables/useCardFilters'
+import { PART_OF_SPEECH_LIST, partOfSpeechColour, type PartOfSpeech } from '#shared/constants/pos';
+import { RATING_ICON, RATING_VALUES, type Rating } from '#shared/constants/rating';
+import type { CardRecord, GroupRecord } from '#shared/types/card';
+import type { CardFilters } from '~/composables/useCardFilters';
 
 /**
  * Filters, in named groups rather than one long rail of chips.
@@ -17,65 +17,63 @@ import type { CardFilters } from '~/composables/useCardFilters'
  * before it is pressed.
  */
 const props = defineProps<{
-  filters: CardFilters
+  filters: CardFilters;
   /** Everything in the box, for the per-option counts. */
-  cards: CardRecord[]
-  groups: GroupRecord[]
-}>()
+  cards: CardRecord[];
+  groups: GroupRecord[];
+}>();
 
 const emit = defineEmits<{
-  toggleRating: [value: Rating]
-  togglePart: [value: PartOfSpeech]
-  toggleLength: [value: number]
-  toggleGroup: [value: number]
-  clearGroup: [group: 'ratings' | 'parts' | 'lengths' | 'groups']
-  clearAll: []
-  manageGroups: []
-}>()
+  toggleRating: [value: Rating];
+  togglePart: [value: PartOfSpeech];
+  toggleLength: [value: number];
+  toggleGroup: [value: number];
+  clearGroup: [group: 'ratings' | 'parts' | 'lengths' | 'groups'];
+  clearAll: [];
+  manageGroups: [];
+}>();
 
-const { t } = useI18n()
-const { labelFor } = useRatingLabels()
+const { t } = useI18n();
+const { labelFor } = useRatingLabels();
 
 const ratingCounts = computed(() => {
-  const counts = new Map<Rating, number>()
+  const counts = new Map<Rating, number>();
   for (const card of props.cards) {
-    counts.set(card.rating, (counts.get(card.rating) ?? 0) + 1)
+    counts.set(card.rating, (counts.get(card.rating) ?? 0) + 1);
   }
-  return counts
-})
+  return counts;
+});
 
 const partCounts = computed(() => {
-  const counts = new Map<PartOfSpeech, number>()
+  const counts = new Map<PartOfSpeech, number>();
   for (const card of props.cards) {
     if (card.pos) {
-      counts.set(card.pos, (counts.get(card.pos) ?? 0) + 1)
+      counts.set(card.pos, (counts.get(card.pos) ?? 0) + 1);
     }
   }
-  return counts
-})
+  return counts;
+});
 
 const lengthCounts = computed(() => {
-  const counts = new Map<number, number>()
+  const counts = new Map<number, number>();
   for (const card of props.cards) {
-    const bucket = card.syllables >= 4 ? 4 : card.syllables
-    counts.set(bucket, (counts.get(bucket) ?? 0) + 1)
+    const bucket = card.syllables >= 4 ? 4 : card.syllables;
+    counts.set(bucket, (counts.get(bucket) ?? 0) + 1);
   }
-  return counts
-})
+  return counts;
+});
 
 /** Only the parts of speech actually present, so the list is never dead weight. */
-const availableParts = computed(() =>
-  PART_OF_SPEECH_LIST.filter(part => (partCounts.value.get(part) ?? 0) > 0)
-)
+const availableParts = computed(() => PART_OF_SPEECH_LIST.filter((part) => (partCounts.value.get(part) ?? 0) > 0));
 
-const lengths = [1, 2, 3, 4]
+const lengths = [1, 2, 3, 4];
 </script>
 
 <template>
   <div class="space-y-6">
     <section class="space-y-2">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold uppercase tracking-wide text-dimmed">
+        <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
           {{ t('filter.rating') }}
         </h3>
         <UButton
@@ -122,7 +120,7 @@ const lengths = [1, 2, 3, 4]
 
     <section class="space-y-2">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold uppercase tracking-wide text-dimmed">
+        <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
           {{ t('filter.group') }}
         </h3>
         <div class="flex items-center gap-1">
@@ -146,29 +144,25 @@ const lengths = [1, 2, 3, 4]
         </div>
       </header>
 
-      <p
-        v-if="groups.length === 0"
-        class="text-xs text-muted"
-      >
+      <p v-if="groups.length === 0" class="text-xs text-muted">
         {{ t('group.none') }}
       </p>
 
-      <div
-        v-else
-        class="flex flex-wrap gap-1.5"
-      >
+      <div v-else class="flex flex-wrap gap-1.5">
         <button
           v-for="group in groups"
           :key="group.id"
           type="button"
           class="rounded-full px-2.5 py-1 text-xs font-semibold transition-colors duration-150"
           :aria-pressed="filters.groups.includes(group.id)"
-          :style="filters.groups.includes(group.id)
-            ? { backgroundColor: group.colour, color: '#fff' }
-            : {
-              color: group.colour,
-              backgroundColor: `color-mix(in oklab, ${group.colour} 12%, transparent)`
-            }"
+          :style="
+            filters.groups.includes(group.id)
+              ? { backgroundColor: group.colour, color: '#fff' }
+              : {
+                  color: group.colour,
+                  backgroundColor: `color-mix(in oklab, ${group.colour} 12%, transparent)`
+                }
+          "
           @click="emit('toggleGroup', group.id)"
         >
           {{ group.name }}
@@ -177,12 +171,9 @@ const lengths = [1, 2, 3, 4]
       </div>
     </section>
 
-    <section
-      v-if="availableParts.length"
-      class="space-y-2"
-    >
+    <section v-if="availableParts.length" class="space-y-2">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold uppercase tracking-wide text-dimmed">
+        <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
           {{ t('filter.type') }}
         </h3>
         <UButton
@@ -203,12 +194,14 @@ const lengths = [1, 2, 3, 4]
           type="button"
           class="rounded-full px-2.5 py-1 text-xs font-semibold transition-colors duration-150"
           :aria-pressed="filters.parts.includes(part)"
-          :style="filters.parts.includes(part)
-            ? { backgroundColor: partOfSpeechColour(part), color: '#fff' }
-            : {
-              color: partOfSpeechColour(part),
-              backgroundColor: `color-mix(in oklab, ${partOfSpeechColour(part)} 12%, transparent)`
-            }"
+          :style="
+            filters.parts.includes(part)
+              ? { backgroundColor: partOfSpeechColour(part), color: '#fff' }
+              : {
+                  color: partOfSpeechColour(part),
+                  backgroundColor: `color-mix(in oklab, ${partOfSpeechColour(part)} 12%, transparent)`
+                }
+          "
           @click="emit('togglePart', part)"
         >
           {{ t(`pos.${part}`) }}
@@ -219,7 +212,7 @@ const lengths = [1, 2, 3, 4]
 
     <section class="space-y-2">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold uppercase tracking-wide text-dimmed">
+        <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
           {{ t('filter.length') }}
         </h3>
         <UButton
@@ -250,13 +243,7 @@ const lengths = [1, 2, 3, 4]
       </div>
     </section>
 
-    <UButton
-      color="neutral"
-      variant="soft"
-      block
-      icon="i-lucide-filter-x"
-      @click="emit('clearAll')"
-    >
+    <UButton color="neutral" variant="soft" block icon="i-lucide-filter-x" @click="emit('clearAll')">
       {{ t('filter.clearAll') }}
     </UButton>
   </div>

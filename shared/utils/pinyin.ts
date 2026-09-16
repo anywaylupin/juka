@@ -13,20 +13,22 @@
  * letter underneath it.
  */
 export function tonelessPinyin(pinyin: string): string {
-  return pinyin
-    // ü is a letter in its own right here, not a u wearing an accent, and the
-    // convention when typing is to write it v. Mapped before decomposition,
-    // which would otherwise strip the diaeresis and leave a bare u.
-    .replace(/[üǖǘǚǜ]/gi, 'v')
-    // Separates each vowel from its tone mark, so the mark can be dropped
-    // without taking the vowel with it.
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z]/g, '')
+  return (
+    pinyin
+      // ü is a letter in its own right here, not a u wearing an accent, and the
+      // convention when typing is to write it v. Mapped before decomposition,
+      // which would otherwise strip the diaeresis and leave a bare u.
+      .replace(/[üǖǘǚǜ]/gi, 'v')
+      // Separates each vowel from its tone mark, so the mark can be dropped
+      // without taking the vowel with it.
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z]/g, '')
+  );
 }
 
 /** Characters, not bytes: 时间 is two, and so is what the column stores. */
 export function countSyllables(hanzi: string): number {
-  return [...hanzi].filter(character => /\p{Script=Han}/u.test(character)).length
+  return [...hanzi].filter((character) => /\p{Script=Han}/u.test(character)).length;
 }

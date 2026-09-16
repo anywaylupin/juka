@@ -24,11 +24,11 @@ export const PART_OF_SPEECH_LIST = [
   'phrase',
   'idiom',
   'name'
-] as const
+] as const;
 
-export type PartOfSpeech = typeof PART_OF_SPEECH_LIST[number]
+export type PartOfSpeech = (typeof PART_OF_SPEECH_LIST)[number];
 
-const LOOKUP = new Set<string>(PART_OF_SPEECH_LIST)
+const LOOKUP = new Set<string>(PART_OF_SPEECH_LIST);
 
 /**
  * Accepts the abbreviations a model reaches for when it ignores the menu, so a
@@ -67,21 +67,21 @@ const ALIASES: Record<string, PartOfSpeech> = {
   'chengyu': 'idiom',
   'expression': 'phrase',
   'proper noun': 'name'
-}
+};
 
 /** Normalises a model reply to the closed list, or null when it does not fit. */
 export function normalisePartOfSpeech(raw: string | null | undefined): PartOfSpeech | null {
   if (!raw) {
-    return null
+    return null;
   }
 
-  const cleaned = raw.trim().toLowerCase()
+  const cleaned = raw.trim().toLowerCase();
 
   if (LOOKUP.has(cleaned)) {
-    return cleaned as PartOfSpeech
+    return cleaned as PartOfSpeech;
   }
 
-  return ALIASES[cleaned] ?? null
+  return ALIASES[cleaned] ?? null;
 }
 
 /**
@@ -111,9 +111,9 @@ export const PART_OF_SPEECH_COLOURS: Record<PartOfSpeech, string> = {
   phrase: '#1d4ed8',
   idiom: '#b45309',
   name: '#475569'
-}
+};
 
 /** Falls back to the neutral text colour when a card has no part of speech. */
 export function partOfSpeechColour(pos: PartOfSpeech | null | undefined): string {
-  return pos ? PART_OF_SPEECH_COLOURS[pos] : 'var(--ui-text-muted)'
+  return pos ? PART_OF_SPEECH_COLOURS[pos] : 'var(--ui-text-muted)';
 }

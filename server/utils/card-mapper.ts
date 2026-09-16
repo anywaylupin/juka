@@ -1,21 +1,21 @@
-import { normalisePartOfSpeech } from '#shared/constants/pos'
-import { clampRating } from '#shared/constants/rating'
-import type { CardRecord } from '#shared/types/card'
+import { normalisePartOfSpeech } from '#shared/constants/pos';
+import { clampRating } from '#shared/constants/rating';
+import type { CardRecord } from '#shared/types/card';
 
 export interface CardRow {
-  id: number
-  hanzi: string
-  pinyin: string
-  pinyinPlain: string
-  hanViet: string | null
-  translation: string
-  translationVi: string | null
-  pos: string | null
-  rating: number
-  syllables: number
-  notes: string | null
-  createdAt: Date
-  updatedAt: Date
+  id: number;
+  hanzi: string;
+  pinyin: string;
+  pinyinPlain: string;
+  hanViet: string | null;
+  translation: string;
+  translationVi: string | null;
+  pos: string | null;
+  rating: number;
+  syllables: number;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -44,5 +44,5 @@ export function toCardRecord(row: CardRow, groupIds: number[] = []): CardRecord 
     groupIds,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString()
-  }
+  };
 }

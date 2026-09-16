@@ -1,7 +1,7 @@
-import { normalisePartOfSpeech } from '../constants/pos'
-import { clampRating } from '../constants/rating'
-import type { CardRecord, GroupRecord } from '../types/card'
-import { countSyllables, tonelessPinyin } from './pinyin'
+import { normalisePartOfSpeech } from '../constants/pos';
+import { clampRating } from '../constants/rating';
+import type { CardRecord, GroupRecord } from '../types/card';
+import { countSyllables, tonelessPinyin } from './pinyin';
 
 /**
  * Repairs a card or a group read out of local storage.
@@ -21,38 +21,38 @@ import { countSyllables, tonelessPinyin } from './pinyin'
  */
 
 function text(value: unknown, fallback = ''): string {
-  return typeof value === 'string' ? value : fallback
+  return typeof value === 'string' ? value : fallback;
 }
 
 function nullableText(value: unknown): string | null {
-  return typeof value === 'string' && value.length > 0 ? value : null
+  return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
 function timestamp(value: unknown): string {
-  return typeof value === 'string' && value.length > 0 ? value : new Date().toISOString()
+  return typeof value === 'string' && value.length > 0 ? value : new Date().toISOString();
 }
 
 function numbers(value: unknown): number[] {
   return Array.isArray(value)
     ? value.filter((entry): entry is number => typeof entry === 'number' && Number.isFinite(entry))
-    : []
+    : [];
 }
 
 /** One card, or null when what was stored cannot be read as a card at all. */
 export function normaliseCard(input: unknown, fallbackId: number): CardRecord | null {
   if (!input || typeof input !== 'object') {
-    return null
+    return null;
   }
 
-  const raw = input as Record<string, unknown>
-  const hanzi = text(raw.hanzi).trim()
+  const raw = input as Record<string, unknown>;
+  const hanzi = text(raw.hanzi).trim();
 
   // A card with no word on it is not a card. Everything else is recoverable.
   if (!hanzi) {
-    return null
+    return null;
   }
 
-  const pinyin = text(raw.pinyin)
+  const pinyin = text(raw.pinyin);
 
   return {
     id: typeof raw.id === 'number' && Number.isFinite(raw.id) ? raw.id : fallbackId,
@@ -71,36 +71,36 @@ export function normaliseCard(input: unknown, fallbackId: number): CardRecord | 
     groupIds: numbers(raw.groupIds),
     createdAt: timestamp(raw.createdAt),
     updatedAt: timestamp(raw.updatedAt)
-  }
+  };
 }
 
 /** Every readable card, in order, with unreadable entries dropped. */
 export function normaliseCards(input: unknown): CardRecord[] {
   if (!Array.isArray(input)) {
-    return []
+    return [];
   }
 
   return input
     .map((entry, index) => normaliseCard(entry, -(index + 1)))
-    .filter((card): card is CardRecord => card !== null)
+    .filter((card): card is CardRecord => card !== null);
 }
 
-const HEX_COLOUR = /^#[0-9a-f]{6}$/i
-const FALLBACK_COLOUR = '#8c7f76'
+const HEX_COLOUR = /^#[0-9a-f]{6}$/i;
+const FALLBACK_COLOUR = '#8c7f76';
 
 export function normaliseGroup(input: unknown, fallbackId: number): GroupRecord | null {
   if (!input || typeof input !== 'object') {
-    return null
+    return null;
   }
 
-  const raw = input as Record<string, unknown>
-  const name = text(raw.name).trim()
+  const raw = input as Record<string, unknown>;
+  const name = text(raw.name).trim();
 
   if (!name) {
-    return null
+    return null;
   }
 
-  const colour = text(raw.colour)
+  const colour = text(raw.colour);
 
   return {
     id: typeof raw.id === 'number' && Number.isFinite(raw.id) ? raw.id : fallbackId,
@@ -109,15 +109,15 @@ export function normaliseGroup(input: unknown, fallbackId: number): GroupRecord 
     // than passed through.
     colour: HEX_COLOUR.test(colour) ? colour : FALLBACK_COLOUR,
     orderIndex: typeof raw.orderIndex === 'number' && Number.isFinite(raw.orderIndex) ? raw.orderIndex : 0
-  }
+  };
 }
 
 export function normaliseGroups(input: unknown): GroupRecord[] {
   if (!Array.isArray(input)) {
-    return []
+    return [];
   }
 
   return input
     .map((entry, index) => normaliseGroup(entry, -(index + 1)))
-    .filter((group): group is GroupRecord => group !== null)
+    .filter((group): group is GroupRecord => group !== null);
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { partOfSpeechColour } from '#shared/constants/pos'
-import type { Rating } from '#shared/constants/rating'
-import type { CardRecord, GroupRecord } from '#shared/types/card'
+import { partOfSpeechColour } from '#shared/constants/pos';
+import type { Rating } from '#shared/constants/rating';
+import type { CardRecord, GroupRecord } from '#shared/types/card';
 
 /**
  * One card, front and back.
@@ -18,51 +18,40 @@ import type { CardRecord, GroupRecord } from '#shared/types/card'
  * The proportions are a 3 by 5 index card, the shape a paper flashcard actually
  * is, rather than whatever height the content happened to need.
  */
-const props = withDefaults(defineProps<{
-  card: CardRecord
-  flipped?: boolean
-  size?: 'sm' | 'md' | 'lg'
-  /** Dimmed and inert, for the cards stacked behind the top one. */
-  inert?: boolean
-  /**
-   * Whether clicking the card turns it.
-   *
-   * False in the stack view, where a drag gesture already decides what a
-   * release means and a second handler here would turn it straight back.
-   */
-  flipOnClick?: boolean
-  /**
-   * -1 to 1, how far a drag has gone toward binning or keeping.
-   *
-   * The card itself shows the outcome: it goes red as it moves left and lifts
-   * as it moves right. An earlier version floated two chips over the card
-   * instead, which covered the word you were deciding about.
-   */
-  intent?: number
-}>(), {
-  flipped: false,
-  size: 'md',
-  inert: false,
-  flipOnClick: true,
-  intent: 0
-})
+const props = withDefaults(
+  defineProps<{
+    card: CardRecord;
+    flipped?: boolean;
+    size?: 'sm' | 'md' | 'lg';
+    /** Dimmed and inert, for the cards stacked behind the top one. */
+    inert?: boolean;
+    /** Whether clicking the card turns it. Off for a card being shown, not used. */
+    flipOnClick?: boolean;
+  }>(),
+  {
+    flipped: false,
+    size: 'md',
+    inert: false,
+    flipOnClick: true
+  }
+);
 
 const emit = defineEmits<{
-  'update:flipped': [value: boolean]
-  'edit': []
-  'remove': []
-  'rate': [value: Rating]
-}>()
+  'update:flipped': [value: boolean];
+  'edit': [];
+  'remove': [];
+  'rate': [value: Rating];
+}>();
 
-const { t, locale } = useI18n()
-const toast = useToast()
-const { speak, speaking } = useSpeech()
-const { byId } = useGroups()
+const { t, locale } = useI18n();
+const toast = useToast();
+const { speak, speaking } = useSpeech();
+const { byId } = useGroups();
 
 /** 3 by 5, the index card everyone already owns. */
-const widths = { sm: 'max-w-[15rem]', md: 'max-w-[20rem]', lg: 'max-w-[26rem]' }
-const hanziSizes = { sm: 'text-5xl', md: 'text-7xl', lg: 'text-8xl sm:text-9xl' }
-const meaningSizes = { sm: 'text-base', md: 'text-xl', lg: 'text-2xl' }
+const widths = { sm: 'max-w-[15rem]', md: 'max-w-[20rem]', lg: 'max-w-[26rem]' };
+const hanziSizes = { sm: 'text-5xl', md: 'text-7xl', lg: 'text-8xl sm:text-9xl' };
+const meaningSizes = { sm: 'text-base', md: 'text-xl', lg: 'text-2xl' };
 
 /**
  * The meaning in the interface's language.
@@ -73,18 +62,27 @@ const meaningSizes = { sm: 'text-base', md: 'text-xl', lg: 'text-2xl' }
  */
 const meaning = computed(() => {
   if (locale.value === 'vi' && props.card.translationVi) {
-    return props.card.translationVi
+    return props.card.translationVi;
   }
-  return props.card.translation
-})
+  return props.card.translation;
+});
 
-const posColour = computed(() => partOfSpeechColour(props.card.pos))
+const posColour = computed(() => partOfSpeechColour(props.card.pos));
 
-const cardGroups = computed(() =>
-  props.card.groupIds
-    .map(byId)
-    .filter(group => group !== undefined) as GroupRecord[]
-)
+/*
+ * The chrome is sized against the card it sits on.
+ *
+ * A 44px target is the floor for a control you hit with a thumb, and the icons
+ * were below it on every card. They scale with the card rather than being one
+ * fixed size, so the stack, where the card is half the screen, gets buttons to
+ * match instead of the same specks the gallery uses.
+ */
+const chromeSizes = { sm: 'sm', md: 'md', lg: 'xl' } as const;
+const ratingSizes = { sm: 'sm', md: 'md', lg: 'lg' } as const;
+
+const cardGroups = computed(
+  () => props.card.groupIds.map(byId).filter((group) => group !== undefined) as GroupRecord[]
+);
 
 /*
  * The chrome hides while the card is turning.
@@ -93,74 +91,76 @@ const cardGroups = computed(() =>
  * a rating you can press mid-turn belongs to neither face. They come back once
  * the rotation settles, on the same 500ms the transform runs for.
  */
-const turning = ref(false)
-let settle: ReturnType<typeof setTimeout> | undefined
+const turning = ref(false);
+let settle: ReturnType<typeof setTimeout> | undefined;
 
-watch(() => props.flipped, () => {
-  turning.value = true
-  clearTimeout(settle)
-  settle = setTimeout(() => {
-    turning.value = false
-  }, 500)
-})
+watch(
+  () => props.flipped,
+  () => {
+    turning.value = true;
+    clearTimeout(settle);
+    settle = setTimeout(() => {
+      turning.value = false;
+    }, 500);
+  }
+);
 
 /*
  * The press dip. Released on a window listener rather than the element's own
  * pointerup, because the stack view captures the pointer on its drag wrapper
  * and the element never sees the release.
  */
-const pressed = ref(false)
+const pressed = ref(false);
 
 function press() {
   if (!props.inert) {
-    pressed.value = true
+    pressed.value = true;
   }
 }
 
 function release() {
-  pressed.value = false
+  pressed.value = false;
 }
 
 onMounted(() => {
-  window.addEventListener('pointerup', release)
-  window.addEventListener('pointercancel', release)
-})
+  window.addEventListener('pointerup', release);
+  window.addEventListener('pointercancel', release);
+});
 
 onBeforeUnmount(() => {
-  clearTimeout(settle)
-  window.removeEventListener('pointerup', release)
-  window.removeEventListener('pointercancel', release)
-})
+  clearTimeout(settle);
+  window.removeEventListener('pointerup', release);
+  window.removeEventListener('pointercancel', release);
+});
 
 async function copy() {
   try {
-    await navigator.clipboard.writeText(props.card.hanzi)
-    toast.add({ title: t('card.copied', { hanzi: props.card.hanzi }), icon: 'i-lucide-check' })
-  }
-  catch {
+    await navigator.clipboard.writeText(props.card.hanzi);
+    toast.add({ title: t('card.copied', { hanzi: props.card.hanzi }), icon: 'i-lucide-check' });
+  } catch {
     // Denied permission, or an insecure origin. Nothing was copied, so say so
     // rather than showing a success that did not happen.
-    toast.add({ title: t('card.notCopied'), icon: 'i-lucide-triangle-alert', color: 'error' })
+    toast.add({ title: t('card.notCopied'), icon: 'i-lucide-triangle-alert', color: 'error' });
   }
 }
-
-/** How red the card goes as it moves toward the bin. */
-const binning = computed(() => Math.max(0, -props.intent))
 </script>
 
 <template>
   <div
-    class="group relative mx-auto w-full select-none [perspective:1600px]"
-    :class="widths[size]"
+    class="group relative mx-auto w-full transition-transform duration-300 ease-out select-none [perspective:1600px]"
+    :class="[
+      widths[size],
+      !inert && flipOnClick && 'cursor-pointer',
+      // The card lifts toward the reader on hover, which is the other half of
+      // the shadow: without it the shadow grows under a card that has not moved.
+      !inert && 'hover:-translate-y-0.5'
+    ]"
     style="aspect-ratio: 5 / 3.2"
     @pointerdown="press"
   >
     <div
       class="relative size-full transition-transform duration-500 [transform-style:preserve-3d]"
-      :class="[
-        flipped && '[transform:rotateY(180deg)]',
-        pressed && 'scale-[0.97]'
-      ]"
+      :class="[flipped && '[transform:rotateY(180deg)]', pressed && 'scale-[0.97]']"
     >
       <!-- Front -->
       <div
@@ -168,22 +168,13 @@ const binning = computed(() => Math.max(0, -props.intent))
         :class="inert && 'opacity-60'"
       >
         <!-- Clipped by the card's own overflow, so it follows the corner. -->
-        <span
-          class="absolute inset-x-0 top-0 h-1"
-          :style="{ backgroundColor: posColour }"
-        />
+        <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColour }" />
 
-        <p
-          class="juka-hanzi font-hanzi leading-none text-highlighted"
-          :class="hanziSizes[size]"
-        >
+        <p class="juka-hanzi font-hanzi leading-none text-highlighted" :class="hanziSizes[size]">
           {{ card.hanzi }}
         </p>
 
-        <div
-          v-if="cardGroups.length"
-          class="absolute inset-x-0 bottom-10 flex flex-wrap justify-center gap-1 px-4"
-        >
+        <div v-if="cardGroups.length" class="absolute inset-x-0 bottom-10 flex flex-wrap justify-center gap-1 px-4">
           <span
             v-for="group in cardGroups"
             :key="group.id"
@@ -192,36 +183,22 @@ const binning = computed(() => Math.max(0, -props.intent))
               color: group.colour,
               backgroundColor: `color-mix(in oklab, ${group.colour} 14%, transparent)`
             }"
-          >{{ group.name }}</span>
+            >{{ group.name }}</span
+          >
         </div>
-
-        <!-- The bin wash, on the card rather than over it. -->
-        <span
-          class="pointer-events-none absolute inset-0 bg-error"
-          :style="{ opacity: binning * 0.35 }"
-        />
       </div>
 
       <!-- Back -->
       <div
-        class="juka-card absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden px-6 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]"
+        class="juka-card absolute inset-0 flex [transform:rotateY(180deg)] flex-col items-center justify-center gap-2 overflow-hidden px-6 text-center [backface-visibility:hidden]"
       >
-        <span
-          class="absolute inset-x-0 top-0 h-1"
-          :style="{ backgroundColor: posColour }"
-        />
+        <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColour }" />
 
-        <p
-          class="font-medium text-muted"
-          :class="size === 'sm' ? 'text-base' : 'text-xl'"
-        >
+        <p class="font-medium text-muted" :class="size === 'sm' ? 'text-base' : 'text-xl'">
           {{ card.pinyin }}
         </p>
 
-        <p
-          class="font-semibold text-highlighted"
-          :class="meaningSizes[size]"
-        >
+        <p class="font-semibold text-highlighted" :class="meaningSizes[size]">
           {{ meaning || t('card.noTranslation') }}
         </p>
 
@@ -232,12 +209,8 @@ const binning = computed(() => Math.max(0, -props.intent))
             color: posColour,
             backgroundColor: `color-mix(in oklab, ${posColour} 14%, transparent)`
           }"
-        >{{ t(`pos.${card.pos}`) }}</span>
-
-        <span
-          class="pointer-events-none absolute inset-0 bg-error"
-          :style="{ opacity: binning * 0.35 }"
-        />
+          >{{ t(`pos.${card.pos}`) }}</span
+        >
       </div>
     </div>
 
@@ -261,32 +234,34 @@ const binning = computed(() => Math.max(0, -props.intent))
       :class="turning ? 'opacity-0' : 'opacity-100'"
     >
       <div
-        class="pointer-events-auto absolute left-2 top-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
+        class="pointer-events-auto absolute top-2 left-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100 max-sm:opacity-100"
       >
         <UTooltip :text="t('card.copy')">
           <UButton
             icon="i-lucide-copy"
             color="neutral"
             variant="ghost"
-            size="xs"
+            :size="chromeSizes[size]"
             :aria-label="t('card.copy')"
             @pointerdown.stop
+            @pointerup.stop
             @click.stop="copy"
           />
         </UTooltip>
       </div>
 
       <div
-        class="pointer-events-auto absolute right-2 top-2 flex items-center gap-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
+        class="pointer-events-auto absolute top-2 right-2 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100 max-sm:opacity-100"
       >
         <UTooltip :text="t('card.edit')">
           <UButton
             icon="i-lucide-pencil"
             color="neutral"
             variant="ghost"
-            size="xs"
+            :size="chromeSizes[size]"
             :aria-label="t('card.edit')"
             @pointerdown.stop
+            @pointerup.stop
             @click.stop="emit('edit')"
           />
         </UTooltip>
@@ -295,35 +270,33 @@ const binning = computed(() => Math.max(0, -props.intent))
             icon="i-lucide-trash-2"
             color="neutral"
             variant="ghost"
-            size="xs"
+            :size="chromeSizes[size]"
             :aria-label="t('common.delete')"
             @pointerdown.stop
+            @pointerup.stop
             @click.stop="emit('remove')"
           />
         </UTooltip>
       </div>
 
-      <div class="pointer-events-auto absolute bottom-2 right-2">
+      <div class="pointer-events-auto absolute right-2 bottom-2">
         <UTooltip :text="t('card.listen')">
           <UButton
             icon="i-lucide-volume-2"
             color="neutral"
             variant="ghost"
-            size="xs"
+            :size="chromeSizes[size]"
             :class="speaking && 'text-primary'"
             :aria-label="t('card.listen')"
             @pointerdown.stop
+            @pointerup.stop
             @click.stop="speak(card.hanzi)"
           />
         </UTooltip>
       </div>
 
       <div class="pointer-events-auto absolute inset-x-0 bottom-2 flex justify-center">
-        <CardRating
-          :model-value="card.rating"
-          :size="size === 'sm' ? 'sm' : 'md'"
-          @update:model-value="emit('rate', $event)"
-        />
+        <CardRating :model-value="card.rating" :size="ratingSizes[size]" @update:model-value="emit('rate', $event)" />
       </div>
     </div>
   </div>

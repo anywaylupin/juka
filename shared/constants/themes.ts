@@ -18,15 +18,15 @@
  * renders and what the preferences route validates against.
  */
 export interface ThemeDefinition {
-  name: string
-  label: string
+  name: string;
+  label: string;
   /**
    * Light and dark are literally white and black pages. Sepia is the single
    * exception: chenpi is a reading mode, so it keeps a warm paper page.
    */
-  mode: 'light' | 'sepia' | 'dark'
+  mode: 'light' | 'sepia' | 'dark';
   /** The accent. Shown as the picker swatch, matching --color-<name>-500. */
-  primary: string
+  primary: string;
   /**
    * The page colour, for reading modes only.
    *
@@ -34,9 +34,9 @@ export interface ThemeDefinition {
    * so. A sepia theme is the exception: paper is the whole point of it, so it
    * names its own.
    */
-  page?: string
+  page?: string;
   /** One line on where the colour comes from. Shown as the swatch tooltip. */
-  description: string
+  description: string;
 }
 
 export const THEMES = [
@@ -49,23 +49,91 @@ export const THEMES = [
    * Seville oranges are the bitter ones nobody eats raw and everybody turns
    * into marmalade, which is about the right amount of warmth for the colour.
    */
-  { name: 'seville', label: 'Seville', mode: 'sepia', primary: '#d97757', page: '#faf9f5', description: 'Clay on warm paper. Reading mode, and the default' },
-  { name: 'ponkan', label: 'Ponkan', mode: 'light', primary: '#e35205', description: '椪柑. Deep mandarin orange, the colour of its own fruit' },
-  { name: 'tangerine', label: 'Tangerine', mode: 'light', primary: '#f5821f', description: 'Straight tangerine orange' },
-  { name: 'clementine', label: 'Clementine', mode: 'light', primary: '#2f6fd0', description: 'The blue of Clementine\'s hair, not the peel' },
-  { name: 'meyer', label: 'Meyer', mode: 'light', primary: '#d99e00', description: 'Meyer lemon, softened toward honey' },
+  {
+    name: 'seville',
+    label: 'Seville',
+    mode: 'sepia',
+    primary: '#d97757',
+    page: '#faf9f5',
+    description: 'Clay on warm paper. Reading mode, and the default'
+  },
+  {
+    name: 'ponkan',
+    label: 'Ponkan',
+    mode: 'light',
+    primary: '#e35205',
+    description: '椪柑. Deep mandarin orange, the colour of its own fruit'
+  },
+  {
+    name: 'tangerine',
+    label: 'Tangerine',
+    mode: 'light',
+    primary: '#f5821f',
+    description: 'Straight tangerine orange'
+  },
+  {
+    name: 'clementine',
+    label: 'Clementine',
+    mode: 'light',
+    primary: '#2f6fd0',
+    description: "The blue of Clementine's hair, not the peel"
+  },
+  {
+    name: 'meyer',
+    label: 'Meyer',
+    mode: 'light',
+    primary: '#d99e00',
+    description: 'Meyer lemon, softened toward honey'
+  },
   { name: 'yuzu', label: 'Yuzu', mode: 'light', primary: '#8a9b1f', description: 'Sharp yellow-green, high acid' },
-  { name: 'calamansi', label: 'Calamansi', mode: 'light', primary: '#2e9153', description: 'Southeast Asian green, cut with lime' },
-  { name: 'bergamot', label: 'Bergamot', mode: 'light', primary: '#6b5bd2', description: 'Earl Grey. The flower, not the rind' },
+  {
+    name: 'calamansi',
+    label: 'Calamansi',
+    mode: 'light',
+    primary: '#2e9153',
+    description: 'Southeast Asian green, cut with lime'
+  },
+  {
+    name: 'bergamot',
+    label: 'Bergamot',
+    mode: 'light',
+    primary: '#6b5bd2',
+    description: 'Earl Grey. The flower, not the rind'
+  },
   { name: 'caracara', label: 'Cara Cara', mode: 'light', primary: '#e0596b', description: 'Pink navel, coral flesh' },
-  { name: 'pomelo', label: 'Pomelo', mode: 'light', primary: '#0e8f9e', description: 'Cool and pale, the quiet one of the family' },
-  { name: 'chenpi', label: 'Chenpi', mode: 'sepia', primary: '#9c5a2b', page: '#f7f1e8', description: '陈皮, dried aged peel. Darker paper' },
-  { name: 'marmalade', label: 'Marmalade', mode: 'dark', primary: '#e08236', description: 'Amber preserve held up to the light' },
-  { name: 'tarocco', label: 'Tarocco', mode: 'dark', primary: '#e0344e', description: 'Blood orange. The default dark theme' }
-] as const satisfies readonly ThemeDefinition[]
+  {
+    name: 'pomelo',
+    label: 'Pomelo',
+    mode: 'light',
+    primary: '#0e8f9e',
+    description: 'Cool and pale, the quiet one of the family'
+  },
+  {
+    name: 'chenpi',
+    label: 'Chenpi',
+    mode: 'sepia',
+    primary: '#9c5a2b',
+    page: '#f7f1e8',
+    description: '陈皮, dried aged peel. Darker paper'
+  },
+  {
+    name: 'marmalade',
+    label: 'Marmalade',
+    mode: 'dark',
+    primary: '#e08236',
+    description: 'Amber preserve held up to the light'
+  },
+  {
+    name: 'tarocco',
+    label: 'Tarocco',
+    mode: 'dark',
+    primary: '#e0344e',
+    description: 'Blood orange. The default dark theme'
+  }
+] as const satisfies readonly ThemeDefinition[];
 
-export type ThemeName = typeof THEMES[number]['name']
+export type ThemeName = (typeof THEMES)[number]['name'];
 
-export const THEME_NAMES = THEMES.map(theme => theme.name) as unknown as [ThemeName, ...ThemeName[]]
+export const THEME_NAMES = THEMES.map((theme) => theme.name) as unknown as [ThemeName, ...ThemeName[]];
 
-export const DEFAULT_THEME: ThemeName = 'seville'
+export const DEFAULT_THEME: ThemeName = 'seville';

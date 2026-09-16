@@ -1,12 +1,5 @@
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/ui',
-    '@nuxtjs/i18n',
-    'nuxt-auth-utils',
-    'motion-v/nuxt',
-    '@nuxt/eslint',
-    '@nuxt/test-utils/module'
-  ],
+  modules: ['@nuxt/ui', '@nuxtjs/i18n', 'nuxt-auth-utils', 'motion-v/nuxt', '@nuxt/eslint', '@nuxt/test-utils/module'],
 
   // Nuxt 4 layout: app code in app/, server code in server/, isomorphic code in shared/.
   css: ['~/assets/css/main.css'],
@@ -33,23 +26,7 @@ export default defineNuxtConfig({
       // Nitro reads the root wrangler.jsonc, merges its own main and assets entries,
       // and writes the result to .output/server/wrangler.json at build time.
       deployConfig: true,
-      nodeCompat: true,
-      wrangler: {
-        /*
-         * Workers AI, for one job only: translating a card's English meaning
-         * into Vietnamese, cached per word so it costs one inference ever.
-         *
-         * It lives here rather than in wrangler.jsonc because this object is
-         * merged into the generated deploy config and is never shown to the dev
-         * emulator. Workers AI has no local emulation, and an "ai" block in
-         * wrangler.jsonc makes miniflare fail to build the environment during
-         * `pnpm dev`, taking D1 and R2 down with it.
-         *
-         * So the binding exists in the deployed worker and is absent locally,
-         * which is what tryWorkersAi and every caller already handle.
-         */
-        ai: { binding: 'AI' }
-      }
+      nodeCompat: true
     }
   },
 
@@ -86,4 +63,4 @@ export default defineNuxtConfig({
     typeCheck: false,
     strict: true
   }
-})
+});

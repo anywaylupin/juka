@@ -18,57 +18,55 @@
  * because that is the moment to explain where cards are about to be kept.
  */
 
-const SEEN_KEY = 'juka.signin.lastShown'
-const NEVER_KEY = 'juka.signin.never'
-const GREETED_KEY = 'juka.signin.greeted'
+const SEEN_KEY = 'juka.signin.lastShown';
+const NEVER_KEY = 'juka.signin.never';
+const GREETED_KEY = 'juka.signin.greeted';
 
 /** A week. Often enough to matter, rare enough not to nag. */
-const QUIET_PERIOD = 7 * 24 * 60 * 60 * 1000
+const QUIET_PERIOD = 7 * 24 * 60 * 60 * 1000;
 
 /** A few seconds in, so it lands after the page has settled rather than over it. */
-const DELAY = 2500
+const DELAY = 2500;
 
 function read(key: string): string | null {
   try {
-    return window.localStorage.getItem(key)
-  }
-  catch {
-    return null
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
   }
 }
 
 function write(key: string, value: string) {
   try {
-    window.localStorage.setItem(key, value)
+    window.localStorage.setItem(key, value);
+  } catch {
+    /* private mode; the reminder simply repeats next session */
   }
-  catch { /* private mode; the reminder simply repeats next session */ }
 }
 
 export function useSignInReminder() {
-  const { t } = useI18n()
-  const toast = useToast()
-  const session = useSession()
-  const store = useCardStore()
+  const { t } = useI18n();
+  const toast = useToast();
+  const session = useSession();
+  const store = useCardStore();
 
-  let timer: ReturnType<typeof setTimeout> | undefined
+  let timer: ReturnType<typeof setTimeout> | undefined;
   /** Opened by the toast's own action, read by the header's auth dialog. */
-  const requested = useState('juka:signin-requested', () => false)
+  const requested = useState('juka:signin-requested', () => false);
 
   function silence() {
-    write(NEVER_KEY, '1')
+    write(NEVER_KEY, '1');
   }
 
   function remindLater() {
     // Recorded as shown now, so the quiet period restarts from this moment.
-    write(SEEN_KEY, String(Date.now()))
+    write(SEEN_KEY, String(Date.now()));
   }
 
   function show(firstVisit: boolean) {
     toast.add({
       title: firstVisit ? t('reminder.welcomeTitle') : t('reminder.title'),
-      description: firstVisit
-        ? t('reminder.welcomeBody')
-        : t('reminder.body', { count: store.cards.value.length }),
+      description: firstVisit ? t('reminder.welcomeBody') : t('reminder.body', { count: store.cards.value.length }),
       icon: 'i-lucide-cloud-upload',
       // Long enough to read and act on, short enough that ignoring it works.
       duration: 12000,
@@ -77,8 +75,8 @@ export function useSignInReminder() {
           label: t('auth.signIn'),
           color: 'primary',
           onClick: () => {
-            remindLater()
-            requested.value = true
+            remindLater();
+            requested.value = true;
           }
         },
         {
@@ -94,47 +92,47 @@ export function useSignInReminder() {
           onClick: silence
         }
       ]
-    })
+    });
 
-    write(SEEN_KEY, String(Date.now()))
+    write(SEEN_KEY, String(Date.now()));
   }
 
   /** Decides whether to nudge, and when. Safe to call on every page load. */
   function schedule() {
     if (import.meta.server) {
-      return
+      return;
     }
 
-    clearTimeout(timer)
+    clearTimeout(timer);
 
     timer = setTimeout(() => {
       if (session.signedIn.value || read(NEVER_KEY)) {
-        return
+        return;
       }
 
-      const firstVisit = !read(GREETED_KEY)
+      const firstVisit = !read(GREETED_KEY);
 
       if (firstVisit) {
-        write(GREETED_KEY, '1')
-        show(true)
-        return
+        write(GREETED_KEY, '1');
+        show(true);
+        return;
       }
 
       // Nothing to lose yet, so nothing to warn about.
       if (store.cards.value.length === 0) {
-        return
+        return;
       }
 
-      const last = Number(read(SEEN_KEY) ?? 0)
+      const last = Number(read(SEEN_KEY) ?? 0);
       if (Number.isFinite(last) && Date.now() - last < QUIET_PERIOD) {
-        return
+        return;
       }
 
-      show(false)
-    }, DELAY)
+      show(false);
+    }, DELAY);
   }
 
-  onBeforeUnmount(() => clearTimeout(timer))
+  onBeforeUnmount(() => clearTimeout(timer));
 
-  return { schedule, requested }
+  return { schedule, requested };
 }

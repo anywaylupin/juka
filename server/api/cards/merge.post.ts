@@ -1,7 +1,7 @@
-import { and, eq, inArray } from 'drizzle-orm'
-import { cardMergeSchema } from '#shared/schemas/card'
-import type { MergeResult } from '#shared/types/auth'
-import { cards } from '../../database/schema'
+import { and, eq, inArray } from 'drizzle-orm';
+import { cardMergeSchema } from '#shared/schemas/card';
+import type { MergeResult } from '#shared/types/auth';
+import { cards } from '../../database/schema';
 
 /**
  * Copies the cards a signed out visitor built up in local storage onto their
@@ -14,29 +14,29 @@ import { cards } from '../../database/schema'
  * what makes signing out safe.
  */
 export default defineEventHandler(async (event): Promise<MergeResult> => {
-  const { cards: incoming } = await readValidatedBody(event, cardMergeSchema.parse)
-  const userId = await requireUserId(event)
-  const db = useDrizzle(event)
+  const { cards: incoming } = await readValidatedBody(event, cardMergeSchema.parse);
+  const userId = await requireUserId(event);
+  const db = useDrizzle(event);
 
-  const result: MergeResult = { added: 0, skipped: 0, failed: 0 }
+  const result: MergeResult = { added: 0, skipped: 0, failed: 0 };
 
   if (incoming.length === 0) {
-    return result
+    return result;
   }
 
   // One read to find out what is already filed, rather than a query per card.
-  const wanted = [...new Set(incoming.map(card => card.hanzi))]
+  const wanted = [...new Set(incoming.map((card) => card.hanzi))];
   const existing = await db
     .select({ hanzi: cards.hanzi })
     .from(cards)
-    .where(and(eq(cards.userId, userId), inArray(cards.hanzi, wanted)))
+    .where(and(eq(cards.userId, userId), inArray(cards.hanzi, wanted)));
 
-  const filed = new Set(existing.map(row => row.hanzi))
+  const filed = new Set(existing.map((row) => row.hanzi));
 
   for (const card of incoming) {
     if (filed.has(card.hanzi)) {
-      result.skipped += 1
-      continue
+      result.skipped += 1;
+      continue;
     }
 
     try {
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event): Promise<MergeResult> => {
         rating: card.rating,
         notes: card.notes ?? null,
         ...deriveCardFields(card.hanzi, card.pinyin)
-      })
+      });
 
       /*
        * Groups are deliberately not carried across. A signed out box has its
@@ -59,19 +59,18 @@ export default defineEventHandler(async (event): Promise<MergeResult> => {
        * a second guess on top of the merge. The cards arrive ungrouped and the
        * user files them.
        */
-      filed.add(card.hanzi)
-      result.added += 1
-    }
-    catch {
+      filed.add(card.hanzi);
+      result.added += 1;
+    } catch {
       /*
        * Almost certainly the unique index catching a duplicate that slipped
        * past the read above, which is a skip rather than a failure. Anything
        * else is counted honestly rather than swallowed, and one bad card never
        * stops the rest of the merge.
        */
-      result.failed += 1
+      result.failed += 1;
     }
   }
 
-  return result
-})
+  return result;
+});

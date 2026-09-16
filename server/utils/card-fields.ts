@@ -1,14 +1,14 @@
-import { pinyin } from 'pinyin-pro'
+import { pinyin } from 'pinyin-pro';
 
-const HAN = /\p{Script=Han}/u
-const HAN_OR_WORD = /\p{Script=Han}+|[a-z0-9]+/giu
+const HAN = /\p{Script=Han}/u;
+const HAN_OR_WORD = /\p{Script=Han}+|[a-z0-9]+/giu;
 
 export interface DerivedCardFields {
-  pinyin: string
-  pinyinPlain: string
-  hanziChars: string
-  pinyinSearch: string
-  syllables: number
+  pinyin: string;
+  pinyinPlain: string;
+  hanziChars: string;
+  pinyinSearch: string;
+  syllables: number;
 }
 
 /**
@@ -17,19 +17,15 @@ export interface DerivedCardFields {
  * the hanzi they describe.
  */
 export function deriveCardFields(hanzi: string, suppliedPinyin?: string | null): DerivedCardFields {
-  const trimmed = hanzi.trim()
-  const characters = [...trimmed].filter(character => HAN.test(character))
+  const trimmed = hanzi.trim();
+  const characters = [...trimmed].filter((character) => HAN.test(character));
 
-  const toned = suppliedPinyin?.trim()
-    || pinyin(trimmed, { toneType: 'symbol', type: 'string' })
+  const toned = suppliedPinyin?.trim() || pinyin(trimmed, { toneType: 'symbol', type: 'string' });
 
   // pinyin-pro returns syllables separated by spaces: 时间 becomes "shi jian".
-  const syllableList = pinyin(trimmed, { toneType: 'none', type: 'string' })
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
+  const syllableList = pinyin(trimmed, { toneType: 'none', type: 'string' }).toLowerCase().split(/\s+/).filter(Boolean);
 
-  const joined = syllableList.join('')
+  const joined = syllableList.join('');
 
   return {
     pinyin: toned,
@@ -39,7 +35,7 @@ export function deriveCardFields(hanzi: string, suppliedPinyin?: string | null):
     // Both forms, so "shijian" and "jian" each find the card.
     pinyinSearch: [joined, ...syllableList].filter(Boolean).join(' '),
     syllables: characters.length
-  }
+  };
 }
 
 /**
@@ -53,19 +49,15 @@ export function deriveCardFields(hanzi: string, suppliedPinyin?: string | null):
  * "no text filter".
  */
 export function buildSearchMatch(raw: string): string | null {
-  const terms: string[] = []
+  const terms: string[] = [];
 
   for (const match of raw.matchAll(HAN_OR_WORD)) {
-    const term = match[0]
+    const term = match[0];
     if (!term) {
-      continue
+      continue;
     }
-    terms.push(
-      HAN.test(term)
-        ? `"${[...term].join(' ')}"`
-        : `${term.toLowerCase()}*`
-    )
+    terms.push(HAN.test(term) ? `"${[...term].join(' ')}"` : `${term.toLowerCase()}*`);
   }
 
-  return terms.length > 0 ? terms.join(' ') : null
+  return terms.length > 0 ? terms.join(' ') : null;
 }

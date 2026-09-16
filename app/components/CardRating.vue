@@ -1,30 +1,36 @@
 <script setup lang="ts">
-import { RATING_ICON, RATING_VALUES, type Rating } from '#shared/constants/rating'
+import { RATING_ICON, RATING_VALUES, type Rating } from '#shared/constants/rating';
 
-const props = withDefaults(defineProps<{
-  modelValue: Rating
-  /** Read only, for a card seen in passing. */
-  readonly?: boolean
-  size?: 'sm' | 'md' | 'lg'
-}>(), {
-  readonly: false,
-  size: 'md'
-})
+const props = withDefaults(
+  defineProps<{
+    modelValue: Rating;
+    /** Read only, for a card seen in passing. */
+    readonly?: boolean;
+    size?: 'sm' | 'md' | 'lg';
+  }>(),
+  {
+    readonly: false,
+    size: 'md'
+  }
+);
 
-const emit = defineEmits<{ 'update:modelValue': [value: Rating] }>()
+const emit = defineEmits<{ 'update:modelValue': [value: Rating] }>();
 
-const { t } = useI18n()
-const { labelFor } = useRatingLabels()
+const { t } = useI18n();
+const { labelFor } = useRatingLabels();
 
-const sizeClass = computed(() => ({
-  sm: 'size-3.5',
-  md: 'size-5',
-  lg: 'size-7'
-}[props.size]))
+const sizeClass = computed(
+  () =>
+    ({
+      sm: 'size-3.5',
+      md: 'size-5',
+      lg: 'size-7'
+    })[props.size]
+);
 
 /** Tapping the mandarin you are already on clears the rating back to unrated. */
 function choose(value: Rating) {
-  emit('update:modelValue', props.modelValue === value ? 0 : value)
+  emit('update:modelValue', props.modelValue === value ? 0 : value);
 }
 </script>
 
@@ -42,22 +48,13 @@ function choose(value: Rating) {
     />
   </div>
 
-  <div
-    v-else
-    class="flex items-center gap-0.5"
-    role="radiogroup"
-    :aria-label="t('rating.label')"
-  >
+  <div v-else class="flex items-center gap-0.5" role="radiogroup" :aria-label="t('rating.label')">
     <!--
       One tooltip per mandarin, naming what that level means rather than just
       its number. The scale is the user's own judgement, so the wording is about
       recall and not about being correct.
     -->
-    <UTooltip
-      v-for="value in RATING_VALUES"
-      :key="value"
-      :text="labelFor(value)"
-    >
+    <UTooltip v-for="value in RATING_VALUES" :key="value" :text="labelFor(value)">
       <button
         type="button"
         role="radio"

@@ -1,0 +1,22 @@
+# Generated, vendored, or not ours to reformat.
+
+# Build output and caches
+.nuxt
+.output
+.wrangler
+dist
+node_modules
+
+# The bundled dictionary: 432 generated shards and a licence notice that must
+# travel byte for byte.
+public/dict
+
+# Generated from shared/constants/themes.ts by scripts/generate-theme-css.ts,
+# and from the icon set by scripts/build-favicon.ts.
+app/assets/css/themes.css
+public/favicon.svg
+
+# Drizzle writes these. Reformatting a snapshot makes the next diff unreadable.
+server/database/migrations
+
+pnpm-lock.yaml

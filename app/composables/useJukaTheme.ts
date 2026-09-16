@@ -1,4 +1,4 @@
-import { DEFAULT_THEME, THEMES, type ThemeName } from '#shared/constants/themes'
+import { DEFAULT_THEME, THEMES, type ThemeName } from '#shared/constants/themes';
 
 /**
  * Theme state.
@@ -15,23 +15,21 @@ export function useJukaTheme() {
     maxAge: 60 * 60 * 24 * 365,
     sameSite: 'lax',
     default: () => null
-  })
+  });
 
-  const theme = useState<ThemeName>('juka:theme', () => normalise(cookie.value))
+  const theme = useState<ThemeName>('juka:theme', () => normalise(cookie.value));
 
-  const definition = computed(
-    () => THEMES.find(entry => entry.name === theme.value) ?? THEMES[0]
-  )
+  const definition = computed(() => THEMES.find((entry) => entry.name === theme.value) ?? THEMES[0]);
 
-  const colorMode = useColorMode()
+  const colorMode = useColorMode();
 
   watch(
     () => definition.value.mode,
     (mode) => {
-      colorMode.preference = mode === 'dark' ? 'dark' : 'light'
+      colorMode.preference = mode === 'dark' ? 'dark' : 'light';
     },
     { immediate: true }
-  )
+  );
 
   // data-theme drives the colour variables, so it has to be on the html tag
   // during SSR as well or the first paint uses the wrong palette.
@@ -40,35 +38,34 @@ export function useJukaTheme() {
       'data-theme': theme,
       'data-theme-mode': computed(() => definition.value.mode)
     }
-  })
+  });
 
   function applyTheme(name: ThemeName | null | undefined) {
-    const next = normalise(name)
-    theme.value = next
-    cookie.value = next
+    const next = normalise(name);
+    theme.value = next;
+    cookie.value = next;
   }
 
   async function setTheme(name: ThemeName) {
-    applyTheme(name)
+    applyTheme(name);
 
     // Signed out there is nowhere else to put it, and that is not a failure.
-    const { signedIn } = useSession()
+    const { signedIn } = useSession();
     if (!signedIn.value) {
-      return
+      return;
     }
 
     try {
-      await $fetch('/api/preferences', { method: 'PATCH', body: { theme: name } })
-    }
-    catch {
+      await $fetch('/api/preferences', { method: 'PATCH', body: { theme: name } });
+    } catch {
       // The cookie already holds the choice, so the interface stays correct for
       // this browser even though it did not reach the account.
     }
   }
 
-  return { theme, definition, themes: THEMES, setTheme, applyTheme }
+  return { theme, definition, themes: THEMES, setTheme, applyTheme };
 }
 
 function normalise(name: ThemeName | null | undefined): ThemeName {
-  return THEMES.some(entry => entry.name === name) ? name as ThemeName : DEFAULT_THEME
+  return THEMES.some((entry) => entry.name === name) ? (name as ThemeName) : DEFAULT_THEME;
 }

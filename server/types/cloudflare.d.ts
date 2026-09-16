@@ -1,4 +1,4 @@
-import type { Ai, D1Database, R2Bucket } from '@cloudflare/workers-types'
+import type { D1Database, R2Bucket } from '@cloudflare/workers-types';
 
 declare global {
   /**
@@ -6,28 +6,22 @@ declare global {
    * added here and nowhere else.
    */
   interface JukaCloudflareEnv {
-    DB: D1Database
-    AUDIO: R2Bucket
-    /**
-     * Optional on purpose. Workers AI has no local emulation, so the binding is
-     * absent during `pnpm dev` and every caller treats translation as best
-     * effort: no binding means the English meaning simply stands.
-     */
-    AI?: Ai
+    DB: D1Database;
+    AUDIO: R2Bucket;
   }
 }
 
 declare module 'h3' {
   interface H3EventContext {
     cloudflare?: {
-      env: JukaCloudflareEnv
+      env: JukaCloudflareEnv;
       context: {
-        waitUntil: (promise: Promise<unknown>) => void
-        passThroughOnException: () => void
-      }
-      request: Request
-    }
+        waitUntil: (promise: Promise<unknown>) => void;
+        passThroughOnException: () => void;
+      };
+      request: Request;
+    };
   }
 }
 
-export {}
+export {};

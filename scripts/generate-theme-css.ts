@@ -16,67 +16,67 @@
  * Run after changing shared/constants/themes.ts:
  *   node scripts/generate-theme-css.ts
  */
-import { writeFile } from 'node:fs/promises'
-import { DEFAULT_THEME, THEMES } from '../shared/constants/themes.ts'
+import { writeFile } from 'node:fs/promises';
+import { DEFAULT_THEME, THEMES } from '../shared/constants/themes.ts';
 
-type Triple = [number, number, number]
+type Triple = [number, number, number];
 
 function hexToRgb(hex: string): Triple {
-  const value = hex.replace('#', '')
+  const value = hex.replace('#', '');
   return [
     Number.parseInt(value.slice(0, 2), 16) / 255,
     Number.parseInt(value.slice(2, 4), 16) / 255,
     Number.parseInt(value.slice(4, 6), 16) / 255
-  ]
+  ];
 }
 
 function toLinear(channel: number): number {
-  return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+  return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
 }
 
 function toGamma(channel: number): number {
-  return channel <= 0.0031308 ? channel * 12.92 : 1.055 * channel ** (1 / 2.4) - 0.055
+  return channel <= 0.0031308 ? channel * 12.92 : 1.055 * channel ** (1 / 2.4) - 0.055;
 }
 
 function rgbToOklab([r, g, b]: Triple): Triple {
-  const lr = toLinear(r)
-  const lg = toLinear(g)
-  const lb = toLinear(b)
+  const lr = toLinear(r);
+  const lg = toLinear(g);
+  const lb = toLinear(b);
 
-  const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb)
-  const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb)
-  const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb)
+  const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb);
+  const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb);
+  const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb);
 
   return [
-    0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
-    1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
-    0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
-  ]
+    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
+  ];
 }
 
 function oklabToRgb([L, a, b]: Triple): Triple {
-  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
-  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
-  const s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
 
   return [
     toGamma(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
     toGamma(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
-    toGamma(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s)
-  ]
+    toGamma(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s)
+  ];
 }
 
 function inGamut([r, g, b]: Triple): boolean {
-  return [r, g, b].every(channel => channel >= -0.001 && channel <= 1.001)
+  return [r, g, b].every((channel) => channel >= -0.001 && channel <= 1.001);
 }
 
 function toHex(rgb: Triple): string {
   return `#${rgb
     .map((channel) => {
-      const clamped = Math.round(Math.min(1, Math.max(0, channel)) * 255)
-      return clamped.toString(16).padStart(2, '0')
+      const clamped = Math.round(Math.min(1, Math.max(0, channel)) * 255);
+      return clamped.toString(16).padStart(2, '0');
     })
-    .join('')}`
+    .join('')}`;
 }
 
 /**
@@ -84,88 +84,88 @@ function toHex(rgb: Triple): string {
  * lightness desaturates instead of clipping to a flat wrong colour.
  */
 function fitToGamut(L: number, a: number, b: number): string {
-  let scale = 1
+  let scale = 1;
   for (let attempt = 0; attempt < 24; attempt += 1) {
-    const rgb = oklabToRgb([L, a * scale, b * scale])
+    const rgb = oklabToRgb([L, a * scale, b * scale]);
     if (inGamut(rgb)) {
-      return toHex(rgb)
+      return toHex(rgb);
     }
-    scale *= 0.92
+    scale *= 0.92;
   }
-  return toHex(oklabToRgb([L, 0, 0]))
+  return toHex(oklabToRgb([L, 0, 0]));
 }
 
 // How far each stop sits between the base colour and the near-white or
 // near-black end of its ramp.
 const LIGHTER = [
-  { stop: 50, t: 0.0, chroma: 0.20 },
+  { stop: 50, t: 0.0, chroma: 0.2 },
   { stop: 100, t: 0.14, chroma: 0.32 },
-  { stop: 200, t: 0.34, chroma: 0.50 },
-  { stop: 300, t: 0.56, chroma: 0.70 },
+  { stop: 200, t: 0.34, chroma: 0.5 },
+  { stop: 300, t: 0.56, chroma: 0.7 },
   { stop: 400, t: 0.79, chroma: 0.89 }
-]
+];
 
 const DARKER = [
   { stop: 600, t: 0.17, chroma: 0.97 },
-  { stop: 700, t: 0.36, chroma: 0.90 },
-  { stop: 800, t: 0.54, chroma: 0.80 },
-  { stop: 900, t: 0.70, chroma: 0.70 },
+  { stop: 700, t: 0.36, chroma: 0.9 },
+  { stop: 800, t: 0.54, chroma: 0.8 },
+  { stop: 900, t: 0.7, chroma: 0.7 },
   { stop: 950, t: 0.87, chroma: 0.55 }
-]
+];
 
-const WHITE_L = 0.985
-const BLACK_L = 0.19
+const WHITE_L = 0.985;
+const BLACK_L = 0.19;
 
 function buildScale(hex: string): Record<number, string> {
-  const [L, a, b] = rgbToOklab(hexToRgb(hex))
-  const scale: Record<number, string> = { 500: hex.toLowerCase() }
+  const [L, a, b] = rgbToOklab(hexToRgb(hex));
+  const scale: Record<number, string> = { 500: hex.toLowerCase() };
 
   for (const { stop, t, chroma } of LIGHTER) {
-    scale[stop] = fitToGamut(WHITE_L + t * (L - WHITE_L), a * chroma, b * chroma)
+    scale[stop] = fitToGamut(WHITE_L + t * (L - WHITE_L), a * chroma, b * chroma);
   }
 
   for (const { stop, t, chroma } of DARKER) {
-    scale[stop] = fitToGamut(L + t * (BLACK_L - L), a * chroma, b * chroma)
+    scale[stop] = fitToGamut(L + t * (BLACK_L - L), a * chroma, b * chroma);
   }
 
-  return scale
+  return scale;
 }
 
-const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
 /**
  * A warm neutral rather than stock grey, which reads cold next to every accent
  * in this set. One ramp, shared by every theme, light and dark.
  */
-const NEUTRAL = buildScale('#8c7f76')
+const NEUTRAL = buildScale('#8c7f76');
 
 function scaleBlock(prefix: string, scale: Record<number, string>): string {
-  return STOPS.map(stop => `  ${prefix}-${stop}: ${scale[stop]};`).join('\n')
+  return STOPS.map((stop) => `  ${prefix}-${stop}: ${scale[stop]};`).join('\n');
 }
 
 async function main() {
-  const lines: string[] = []
+  const lines: string[] = [];
 
-  lines.push('/*')
-  lines.push(' * Generated by scripts/generate-theme-css.ts. Do not edit by hand.')
-  lines.push(' *')
-  lines.push(' * One accent ramp per theme, built around the 500 stop in OKLab, plus a single')
-  lines.push(' * shared warm neutral. Surfaces, borders and text come from Nuxt UI\'s own')
-  lines.push(' * defaults, so a theme changes the accent and the page colour and nothing else.')
-  lines.push(' */')
-  lines.push('')
+  lines.push('/*');
+  lines.push(' * Generated by scripts/generate-theme-css.ts. Do not edit by hand.');
+  lines.push(' *');
+  lines.push(' * One accent ramp per theme, built around the 500 stop in OKLab, plus a single');
+  lines.push(" * shared warm neutral. Surfaces, borders and text come from Nuxt UI's own");
+  lines.push(' * defaults, so a theme changes the accent and the page colour and nothing else.');
+  lines.push(' */');
+  lines.push('');
 
   // Tailwind utilities (text-ponkan-600, bg-taupe-100) come from this block.
-  lines.push('@theme static {')
+  lines.push('@theme static {');
   for (const theme of THEMES) {
-    lines.push(`  /* ${theme.label}: ${theme.description} */`)
-    lines.push(scaleBlock(`--color-${theme.name}`, buildScale(theme.primary)))
-    lines.push('')
+    lines.push(`  /* ${theme.label}: ${theme.description} */`);
+    lines.push(scaleBlock(`--color-${theme.name}`, buildScale(theme.primary)));
+    lines.push('');
   }
-  lines.push('  /* Shared neutral. Warm, never stock grey. */')
-  lines.push(scaleBlock('--color-taupe', NEUTRAL))
-  lines.push('}')
-  lines.push('')
+  lines.push('  /* Shared neutral. Warm, never stock grey. */');
+  lines.push(scaleBlock('--color-taupe', NEUTRAL));
+  lines.push('}');
+  lines.push('');
 
   /*
    * Nuxt UI reads --ui-color-primary-* and --ui-color-neutral-*, so switching a
@@ -177,26 +177,25 @@ async function main() {
    * it is the only other thing a theme sets.
    */
   for (const theme of THEMES) {
-    const selector = theme.name === DEFAULT_THEME
-      ? `:root, :root[data-theme="${theme.name}"]`
-      : `:root[data-theme="${theme.name}"]`
+    const selector =
+      theme.name === DEFAULT_THEME ? `:root, :root[data-theme="${theme.name}"]` : `:root[data-theme="${theme.name}"]`;
 
-    lines.push(`/* ${theme.label}: ${theme.description} */`)
-    lines.push(`${selector} {`)
+    lines.push(`/* ${theme.label}: ${theme.description} */`);
+    lines.push(`${selector} {`);
     for (const stop of STOPS) {
-      lines.push(`  --ui-color-primary-${stop}: var(--color-${theme.name}-${stop});`)
+      lines.push(`  --ui-color-primary-${stop}: var(--color-${theme.name}-${stop});`);
     }
     // Only a reading mode names its own page. Light and dark inherit the plain
     // white and plain black set once in main.css.
     if (theme.page) {
-      lines.push(`  --ui-bg: ${theme.page};`)
+      lines.push(`  --ui-bg: ${theme.page};`);
     }
-    lines.push('}')
-    lines.push('')
+    lines.push('}');
+    lines.push('');
   }
 
-  await writeFile('app/assets/css/themes.css', `${lines.join('\n')}\n`, 'utf8')
-  console.log(`Wrote app/assets/css/themes.css for ${THEMES.length} themes`)
+  await writeFile('app/assets/css/themes.css', `${lines.join('\n')}\n`, 'utf8');
+  console.log(`Wrote app/assets/css/themes.css for ${THEMES.length} themes`);
 }
 
-await main()
+await main();

@@ -6,6 +6,6 @@
  * contract: signing in copies local cards up, it does not move them.
  */
 export default defineEventHandler(async (event): Promise<{ ok: true }> => {
-  await clearUserSession(event)
-  return { ok: true }
-})
+  await clearUserSession(event);
+  return { ok: true };
+});

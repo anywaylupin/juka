@@ -13,12 +13,12 @@
  * own. The practice shuffle reads it, which is the one place a rating affects
  * what you see next, and that is deliberate and confined to that view.
  */
-export const MIN_RATING = 0
-export const MAX_RATING = 5
+export const MIN_RATING = 0;
+export const MAX_RATING = 5;
 
-export type Rating = 0 | 1 | 2 | 3 | 4 | 5
+export type Rating = 0 | 1 | 2 | 3 | 4 | 5;
 
-export const RATING_VALUES = [1, 2, 3, 4, 5] as const
+export const RATING_VALUES = [1, 2, 3, 4, 5] as const;
 
 /**
  * The default names, which a user may rename.
@@ -27,10 +27,10 @@ export const RATING_VALUES = [1, 2, 3, 4, 5] as const
  * choice. These are the four old statuses with `new` restored at the bottom,
  * which is where a card actually starts.
  */
-export const DEFAULT_RATING_LABELS = ['', 'new', 'difficult', 'hesitant', 'good', 'mastered'] as const
+export const DEFAULT_RATING_LABELS = ['', 'new', 'difficult', 'hesitant', 'good', 'mastered'] as const;
 
 /** How many characters a custom label may run to before it stops fitting. */
-export const MAX_RATING_LABEL = 24
+export const MAX_RATING_LABEL = 24;
 
 /**
  * One fixed colour, not a per level scale and not the theme primary.
@@ -40,10 +40,10 @@ export const MAX_RATING_LABEL = 24
  * rating look like a button. A filled mandarin is filled; the number of them is
  * the information.
  */
-export const RATING_COLOUR = '#f5821f'
+export const RATING_COLOUR = '#f5821f';
 
 /** Icons come from the installed sets. Nothing here is hand drawn. */
-export const RATING_ICON = 'i-icon-park-outline-orange'
+export const RATING_ICON = 'i-icon-park-outline-orange';
 
 /**
  * How much more often a weakly known card comes up in the practice shuffle.
@@ -64,7 +64,7 @@ export const RATING_WEIGHTS: Record<Rating, number> = {
   3: 4,
   4: 2,
   5: 1
-}
+};
 
 /**
  * The old four statuses, mapped onto the scale. Kept because migration 0004
@@ -75,23 +75,23 @@ export const LEGACY_STATUS_RATING: Record<string, Rating> = {
   hesitant: 3,
   good: 4,
   mastered: 5
-}
+};
 
 export function clampRating(value: number): Rating {
   // NaN is the only value with no sensible end to pin to, so it reads as
   // unrated. An infinity still has a direction and clamps like any other number
   // out of range, which an earlier version got wrong by lumping it in with NaN.
   if (Number.isNaN(value)) {
-    return 0
+    return 0;
   }
 
-  const rounded = Math.round(value)
+  const rounded = Math.round(value);
 
   if (rounded < MIN_RATING) {
-    return MIN_RATING as Rating
+    return MIN_RATING as Rating;
   }
 
-  return (rounded > MAX_RATING ? MAX_RATING : rounded) as Rating
+  return (rounded > MAX_RATING ? MAX_RATING : rounded) as Rating;
 }
 
 /**
@@ -102,10 +102,10 @@ export function clampRating(value: number): Rating {
  * rendering an empty chip.
  */
 export function normaliseRatingLabels(stored: unknown): string[] {
-  const source = Array.isArray(stored) ? stored : []
+  const source = Array.isArray(stored) ? stored : [];
 
   return DEFAULT_RATING_LABELS.map((fallback, index) => {
-    const value = typeof source[index] === 'string' ? (source[index] as string).trim() : ''
-    return value.slice(0, MAX_RATING_LABEL) || fallback
-  })
+    const value = typeof source[index] === 'string' ? (source[index] as string).trim() : '';
+    return value.slice(0, MAX_RATING_LABEL) || fallback;
+  });
 }

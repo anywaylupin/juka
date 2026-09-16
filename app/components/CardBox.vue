@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { partOfSpeechColour } from '#shared/constants/pos'
-import type { Rating } from '#shared/constants/rating'
-import type { CardRecord } from '#shared/types/card'
+import { partOfSpeechColour } from '#shared/constants/pos';
+import type { Rating } from '#shared/constants/rating';
+import type { CardRecord } from '#shared/types/card';
 
 /**
  * The box, seen the way it sits on a desk.
@@ -16,59 +16,65 @@ import type { CardRecord } from '#shared/types/card'
  * running along them feel like running a thumb down real card stock.
  */
 const props = defineProps<{
-  cards: CardRecord[]
+  cards: CardRecord[];
   /** Index of the card standing proud of the others. */
-  modelValue: number
-}>()
+  modelValue: number;
+}>();
 
 const emit = defineEmits<{
-  'update:modelValue': [index: number]
-  'edit': [card: CardRecord]
-  'remove': [card: CardRecord]
-  'rate': [card: CardRecord, value: Rating]
-}>()
+  'update:modelValue': [index: number];
+  'edit': [card: CardRecord];
+  'remove': [card: CardRecord];
+  'rate': [card: CardRecord, value: Rating];
+}>();
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-const rail = ref<HTMLElement | null>(null)
-const flipped = ref(false)
+const rail = ref<HTMLElement | null>(null);
+const flipped = ref(false);
 
-const current = computed<CardRecord | null>(() => props.cards[props.modelValue] ?? null)
+const current = computed<CardRecord | null>(() => props.cards[props.modelValue] ?? null);
 
 // A different card is a fresh card, so it always comes up face forward.
-watch(() => props.modelValue, () => {
-  flipped.value = false
-})
+watch(
+  () => props.modelValue,
+  () => {
+    flipped.value = false;
+  }
+);
 
 function select(index: number) {
-  emit('update:modelValue', index)
+  emit('update:modelValue', index);
 }
 
 /** Keeps the selected spine in view when the keyboard moves the selection. */
-watch(() => props.modelValue, async (index) => {
-  await nextTick()
-  rail.value?.querySelector<HTMLElement>(`[data-index="${index}"]`)?.scrollIntoView({
-    behavior: 'smooth',
-    inline: 'center',
-    block: 'nearest'
-  })
-})
+watch(
+  () => props.modelValue,
+  async (index) => {
+    await nextTick();
+    rail.value?.querySelector<HTMLElement>(`[data-index="${index}"]`)?.scrollIntoView({
+      behavior: 'smooth',
+      inline: 'center',
+      block: 'nearest'
+    });
+  }
+);
 
 function step(delta: number) {
-  const next = props.modelValue + delta
+  const next = props.modelValue + delta;
   if (next >= 0 && next < props.cards.length) {
-    select(next)
+    select(next);
   }
 }
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'ArrowRight') {
-    event.preventDefault()
-    step(1)
+    event.preventDefault();
+    step(1);
   }
   if (event.key === 'ArrowLeft') {
-    event.preventDefault()
-    step(-1)
+    event.preventDefault();
+    step(-1);
   }
 }
 </script>
@@ -76,10 +82,7 @@ function onKeydown(event: KeyboardEvent) {
 <template>
   <div class="space-y-5">
     <!-- The card pulled out of the box, open. -->
-    <div
-      v-if="current"
-      class="mx-auto w-full max-w-sm"
-    >
+    <div v-if="current" class="mx-auto w-full max-w-sm">
       <CardFace
         v-model:flipped="flipped"
         :card="current"
@@ -98,7 +101,7 @@ function onKeydown(event: KeyboardEvent) {
     <div class="juka-box relative rounded-xl bg-elevated ring ring-default">
       <div
         ref="rail"
-        class="no-scrollbar flex items-end gap-0 overflow-x-auto px-4 pb-4 pt-8"
+        class="no-scrollbar flex items-end gap-0 overflow-x-auto px-4 pt-8 pb-4"
         role="listbox"
         :aria-label="t('view.box')"
         tabindex="0"
@@ -112,10 +115,8 @@ function onKeydown(event: KeyboardEvent) {
           :data-index="index"
           :aria-selected="index === modelValue"
           :title="`${card.hanzi} ${card.pinyin}`"
-          class="group relative shrink-0 rounded-t-md bg-default pb-3 pt-3 ring ring-default transition-[height,margin,width] duration-200"
-          :class="index === modelValue
-            ? 'z-10 -mt-5 h-44 w-20 ring-primary'
-            : 'h-32 w-11 -ml-1 first:ml-0 hover:h-36'"
+          class="group relative shrink-0 rounded-t-md bg-default pt-3 pb-3 ring ring-default transition-[height,margin,width] duration-200"
+          :class="index === modelValue ? 'z-10 -mt-5 h-44 w-20 ring-primary' : '-ml-1 h-32 w-11 first:ml-0 hover:h-36'"
           @click="select(index)"
         >
           <!-- The coloured edge is the part of speech, readable side on. -->
@@ -127,21 +128,20 @@ function onKeydown(event: KeyboardEvent) {
           <span
             class="font-hanzi leading-tight text-highlighted [writing-mode:vertical-rl]"
             :class="index === modelValue ? 'text-2xl' : 'text-base'"
-          >{{ card.hanzi }}</span>
+            >{{ card.hanzi }}</span
+          >
 
-        <!-- The rating shows on the spine, so a weak card is visible unopened. -->
+          <!-- The rating shows on the spine, so a weak card is visible unopened. -->
           <span
             v-if="card.rating > 0"
-            class="absolute inset-x-0 bottom-1 text-center text-[10px] font-bold tabular-nums text-[var(--color-rating)]"
-          >{{ card.rating }}</span>
+            class="absolute inset-x-0 bottom-1 text-center text-[10px] font-bold text-[var(--color-rating)] tabular-nums"
+            >{{ card.rating }}</span
+          >
         </button>
       </div>
     </div>
 
-    <p
-      v-if="current"
-      class="text-center text-xs text-dimmed"
-    >
+    <p v-if="current" class="text-center text-xs text-dimmed">
       {{ t('cards.position', { index: modelValue + 1, total: cards.length }) }}
     </p>
   </div>
@@ -153,7 +153,7 @@ function onKeydown(event: KeyboardEvent) {
   like they are standing behind something rather than sitting on top of a line.
 */
 .juka-box::after {
-  content: "";
+  content: '';
   position: absolute;
   inset-inline: 0;
   bottom: 0;

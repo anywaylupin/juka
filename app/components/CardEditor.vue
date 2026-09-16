@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { partOfSpeechColour } from '#shared/constants/pos'
-import type { Rating } from '#shared/constants/rating'
-import type { CardRecord, DictionaryEntry } from '#shared/types/card'
+import { partOfSpeechColour } from '#shared/constants/pos';
+import type { Rating } from '#shared/constants/rating';
+import type { CardRecord, DictionaryEntry } from '#shared/types/card';
 
 /**
  * Writing a card, shaped like the card it writes.
@@ -15,32 +15,32 @@ import type { CardRecord, DictionaryEntry } from '#shared/types/card'
  * corners where a thumb reaches.
  */
 const props = defineProps<{
-  card?: CardRecord | null
-}>()
+  card?: CardRecord | null;
+}>();
 
 const emit = defineEmits<{
-  saved: [card: CardRecord]
-  cancel: []
-}>()
+  saved: [card: CardRecord];
+  cancel: [];
+}>();
 
-const { t, locale } = useI18n()
-const toast = useToast()
-const { speak, supported: speechSupported } = useSpeech()
-const { define } = useDictionary()
-const store = useCardStore()
-const { groups } = useGroups()
+const { t, locale } = useI18n();
+const toast = useToast();
+const { speak, supported: speechSupported } = useSpeech();
+const { define } = useDictionary();
+const store = useCardStore();
+const { groups } = useGroups();
 
 interface FormState {
-  hanzi: string
-  pinyin: string
-  translationVi: string
-  translation: string
-  pos: CardRecord['pos']
-  rating: Rating
-  notes: string
-  groupIds: number[]
+  hanzi: string;
+  pinyin: string;
+  translationVi: string;
+  translation: string;
+  pos: CardRecord['pos'];
+  rating: Rating;
+  notes: string;
+  groupIds: number[];
   /** Offered under the hanzi once a word is settled on, never stored. */
-  synonyms: string[]
+  synonyms: string[];
 }
 
 function initialState(): FormState {
@@ -54,71 +54,80 @@ function initialState(): FormState {
     notes: props.card?.notes ?? '',
     groupIds: props.card?.groupIds ? [...props.card.groupIds] : [],
     synonyms: []
-  }
+  };
 }
 
-const state = reactive<FormState>(initialState())
-const saving = ref(false)
+const state = reactive<FormState>(initialState());
+const saving = ref(false);
 
-watch(() => props.card, () => Object.assign(state, initialState()))
+watch(
+  () => props.card,
+  () => Object.assign(state, initialState())
+);
 
 /**
- * The Vietnamese meaning is a Vietnamese reader's field, so it only appears for
- * them. It is editable rather than read-only like the English gloss, because it
- * is pivoted through that gloss and a homograph pivots wrong: 爱好 "to like"
- * lands on giống, meaning "similar".
+ * A card says what it means in one language: the one the interface is in.
+ *
+ * Both meanings are stored, and both used to be shown here at once, which made
+ * the editor the only place in the app that contradicted that rule and left a
+ * Vietnamese reader reading English anyway.
+ *
+ * The Vietnamese one is editable where the English is not, because it is
+ * pivoted through the English gloss and a homograph pivots wrong: 爱好 "to
+ * like" lands on giống, meaning "similar". Where the pivot found nothing the
+ * English is shown underneath rather than a blank field, since a meaning you
+ * can read beats a box you have to fill.
  *
  * Han-Viet has been taken off the card for now. The column and its data are
  * still there, and `docs/licences.md` still records where the readings come
  * from; only the field is gone.
  */
-const showVietnamese = computed(() => locale.value === 'vi')
-const posColour = computed(() => partOfSpeechColour(state.pos))
+const showVietnamese = computed(() => locale.value === 'vi');
+const posColour = computed(() => partOfSpeechColour(state.pos));
 
 /** Everything the dictionary knows, straight onto the card. */
 function applyEntry(entry: DictionaryEntry | null) {
   if (!entry) {
-    return
+    return;
   }
-  state.pinyin = entry.pinyin
-  state.translation = entry.gloss
-  state.pos = entry.pos
-  state.synonyms = entry.synonyms
+  state.pinyin = entry.pinyin;
+  state.translation = entry.gloss;
+  state.pos = entry.pos;
+  state.synonyms = entry.synonyms;
 
   // Only fills a blank, so a wording the user corrected survives a later
   // lookup that would otherwise overwrite it.
   if (entry.vi && !state.translationVi.trim()) {
-    state.translationVi = entry.vi
+    state.translationVi = entry.vi;
   }
-
 }
 
 // A card written before a dictionary rebuild may be missing a reading.
 onMounted(async () => {
   if (state.hanzi && (!state.pinyin || !state.pos)) {
-    applyEntry(await define(state.hanzi))
+    applyEntry(await define(state.hanzi));
   }
-})
+});
 
 /** Swaps the form over to a synonym, so one card leads to the next. */
 async function useSynonym(hanzi: string) {
-  state.hanzi = hanzi
-  state.translationVi = ''
-  applyEntry(await define(hanzi))
+  state.hanzi = hanzi;
+  state.translationVi = '';
+  applyEntry(await define(hanzi));
 }
 
 function toggleGroup(id: number) {
   state.groupIds = state.groupIds.includes(id)
-    ? state.groupIds.filter(entry => entry !== id)
-    : [...state.groupIds, id]
+    ? state.groupIds.filter((entry) => entry !== id)
+    : [...state.groupIds, id];
 }
 
 async function submit() {
   if (!state.hanzi.trim()) {
-    return
+    return;
   }
 
-  saving.value = true
+  saving.value = true;
   try {
     const payload = {
       hanzi: state.hanzi,
@@ -129,60 +138,46 @@ async function submit() {
       rating: state.rating,
       notes: state.notes.trim() || null,
       groupIds: state.groupIds
-    }
+    };
 
-    const saved = props.card
-      ? await store.update(props.card.id, payload)
-      : await store.add(payload)
+    const saved = props.card ? await store.update(props.card.id, payload) : await store.add(payload);
 
     toast.add({
       title: props.card ? t('card.updated') : t('card.added'),
       icon: 'i-lucide-check',
       color: 'success'
-    })
-    emit('saved', saved)
-  }
-  catch (error) {
+    });
+    emit('saved', saved);
+  } catch (error) {
     // A duplicate word is the common failure and it has a useful message, so
     // it is shown rather than replaced with something generic.
-    const message = (error as { data?: { message?: string } })?.data?.message
-      ?? (error instanceof Error ? error.message : undefined)
+    const message =
+      (error as { data?: { message?: string } })?.data?.message ?? (error instanceof Error ? error.message : undefined);
 
     toast.add({
       title: t('card.notSaved'),
       description: message,
       icon: 'i-lucide-triangle-alert',
       color: 'error'
-    })
-  }
-  finally {
-    saving.value = false
+    });
+  } finally {
+    saving.value = false;
   }
 }
 </script>
 
 <template>
-  <form
-    class="space-y-4"
-    @submit.prevent="submit"
-  >
+  <form class="space-y-4" @submit.prevent="submit">
     <div class="rounded-2xl bg-default p-4 ring ring-default">
       <div class="flex min-h-56 flex-col items-center justify-center gap-3">
-        <HanziInput
-          v-model="state.hanzi"
-          autofocus
-          @resolve="applyEntry"
-        />
+        <HanziInput v-model="state.hanzi" autofocus @resolve="applyEntry" />
 
         <template v-if="state.hanzi">
           <div class="flex items-center gap-1.5">
             <p class="text-lg text-muted">
               {{ state.pinyin }}
             </p>
-            <UTooltip
-              v-if="speechSupported"
-              :text="t('card.listen')"
-            >
+            <UTooltip v-if="speechSupported" :text="t('card.listen')">
               <UButton
                 icon="i-lucide-volume-2"
                 color="neutral"
@@ -194,8 +189,16 @@ async function submit() {
             </UTooltip>
           </div>
 
-          <!-- Looked up, so shown rather than offered as a field. -->
-          <p class="text-center text-base font-semibold text-highlighted">
+          <!--
+            Looked up, so shown rather than offered as a field. Under the
+            Vietnamese locale this is the fallback rather than the answer, and
+            it only appears when the pivot found no Vietnamese.
+          -->
+          <p
+            v-if="!showVietnamese || !state.translationVi.trim()"
+            class="text-center text-base font-semibold text-highlighted"
+            :class="showVietnamese && 'text-muted'"
+          >
             {{ state.translation || t('card.noTranslation') }}
           </p>
 
@@ -206,13 +209,13 @@ async function submit() {
               color: posColour,
               backgroundColor: `color-mix(in oklab, ${posColour} 14%, transparent)`
             }"
-          >{{ t(`pos.${state.pos}`) }}</span>
+            >{{ t(`pos.${state.pos}`) }}</span
+          >
 
           <!--
             The Vietnamese meaning, filled from the dictionary and editable.
-            The English gloss above it is a lookup and stays read-only; this one
-            is a pivot through that gloss, so it can be wrong and has to be
-            correctable.
+            This is the card's meaning under the Vietnamese locale, not an
+            extra line beneath the English one.
           -->
           <UInput
             v-if="showVietnamese"
@@ -220,7 +223,7 @@ async function submit() {
             variant="none"
             class="w-full"
             :placeholder="t('card.translationViPlaceholder')"
-            :ui="{ base: 'text-center text-base font-medium' }"
+            :ui="{ base: 'text-center text-base font-semibold text-highlighted' }"
           />
 
           <!--
@@ -229,23 +232,10 @@ async function submit() {
             are near synonyms. Tapping one swaps the card over to it, so a
             session of adding words can follow a thread.
           -->
-          <div
-            v-if="state.synonyms.length"
-            class="flex flex-wrap items-center justify-center gap-1 pt-1"
-          >
+          <div v-if="state.synonyms.length" class="flex flex-wrap items-center justify-center gap-1 pt-1">
             <span class="text-xs text-dimmed">{{ t('card.similar') }}</span>
-            <UTooltip
-              v-for="word in state.synonyms"
-              :key="word"
-              :text="t('card.useInstead', { hanzi: word })"
-            >
-              <UButton
-                color="neutral"
-                variant="soft"
-                size="xs"
-                class="font-hanzi"
-                @click="useSynonym(word)"
-              >
+            <UTooltip v-for="word in state.synonyms" :key="word" :text="t('card.useInstead', { hanzi: word })">
+              <UButton color="neutral" variant="soft" size="xs" class="font-hanzi" @click="useSynonym(word)">
                 {{ word }}
               </UButton>
             </UTooltip>
@@ -277,10 +267,7 @@ async function submit() {
                   :aria-pressed="state.groupIds.includes(group.id)"
                   @click="toggleGroup(group.id)"
                 >
-                  <span
-                    class="size-3 shrink-0 rounded-full"
-                    :style="{ backgroundColor: group.colour }"
-                  />
+                  <span class="size-3 shrink-0 rounded-full" :style="{ backgroundColor: group.colour }" />
                   <span class="flex-1 truncate">{{ group.name }}</span>
                   <UIcon
                     v-if="state.groupIds.includes(group.id)"
@@ -319,22 +306,10 @@ async function submit() {
     </div>
 
     <div class="flex gap-2">
-      <UButton
-        type="submit"
-        :loading="saving"
-        :disabled="!state.hanzi"
-        color="primary"
-        size="lg"
-        block
-      >
+      <UButton type="submit" :loading="saving" :disabled="!state.hanzi" color="primary" size="lg" block>
         {{ card ? t('card.save') : t('card.add') }}
       </UButton>
-      <UButton
-        color="neutral"
-        variant="ghost"
-        size="lg"
-        @click="emit('cancel')"
-      >
+      <UButton color="neutral" variant="ghost" size="lg" @click="emit('cancel')">
         {{ t('common.cancel') }}
       </UButton>
     </div>

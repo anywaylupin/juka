@@ -46,9 +46,7 @@
     }
   },
   "stack": {
-    "keep": "Keep",
-    "bin": "Bin",
-    "hint": "Drag right to keep, left to bin, up to turn over. Or just tap it.",
+    "hint": "Arrow keys step through the deck, space turns a card over.",
     "practice": "Practice order",
     "practiceOn": "Dealing weaker cards more often",
     "practiceOff": "Dealing in box order",
@@ -81,7 +79,8 @@
     "noMatches": "Nothing matches",
     "noMatchesHint": "Try a shorter search or clear the filters.",
     "failed": "The card box did not load",
-    "failedHint": "Your account did not answer. Your local cards are untouched."
+    "failedHint": "Your account did not answer. Your local cards are untouched.",
+    "loading": "Opening the box"
   },
   "card": {
     "add": "Add card",

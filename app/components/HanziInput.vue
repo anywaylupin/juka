@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DictionaryEntry } from '#shared/types/card'
+import type { DictionaryEntry } from '#shared/types/card';
 
 /**
  * The hanzi field, with pinyin input built in.
@@ -13,131 +13,130 @@ import type { DictionaryEntry } from '#shared/types/card'
  * means: the model never has to wonder which it is holding.
  */
 const props = defineProps<{
-  modelValue: string
-  autofocus?: boolean
-}>()
+  modelValue: string;
+  autofocus?: boolean;
+}>();
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
+  'update:modelValue': [value: string];
   /** Fired when a word is settled on, so the parent can fill the rest. */
-  'resolve': [entry: DictionaryEntry | null]
-}>()
+  'resolve': [entry: DictionaryEntry | null];
+}>();
 
-const { t } = useI18n()
-const { lookup, define } = useDictionary()
+const { t } = useI18n();
+const { lookup, define } = useDictionary();
 
 /** What is actually in the text box: pinyin mid-compose, or hanzi once settled. */
-const draft = ref(props.modelValue)
-const candidates = ref<DictionaryEntry[]>([])
-const active = ref(0)
-const open = ref(false)
-const input = ref<HTMLInputElement | null>(null)
+const draft = ref(props.modelValue);
+const candidates = ref<DictionaryEntry[]>([]);
+const active = ref(0);
+const open = ref(false);
+const input = ref<HTMLInputElement | null>(null);
 
-const HAN = /\p{Script=Han}/u
+const HAN = /\p{Script=Han}/u;
 
-watch(() => props.modelValue, (value) => {
-  if (value !== draft.value) {
-    draft.value = value
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== draft.value) {
+      draft.value = value;
+    }
   }
-})
+);
 
-let timer: ReturnType<typeof setTimeout> | undefined
+let timer: ReturnType<typeof setTimeout> | undefined;
 /** Guards against a slow early lookup landing after a fast later one. */
-let ticket = 0
+let ticket = 0;
 
 watch(draft, (value) => {
-  clearTimeout(timer)
+  clearTimeout(timer);
 
-  const trimmed = value.trim()
+  const trimmed = value.trim();
 
   // Hanzi is already the finished form, so it is committed straight through and
   // only looked up to fill the meaning.
   if (HAN.test(trimmed)) {
-    open.value = false
-    candidates.value = []
-    emit('update:modelValue', trimmed)
-    resolveHanzi(trimmed)
-    return
+    open.value = false;
+    candidates.value = [];
+    emit('update:modelValue', trimmed);
+    resolveHanzi(trimmed);
+    return;
   }
 
   // Anything else is pinyin in progress. The bound value stays empty rather than
   // holding half a romanisation, so a half typed card can never be saved.
-  emit('update:modelValue', '')
+  emit('update:modelValue', '');
 
   if (!trimmed) {
-    open.value = false
-    candidates.value = []
-    emit('resolve', null)
-    return
+    open.value = false;
+    candidates.value = [];
+    emit('resolve', null);
+    return;
   }
 
   // Short enough to feel instant, long enough that a fast typist does not fire
   // a lookup per keystroke. The shard is cached after the first one anyway.
-  timer = setTimeout(() => search(trimmed), 90)
-})
+  timer = setTimeout(() => search(trimmed), 90);
+});
 
 async function search(query: string) {
-  const mine = ++ticket
-  const found = await lookup(query)
+  const mine = ++ticket;
+  const found = await lookup(query);
 
   if (mine !== ticket) {
-    return
+    return;
   }
 
-  candidates.value = found
-  active.value = 0
-  open.value = found.length > 0
+  candidates.value = found;
+  active.value = 0;
+  open.value = found.length > 0;
 }
 
 async function resolveHanzi(hanzi: string) {
-  emit('resolve', await define(hanzi))
+  emit('resolve', await define(hanzi));
 }
 
 /** Commits a candidate: the field becomes hanzi and the parent gets the entry. */
 function choose(entry: DictionaryEntry) {
-  draft.value = entry.hanzi
-  candidates.value = []
-  open.value = false
-  emit('update:modelValue', entry.hanzi)
-  emit('resolve', entry)
-  input.value?.focus()
+  draft.value = entry.hanzi;
+  candidates.value = [];
+  open.value = false;
+  emit('update:modelValue', entry.hanzi);
+  emit('resolve', entry);
+  input.value?.focus();
 }
 
 function onKeydown(event: KeyboardEvent) {
   if (!open.value || candidates.value.length === 0) {
-    return
+    return;
   }
 
   if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-    event.preventDefault()
-    active.value = (active.value + 1) % candidates.value.length
-  }
-  else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-    event.preventDefault()
-    active.value = (active.value - 1 + candidates.value.length) % candidates.value.length
-  }
-  else if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    active.value = (active.value + 1) % candidates.value.length;
+  } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+    event.preventDefault();
+    active.value = (active.value - 1 + candidates.value.length) % candidates.value.length;
+  } else if (event.key === 'Enter' || event.key === ' ') {
     // Space commits, the way it does in a real input method.
-    const entry = candidates.value[active.value]
+    const entry = candidates.value[active.value];
     if (entry) {
-      event.preventDefault()
-      choose(entry)
+      event.preventDefault();
+      choose(entry);
     }
-  }
-  else if (event.key === 'Escape') {
-    event.preventDefault()
-    open.value = false
-  }
-  else if (/^[1-9]$/.test(event.key)) {
-    const entry = candidates.value[Number(event.key) - 1]
+  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    open.value = false;
+  } else if (/^[1-9]$/.test(event.key)) {
+    const entry = candidates.value[Number(event.key) - 1];
     if (entry) {
-      event.preventDefault()
-      choose(entry)
+      event.preventDefault();
+      choose(entry);
     }
   }
 }
 
-onBeforeUnmount(() => clearTimeout(timer))
+onBeforeUnmount(() => clearTimeout(timer));
 
 /*
  * The autofocus attribute only fires for elements present at page load, so it
@@ -147,11 +146,11 @@ onBeforeUnmount(() => clearTimeout(timer))
 onMounted(() => {
   if (props.autofocus) {
     // A tick after mount, so the dialog has finished moving focus to itself.
-    requestAnimationFrame(() => input.value?.focus())
+    requestAnimationFrame(() => input.value?.focus());
   }
-})
+});
 
-defineExpose({ focus: () => input.value?.focus() })
+defineExpose({ focus: () => input.value?.focus() });
 </script>
 
 <template>
@@ -170,20 +169,15 @@ defineExpose({ focus: () => input.value?.focus() })
       aria-autocomplete="list"
       role="combobox"
       :aria-controls="open ? 'hanzi-candidates' : undefined"
-      class="w-full bg-transparent text-center font-hanzi text-6xl leading-tight text-highlighted outline-none placeholder:text-4xl placeholder:font-sans placeholder:text-dimmed sm:text-7xl"
+      class="w-full bg-transparent text-center font-hanzi text-6xl leading-tight text-highlighted outline-none placeholder:font-sans placeholder:text-4xl placeholder:text-dimmed sm:text-7xl"
       @keydown="onKeydown"
-    >
+    />
 
     <!--
       The candidate strip, the way an input method shows it: numbered, the first
       one already selected, horizontally scrollable when there are more.
     -->
-    <div
-      v-if="open"
-      id="hanzi-candidates"
-      role="listbox"
-      class="no-scrollbar mt-3 flex gap-1.5 overflow-x-auto pb-1"
-    >
+    <div v-if="open" id="hanzi-candidates" role="listbox" class="no-scrollbar mt-3 flex gap-1.5 overflow-x-auto pb-1">
       <button
         v-for="(entry, index) in candidates"
         :key="entry.hanzi + entry.pinyin"
@@ -194,22 +188,15 @@ defineExpose({ focus: () => input.value?.focus() })
         :class="index === active ? 'bg-primary text-inverted' : 'bg-elevated hover:bg-accented'"
         @click="choose(entry)"
       >
-        <span
-          class="text-xs tabular-nums"
-          :class="index === active ? 'opacity-70' : 'text-dimmed'"
-        >{{ index + 1 }}</span>
+        <span class="text-xs tabular-nums" :class="index === active ? 'opacity-70' : 'text-dimmed'">{{
+          index + 1
+        }}</span>
         <span class="font-hanzi text-xl leading-none">{{ entry.hanzi }}</span>
-        <span
-          class="text-xs"
-          :class="index === active ? 'opacity-80' : 'text-muted'"
-        >{{ entry.pinyin }}</span>
+        <span class="text-xs" :class="index === active ? 'opacity-80' : 'text-muted'">{{ entry.pinyin }}</span>
       </button>
     </div>
 
-    <p
-      v-else-if="draft.trim() && !modelValue"
-      class="mt-3 text-center text-xs text-dimmed"
-    >
+    <p v-else-if="draft.trim() && !modelValue" class="mt-3 text-center text-xs text-dimmed">
       {{ t('card.keepTyping') }}
     </p>
   </div>

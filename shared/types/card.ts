@@ -1,52 +1,52 @@
-import type { PartOfSpeech } from '../constants/pos'
-import type { Rating } from '../constants/rating'
+import type { PartOfSpeech } from '../constants/pos';
+import type { Rating } from '../constants/rating';
 
 export interface CardRecord {
-  id: number
-  hanzi: string
-  pinyin: string
-  pinyinPlain: string
-  hanViet: string | null
-  translation: string
+  id: number;
+  hanzi: string;
+  pinyin: string;
+  pinyinPlain: string;
+  hanViet: string | null;
+  translation: string;
   /**
    * The meaning in Vietnamese, or null. Shown in place of the English one when
    * the interface is Vietnamese, and editable, because it is pivoted through
    * the English gloss and a homograph pivots wrong.
    */
-  translationVi: string | null
-  pos: PartOfSpeech | null
+  translationVi: string | null;
+  pos: PartOfSpeech | null;
   /** 0 to 5 mandarins. Zero means unrated. */
-  rating: Rating
-  syllables: number
-  notes: string | null
+  rating: Rating;
+  syllables: number;
+  notes: string | null;
   /** Groups this card is filed under. A card may be in none, or in several. */
-  groupIds: number[]
-  createdAt: string
-  updatedAt: string
+  groupIds: number[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CardListResponse {
-  items: CardRecord[]
+  items: CardRecord[];
   /** Pass back as `cursor` to read the next page. Null when the list is done. */
-  nextCursor: number | null
-  hasMore: boolean
+  nextCursor: number | null;
+  hasMore: boolean;
 }
 
 /** A user's own division of the box: HSK 1, verbs to drill, words from the news. */
 export interface GroupRecord {
-  id: number
-  name: string
-  colour: string
-  orderIndex: number
+  id: number;
+  name: string;
+  colour: string;
+  orderIndex: number;
   /** How many cards are filed under it, for the chart and the filter. */
-  count?: number
+  count?: number;
 }
 
 /** Collection totals, for the count in the header. */
 export interface CardStats {
-  total: number
+  total: number;
   /** How many cards sit at each rating, 0 through 5. */
-  counts: Record<number, number>
+  counts: Record<number, number>;
 }
 
 /**
@@ -54,14 +54,14 @@ export interface CardStats {
  * type, and where the reading, meaning and part of speech come from.
  */
 export interface DictionaryEntry {
-  hanzi: string
-  pinyin: string
+  hanzi: string;
+  pinyin: string;
   /** Toneless, no spaces. What the user typed to reach it. */
-  key: string
-  gloss: string
+  key: string;
+  gloss: string;
   /** The Vietnamese meaning, pivoted through the gloss. Null for about 59%. */
-  vi: string | null
-  pos: PartOfSpeech | null
+  vi: string | null;
+  pos: PartOfSpeech | null;
   /**
    * Sino-Vietnamese reading, or null.
    *
@@ -69,10 +69,10 @@ export interface DictionaryEntry {
    * provisional and has no entry for characters as common as 时 or 就. A word is
    * given a reading only when every one of its characters resolves.
    */
-  hanViet: string | null
+  hanViet: string | null;
   /**
    * Words that mean close to the same thing, derived at build time from words
    * that share an English gloss. Empty for about 39% of the dictionary.
    */
-  synonyms: string[]
+  synonyms: string[];
 }

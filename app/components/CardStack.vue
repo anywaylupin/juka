@@ -1,125 +1,114 @@
 <script setup lang="ts">
-import type { Rating } from '#shared/constants/rating'
-import type { CardRecord } from '#shared/types/card'
+import { partOfSpeechColour } from '#shared/constants/pos';
+import type { Rating } from '#shared/constants/rating';
+import type { CardRecord } from '#shared/types/card';
 
 /**
- * One card at a time, as a stack you deal off the top.
+ * One card at a time, as a deck you step through.
  *
- * The top card follows the finger. Let go past a threshold and it goes: right
- * to keep and move on, left to the bin with an undo, up or down to turn it
- * over. A tap turns it over too, because that is what tapping a card does.
+ * The cards to come stand behind the top one and peek out above it, each a
+ * little narrower and each showing the colour of its own part of speech, so the
+ * deck reads as a stack of real cards and you can see there is more to come
+ * without counting. Stepping forward deals the top card away and brings the
+ * next one up through the deck.
  *
- * Two cards are drawn behind the top one, offset and scaled, so the stack has
- * depth and you can see there is more to come without counting.
+ * **There is no swipe.** Dragging a card left to delete it was removed: it put
+ * the one destructive action in the app on the easiest gesture to perform by
+ * accident, and it fought the tap that turns a card over. Forward, back and
+ * turn over are buttons and keys now, and deleting is the same button it is
+ * everywhere else.
  *
  * The order comes from usePracticeOrder, which deals weakly known cards more
  * often. That is the only place in the app where a rating decides what comes
  * next, and it is confined to this view.
  */
 const props = defineProps<{
-  cards: CardRecord[]
-  modelValue: number
+  cards: CardRecord[];
+  modelValue: number;
   /** True when the deck is weighted toward the cards you know least. */
-  practice: boolean
-}>()
+  practice: boolean;
+}>();
 
 const emit = defineEmits<{
-  'update:modelValue': [index: number]
-  'update:practice': [value: boolean]
-  'reshuffle': []
-  'edit': [card: CardRecord]
-  'remove': [card: CardRecord]
-  'rate': [card: CardRecord, value: Rating]
-}>()
+  'update:modelValue': [index: number];
+  'update:practice': [value: boolean];
+  'reshuffle': [];
+  'edit': [card: CardRecord];
+  'remove': [card: CardRecord];
+  'rate': [card: CardRecord, value: Rating];
+}>();
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-const flipped = ref(false)
+const flipped = ref(false);
 
-const current = computed<CardRecord | null>(() => props.cards[props.modelValue] ?? null)
+const current = computed<CardRecord | null>(() => props.cards[props.modelValue] ?? null);
 
-/** The two behind, for depth. Wraps, so the stack never looks like it ran out. */
+/** The two behind, for depth. Wraps, so the deck never looks like it ran out. */
 const behind = computed(() =>
   [1, 2]
-    .map(offset => props.cards[(props.modelValue + offset) % props.cards.length])
+    .map((offset) => props.cards[(props.modelValue + offset) % props.cards.length])
     .filter((card): card is CardRecord => Boolean(card) && props.cards.length > 1)
-)
+);
 
-watch(() => props.modelValue, () => {
-  flipped.value = false
-})
+/**
+ * Which way the deck is moving, so the animation matches the button.
+ *
+ * Forward deals the card away upward and the next one rises into its place;
+ * back reverses it. Without this both directions look identical and the deck
+ * stops feeling like a physical thing.
+ */
+const direction = ref<'forward' | 'back'>('forward');
+
+watch(
+  () => props.modelValue,
+  () => {
+    flipped.value = false;
+  }
+);
 
 function advance() {
   if (props.cards.length === 0) {
-    return
+    return;
   }
-  emit('update:modelValue', (props.modelValue + 1) % props.cards.length)
+  direction.value = 'forward';
+  emit('update:modelValue', (props.modelValue + 1) % props.cards.length);
 }
 
 function back() {
   if (props.cards.length === 0) {
-    return
+    return;
   }
-  emit('update:modelValue', (props.modelValue - 1 + props.cards.length) % props.cards.length)
+  direction.value = 'back';
+  emit('update:modelValue', (props.modelValue - 1 + props.cards.length) % props.cards.length);
 }
 
-const { state, rotation, handlers } = useCardDrag({
-  onOutcome(outcome) {
-    if (outcome === 'flip') {
-      flipped.value = !flipped.value
-      return
-    }
-    if (outcome === 'keep') {
-      advance()
-      return
-    }
-    if (outcome === 'bin' && current.value) {
-      emit('remove', current.value)
-    }
-  }
-})
-
-/**
- * -1 to 1, handed to the card so it can show the outcome itself.
- *
- * Negative is toward the bin and turns the card red; positive is toward keep
- * and lifts the next card out from underneath. Two floating chips used to do
- * this, and they covered the word you were deciding about.
- */
-const intent = computed(() => (state.dragging ? Math.max(-1, Math.min(1, state.x / 110)) : 0))
-
-/** 0 to 1 toward keep, which is what lifts the next card into view. */
-const keeping = computed(() => Math.max(0, intent.value))
-
 function onKeydown(event: KeyboardEvent) {
-  const target = event.target as HTMLElement | null
+  const target = event.target as HTMLElement | null;
   if (target?.closest('input, textarea, [contenteditable]')) {
-    return
+    return;
   }
 
   if (event.key === 'ArrowRight') {
-    event.preventDefault()
-    advance()
+    event.preventDefault();
+    advance();
   }
   if (event.key === 'ArrowLeft') {
-    event.preventDefault()
-    back()
+    event.preventDefault();
+    back();
   }
   if (event.key === ' ' || event.key === 'Enter') {
-    event.preventDefault()
-    flipped.value = !flipped.value
+    event.preventDefault();
+    flipped.value = !flipped.value;
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKeydown))
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
+onMounted(() => window.addEventListener('keydown', onKeydown));
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 </script>
 
 <template>
-  <div
-    v-if="current"
-    class="space-y-5"
-  >
+  <div v-if="current" class="space-y-5">
     <div class="flex items-center justify-center gap-2">
       <UTooltip :text="practice ? t('stack.practiceOn') : t('stack.practiceOff')">
         <UButton
@@ -134,10 +123,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         </UButton>
       </UTooltip>
 
-      <UTooltip
-        v-if="practice"
-        :text="t('stack.reshuffle')"
-      >
+      <UTooltip v-if="practice" :text="t('stack.reshuffle')">
         <UButton
           icon="i-lucide-rotate-cw"
           color="neutral"
@@ -150,92 +136,93 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
     </div>
 
     <!--
-      The arrows sit beside the card and centred against it, rather than in a
-      row underneath. A stack is a thing you step through sideways, so the
-      controls belong on the sides where a thumb already is.
+      The deck. Cards to come sit behind and above, so the top of each one shows
+      as a coloured edge the way a stack of index cards does on a desk.
     -->
-    <div class="flex items-center justify-center gap-3 sm:gap-5">
+    <div class="mx-auto w-full max-w-[26rem] px-1 pt-7">
+      <div class="relative">
+        <div
+          v-for="(card, depth) in behind"
+          :key="card.id"
+          class="juka-deck-edge pointer-events-none absolute inset-x-0 top-0"
+          :style="{
+            transform: `translateY(${-(depth + 1) * 13}px) scale(${1 - (depth + 1) * 0.055})`,
+            backgroundColor: partOfSpeechColour(card.pos),
+            // Further back reads as further away, so two cards of the same word
+            // type still show as two edges rather than one thick band.
+            opacity: 1 - depth * 0.35,
+            zIndex: 2 - depth
+          }"
+          aria-hidden="true"
+        />
+
+        <Transition :name="direction === 'forward' ? 'juka-deal' : 'juka-deal-back'">
+          <CardFace
+            :key="current.id"
+            v-model:flipped="flipped"
+            :card="current"
+            size="lg"
+            class="relative z-10"
+            @edit="emit('edit', current)"
+            @remove="emit('remove', current)"
+            @rate="emit('rate', current, $event)"
+          />
+        </Transition>
+      </div>
+    </div>
+
+    <!--
+      The arrows sit under the deck, centred, where a thumb rests. They were
+      beside the card while a swipe still existed and the card could move
+      sideways under them; now that stepping is the only way through, they
+      belong together.
+    -->
+    <div class="flex items-center justify-center gap-3">
       <UTooltip :text="t('cards.previous')">
         <UButton
-          icon="i-lucide-chevron-left"
+          icon="i-lucide-arrow-left"
           color="neutral"
-          variant="outline"
+          variant="soft"
           size="xl"
-          class="shrink-0"
+          class="rounded-full transition-transform duration-150 active:scale-90"
           :aria-label="t('cards.previous')"
           @click="back"
         />
       </UTooltip>
 
-      <div class="relative w-full max-w-md">
-        <!--
-          The stack underneath. Normally just depth, but the first one rises to
-          meet you as the top card is swiped right, so the next card is already
-          arriving rather than appearing after the fact.
-        -->
-        <div
-          v-for="(card, depth) in behind"
-          :key="card.id"
-          class="pointer-events-none absolute inset-0"
-          :class="!state.dragging && 'transition-transform duration-300'"
-          :style="{
-            transform: `translateY(${(depth + 1) * 12 * (depth === 0 ? 1 - keeping : 1)}px) scale(${1 - (depth + 1) * 0.045 + (depth === 0 ? keeping * 0.045 : 0)})`
-          }"
-        >
-          <CardFace
-            :card="card"
-            size="lg"
-            inert
-          />
-        </div>
-
-        <div
-          class="juka-draggable relative z-10"
-          :class="!state.dragging && 'transition-transform duration-300'"
-          :style="{
-            transform: `translate(${state.x}px, ${state.y}px) rotate(${rotation}deg)`
-          }"
-          v-on="handlers"
-        >
-          <!--
-            The drag composable owns the gesture here, so the card's own
-            click-to-flip is switched off. Leaving both on means a tap fires
-            each of them and the card turns twice, which looks like nothing
-            happening at all.
-          -->
-          <CardFace
-            :card="current"
-            :flipped="flipped"
-            :flip-on-click="false"
-            :intent="intent"
-            size="lg"
-            @edit="emit('edit', current)"
-            @remove="emit('remove', current)"
-            @rate="emit('rate', current, $event)"
-          />
-        </div>
-      </div>
+      <p class="min-w-16 text-center text-xs text-dimmed tabular-nums">
+        {{ t('cards.position', { index: modelValue + 1, total: cards.length }) }}
+      </p>
 
       <UTooltip :text="t('cards.next')">
         <UButton
-          icon="i-lucide-chevron-right"
+          icon="i-lucide-arrow-right"
           color="neutral"
-          variant="outline"
+          variant="soft"
           size="xl"
-          class="shrink-0"
+          class="rounded-full transition-transform duration-150 active:scale-90"
           :aria-label="t('cards.next')"
           @click="advance"
         />
       </UTooltip>
     </div>
 
-    <div class="space-y-1 text-center">
-      <p class="text-xs tabular-nums text-dimmed">
-        {{ t('cards.position', { index: modelValue + 1, total: cards.length }) }}
-      </p>
-      <p class="text-xs text-dimmed">
-        {{ t('stack.hint') }}
-      </p>
-    </div>
+    <p class="text-center text-xs text-dimmed">
+      {{ t('stack.hint') }}
+    </p>
   </div>
 </template>
+
+<style scoped>
+/*
+  A card edge is only ever seen as a band above the card in front of it, so it
+  is drawn as a rounded block the height of the card rather than as a whole
+  card: there is nothing on the part that shows except its colour.
+*/
+.juka-deck-edge {
+  aspect-ratio: 5 / 3.2;
+  border-radius: 1rem;
+  transform-origin: top center;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+</style>

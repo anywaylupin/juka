@@ -1,11 +1,11 @@
-import { z } from 'zod'
-import { PART_OF_SPEECH_LIST } from '../constants/pos'
-import { MAX_RATING, MIN_RATING } from '../constants/rating'
+import { z } from 'zod';
+import { PART_OF_SPEECH_LIST } from '../constants/pos';
+import { MAX_RATING, MIN_RATING } from '../constants/rating';
 
-export const partOfSpeechSchema = z.enum(PART_OF_SPEECH_LIST)
+export const partOfSpeechSchema = z.enum(PART_OF_SPEECH_LIST);
 
 /** 0 to 5 mandarins. Zero is unrated, not a level below one. */
-export const ratingSchema = z.coerce.number().int().min(MIN_RATING).max(MAX_RATING)
+export const ratingSchema = z.coerce.number().int().min(MIN_RATING).max(MAX_RATING);
 
 export const cardListQuerySchema = z.object({
   q: z.string().trim().max(64).optional(),
@@ -16,7 +16,7 @@ export const cardListQuerySchema = z.object({
   /** Keyset cursor: the id of the last card on the previous page. */
   cursor: z.coerce.number().int().positive().optional(),
   limit: z.coerce.number().int().min(1).max(200).default(60)
-})
+});
 
 export const cardCreateSchema = z.object({
   hanzi: z.string().trim().min(1, 'Add the hanzi').max(32),
@@ -38,13 +38,13 @@ export const cardCreateSchema = z.object({
    * which is different from an empty array meaning "remove it from all of them".
    */
   groupIds: z.array(z.coerce.number().int().positive()).max(50).optional()
-})
+});
 
-export const cardUpdateSchema = cardCreateSchema.partial()
+export const cardUpdateSchema = cardCreateSchema.partial();
 
 export const cardIdSchema = z.object({
   id: z.coerce.number().int().positive()
-})
+});
 
 /**
  * The local storage cards handed up when someone signs in.
@@ -55,8 +55,8 @@ export const cardIdSchema = z.object({
  */
 export const cardMergeSchema = z.object({
   cards: z.array(cardCreateSchema).max(2000)
-})
+});
 
-export type CardListQuery = z.infer<typeof cardListQuerySchema>
-export type CardCreateInput = z.infer<typeof cardCreateSchema>
-export type CardUpdateInput = z.infer<typeof cardUpdateSchema>
+export type CardListQuery = z.infer<typeof cardListQuerySchema>;
+export type CardCreateInput = z.infer<typeof cardCreateSchema>;
+export type CardUpdateInput = z.infer<typeof cardUpdateSchema>;

@@ -1,92 +1,119 @@
 <script setup lang="ts">
-const { t } = useI18n()
-const toast = useToast()
-const session = useSession()
-const store = useCardStore()
+const { t } = useI18n();
+const toast = useToast();
+const session = useSession();
+const store = useCardStore();
 
-const authOpen = ref(false)
-const settingsOpen = ref(false)
-const ratingsOpen = ref(false)
+const authOpen = ref(false);
+const settingsOpen = ref(false);
+const ratingsOpen = ref(false);
 
 /*
  * The sign-in reminder toast lives outside this component but its action has to
  * open the dialog this component owns, so it raises a flag and this watches it.
  */
-const { requested } = useSignInReminder()
+const { requested } = useSignInReminder();
 
 watch(requested, (value) => {
   if (value) {
-    authOpen.value = true
-    requested.value = false
+    authOpen.value = true;
+    requested.value = false;
   }
-})
+});
 
-const email = ref('')
-const currentPassword = ref('')
-const newPassword = ref('')
-const savingProfile = ref(false)
+const email = ref('');
+const currentPassword = ref('');
+const newPassword = ref('');
+const savingProfile = ref(false);
 
-watch(() => session.account.value, (account) => {
-  email.value = account?.email ?? ''
-}, { immediate: true })
+watch(
+  () => session.account.value,
+  (account) => {
+    email.value = account?.email ?? '';
+  },
+  { immediate: true }
+);
 
 /** Cards live locally until there is an account, and the menu says which. */
 const storageLabel = computed(() =>
   session.signedIn.value
     ? t('account.storedOnAccount', { username: session.account.value?.username ?? '' })
     : t('account.storedLocally', { count: store.cards.value.length })
-)
+);
 
 const items = computed(() => {
   if (!session.signedIn.value) {
-    return [[
-      { label: storageLabel.value, icon: 'i-lucide-hard-drive', type: 'label' as const },
-      { label: t('rating.settings'), icon: 'i-lucide-sliders-vertical', onSelect: () => { ratingsOpen.value = true } },
-      { label: t('auth.signIn'), icon: 'i-lucide-log-in', onSelect: () => { authOpen.value = true } }
-    ]]
+    return [
+      [
+        { label: storageLabel.value, icon: 'i-lucide-hard-drive', type: 'label' as const },
+        {
+          label: t('rating.settings'),
+          icon: 'i-lucide-sliders-vertical',
+          onSelect: () => {
+            ratingsOpen.value = true;
+          }
+        },
+        {
+          label: t('auth.signIn'),
+          icon: 'i-lucide-log-in',
+          onSelect: () => {
+            authOpen.value = true;
+          }
+        }
+      ]
+    ];
   }
 
   return [
     [{ label: storageLabel.value, icon: 'i-lucide-cloud', type: 'label' as const }],
     [
-      { label: t('rating.settings'), icon: 'i-lucide-sliders-vertical', onSelect: () => { ratingsOpen.value = true } },
-      { label: t('account.settings'), icon: 'i-lucide-settings', onSelect: () => { settingsOpen.value = true } },
+      {
+        label: t('rating.settings'),
+        icon: 'i-lucide-sliders-vertical',
+        onSelect: () => {
+          ratingsOpen.value = true;
+        }
+      },
+      {
+        label: t('account.settings'),
+        icon: 'i-lucide-settings',
+        onSelect: () => {
+          settingsOpen.value = true;
+        }
+      },
       { label: t('auth.signOut'), icon: 'i-lucide-log-out', onSelect: () => signOut() }
     ]
-  ]
-})
+  ];
+});
 
 async function signOut() {
   try {
-    await session.logout()
+    await session.logout();
     // The store watches the account and re-reads, so what comes back is
     // whatever was in local storage all along. Nothing was moved.
-    toast.add({ title: t('auth.signedOut'), description: t('auth.backToLocal'), icon: 'i-lucide-check' })
-  }
-  catch {
-    toast.add({ title: t('auth.failed'), icon: 'i-lucide-triangle-alert', color: 'error' })
+    toast.add({ title: t('auth.signedOut'), description: t('auth.backToLocal'), icon: 'i-lucide-check' });
+  } catch {
+    toast.add({ title: t('auth.failed'), icon: 'i-lucide-triangle-alert', color: 'error' });
   }
 }
 
 async function saveProfile() {
-  savingProfile.value = true
+  savingProfile.value = true;
   try {
     await session.updateProfile({
       email: email.value.trim() || null,
       ...(newPassword.value ? { password: newPassword.value, currentPassword: currentPassword.value } : {})
-    })
-    currentPassword.value = ''
-    newPassword.value = ''
-    settingsOpen.value = false
-    toast.add({ title: t('account.saved'), icon: 'i-lucide-check', color: 'success' })
-  }
-  catch (error) {
-    const message = (error as { data?: { message?: string } })?.data?.message
-      ?? (error instanceof Error ? error.message : undefined)
-    toast.add({ title: t('account.notSaved'), description: message, icon: 'i-lucide-triangle-alert', color: 'error' })
-  }
-  finally {
-    savingProfile.value = false
+    });
+    currentPassword.value = '';
+    newPassword.value = '';
+    settingsOpen.value = false;
+    toast.add({ title: t('account.saved'), icon: 'i-lucide-check', color: 'success' });
+  } catch (error) {
+    const message =
+      (error as { data?: { message?: string } })?.data?.message ?? (error instanceof Error ? error.message : undefined);
+    toast.add({ title: t('account.notSaved'), description: message, icon: 'i-lucide-triangle-alert', color: 'error' });
+  } finally {
+    savingProfile.value = false;
   }
 }
 </script>
@@ -94,7 +121,7 @@ async function saveProfile() {
 <template>
   <div>
     <UDropdownMenu :items="items">
-      <UTooltip :text="session.signedIn.value ? session.account.value?.username ?? '' : t('auth.signIn')">
+      <UTooltip :text="session.signedIn.value ? (session.account.value?.username ?? '') : t('auth.signIn')">
         <UButton
           :icon="session.signedIn.value ? 'i-lucide-circle-user-round' : 'i-lucide-user'"
           :color="session.signedIn.value ? 'primary' : 'neutral'"
@@ -104,53 +131,27 @@ async function saveProfile() {
       </UTooltip>
     </UDropdownMenu>
 
-    <UModal
-      v-model:open="authOpen"
-      :title="t('auth.title')"
-      :description="t('auth.subtitle')"
-    >
+    <UModal v-model:open="authOpen" :title="t('auth.title')" :description="t('auth.subtitle')">
       <template #body>
         <AuthPanel @done="authOpen = false" />
       </template>
     </UModal>
 
-    <UModal
-      v-model:open="ratingsOpen"
-      :title="t('rating.settings')"
-    >
+    <UModal v-model:open="ratingsOpen" :title="t('rating.settings')">
       <template #body>
         <RatingSettings />
       </template>
     </UModal>
 
-    <UModal
-      v-model:open="settingsOpen"
-      :title="t('account.settings')"
-    >
+    <UModal v-model:open="settingsOpen" :title="t('account.settings')">
       <template #body>
-        <form
-          class="space-y-4"
-          @submit.prevent="saveProfile"
-        >
+        <form class="space-y-4" @submit.prevent="saveProfile">
           <UFormField :label="t('auth.username')">
-            <UInput
-              :model-value="session.account.value?.username ?? ''"
-              disabled
-              class="w-full"
-              icon="i-lucide-user"
-            />
+            <UInput :model-value="session.account.value?.username ?? ''" disabled class="w-full" icon="i-lucide-user" />
           </UFormField>
 
-          <UFormField
-            :label="t('auth.email')"
-            :help="t('auth.emailHelp')"
-          >
-            <UInput
-              v-model="email"
-              type="email"
-              class="w-full"
-              icon="i-lucide-mail"
-            />
+          <UFormField :label="t('auth.email')" :help="t('auth.emailHelp')">
+            <UInput v-model="email" type="email" class="w-full" icon="i-lucide-mail" />
           </UFormField>
 
           <USeparator :label="t('account.changePassword')" />
@@ -175,13 +176,7 @@ async function saveProfile() {
             />
           </UFormField>
 
-          <UButton
-            type="submit"
-            :loading="savingProfile"
-            color="primary"
-            size="lg"
-            block
-          >
+          <UButton type="submit" :loading="savingProfile" color="primary" size="lg" block>
             {{ t('card.save') }}
           </UButton>
         </form>

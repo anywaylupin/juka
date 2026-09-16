@@ -46,9 +46,7 @@
     }
   },
   "stack": {
-    "keep": "Giữ",
-    "bin": "Bỏ",
-    "hint": "Kéo phải để giữ, trái để bỏ, lên để lật. Hoặc chỉ cần chạm.",
+    "hint": "Phím mũi tên để chuyển thẻ, phím cách để lật.",
     "practice": "Thứ tự ôn tập",
     "practiceOn": "Ưu tiên thẻ chưa thuộc",
     "practiceOff": "Theo thứ tự trong hộp",
@@ -81,7 +79,8 @@
     "noMatches": "Không có kết quả",
     "noMatchesHint": "Thử từ khóa ngắn hơn hoặc bỏ bộ lọc.",
     "failed": "Không tải được hộp thẻ",
-    "failedHint": "Tài khoản không phản hồi. Thẻ lưu trong máy vẫn nguyên."
+    "failedHint": "Tài khoản không phản hồi. Thẻ lưu trong máy vẫn nguyên.",
+    "loading": "Đang mở hộp thẻ"
   },
   "card": {
     "add": "Thêm thẻ",

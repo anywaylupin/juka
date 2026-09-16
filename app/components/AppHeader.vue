@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { BoxView, FlipMode } from '~/composables/useBoxView'
+import type { BoxView, FlipMode } from '~/composables/useBoxView';
 
 /**
  * The top bar does the work here rather than a sidebar.
@@ -9,55 +9,44 @@ import type { BoxView, FlipMode } from '~/composables/useBoxView'
  * below is then nothing but cards, which is the point of a box.
  */
 defineProps<{
-  view: BoxView
-  search: string
-  flipMode: FlipMode
+  view: BoxView;
+  search: string;
+  flipMode: FlipMode;
   /** Number of filters currently narrowing the box, for the badge. */
-  filterCount: number
+  filterCount: number;
   /** Cards left after filtering, so the count sits next to the search. */
-  matches: number
-}>()
+  matches: number;
+}>();
 
 const emit = defineEmits<{
-  'update:view': [value: BoxView]
-  'update:search': [value: string]
-  'update:flipMode': [value: FlipMode]
-  'openFilters': []
-  'add': []
-}>()
+  'update:view': [value: BoxView];
+  'update:search': [value: string];
+  'update:flipMode': [value: FlipMode];
+  'openFilters': [];
+  'add': [];
+}>();
 
-const { t } = useI18n()
-const localePath = useLocalePath()
+const { t } = useI18n();
+const localePath = useLocalePath();
 
-const views: Array<{ value: BoxView, icon: string, label: string }> = [
+const views: Array<{ value: BoxView; icon: string; label: string }> = [
   { value: 'gallery', icon: 'i-lucide-layout-grid', label: 'view.gallery' },
   { value: 'stack', icon: 'i-lucide-layers', label: 'view.stack' },
   { value: 'chart', icon: 'i-lucide-chart-column', label: 'view.chart' }
-]
+];
 </script>
 
 <template>
   <header class="sticky top-0 z-40 border-b border-default bg-default/85 backdrop-blur">
     <div class="mx-auto flex h-14 w-full max-w-7xl items-center gap-2 px-4 sm:px-6">
-      <NuxtLink
-        :to="localePath('/')"
-        class="flex shrink-0 items-center gap-2 rounded-md"
-        :aria-label="t('nav.cards')"
-      >
-        <UIcon
-          name="i-icon-park-outline-orange"
-          class="size-6 text-primary"
-        />
+      <NuxtLink :to="localePath('/')" class="flex shrink-0 items-center gap-2 rounded-md" :aria-label="t('nav.cards')">
+        <UIcon name="i-icon-park-outline-orange" class="size-6 text-primary" />
         <span class="hidden text-base font-semibold tracking-tight text-highlighted lg:inline">Juka</span>
       </NuxtLink>
 
       <!-- How you are looking at the box. Icons with tooltips, not labels. -->
       <div class="flex shrink-0 items-center gap-0.5">
-        <UTooltip
-          v-for="entry in views"
-          :key="entry.value"
-          :text="t(entry.label)"
-        >
+        <UTooltip v-for="entry in views" :key="entry.value" :text="t(entry.label)">
           <UButton
             :icon="entry.icon"
             :color="view === entry.value ? 'primary' : 'neutral'"
@@ -83,10 +72,7 @@ const views: Array<{ value: BoxView, icon: string, label: string }> = [
         @update:model-value="emit('update:search', String($event))"
       >
         <template #trailing>
-          <span
-            v-if="!search"
-            class="hidden text-xs tabular-nums text-dimmed sm:inline"
-          >{{ matches }}</span>
+          <span v-if="!search" class="hidden text-xs text-dimmed tabular-nums sm:inline">{{ matches }}</span>
           <UButton
             v-else
             icon="i-lucide-x"
@@ -101,10 +87,7 @@ const views: Array<{ value: BoxView, icon: string, label: string }> = [
 
       <div class="flex shrink-0 items-center gap-0.5">
         <!-- Only meaningful in the gallery, so it only appears there. -->
-        <UTooltip
-          v-if="view === 'gallery'"
-          :text="flipMode === 'single' ? t('view.flipSingle') : t('view.flipAll')"
-        >
+        <UTooltip v-if="view === 'gallery'" :text="flipMode === 'single' ? t('view.flipSingle') : t('view.flipAll')">
           <UButton
             :icon="flipMode === 'single' ? 'i-lucide-square' : 'i-lucide-copy'"
             color="neutral"
@@ -122,29 +105,16 @@ const views: Array<{ value: BoxView, icon: string, label: string }> = [
             :aria-label="t('filter.title')"
             @click="emit('openFilters')"
           >
-            <UBadge
-              v-if="filterCount > 0"
-              color="primary"
-              size="sm"
-              :label="String(filterCount)"
-            />
+            <UBadge v-if="filterCount > 0" color="primary" size="sm" :label="String(filterCount)" />
           </UButton>
         </UTooltip>
 
         <!-- The one add button in the app. -->
         <UTooltip :text="t('card.add')">
-          <UButton
-            icon="i-lucide-plus"
-            color="primary"
-            :aria-label="t('card.add')"
-            @click="emit('add')"
-          />
+          <UButton icon="i-lucide-plus" color="primary" :aria-label="t('card.add')" @click="emit('add')" />
         </UTooltip>
 
-        <USeparator
-          orientation="vertical"
-          class="mx-1 h-6"
-        />
+        <USeparator orientation="vertical" class="mx-1 h-6" />
 
         <ThemePicker />
         <LocalePicker />

@@ -1,6 +1,6 @@
-import type { CardListResponse, CardRecord } from '#shared/types/card'
-import type { CardCreateInput, CardUpdateInput } from '#shared/schemas/card'
-import { clampRating } from '#shared/constants/rating'
+import type { CardListResponse, CardRecord } from '#shared/types/card';
+import type { CardCreateInput, CardUpdateInput } from '#shared/schemas/card';
+import { clampRating } from '#shared/constants/rating';
 
 /**
  * Every card in the box, wherever the box happens to be.
@@ -16,43 +16,41 @@ import { clampRating } from '#shared/constants/rating'
  * so the server never pays for an OFFSET.
  */
 
-const STORAGE_KEY = 'juka.cards'
-const STORAGE_SEQUENCE = 'juka.cards.seq'
-const PAGE_SIZE = 200
+const STORAGE_KEY = 'juka.cards';
+const STORAGE_SEQUENCE = 'juka.cards.seq';
+const PAGE_SIZE = 200;
 
-export type StoreMode = 'local' | 'account'
+export type StoreMode = 'local' | 'account';
 
 function readLocal(): CardRecord[] {
   if (import.meta.server) {
-    return []
+    return [];
   }
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const raw = window.localStorage.getItem(STORAGE_KEY);
     /*
      * Normalised, never cast. Local storage has no migrations, so whatever an
      * older release wrote is still here: cards from before groups existed have
      * no groupIds, and every caller that reached for it crashed the page.
      * Repairing on read is the only migration this store gets.
      */
-    return normaliseCards(raw ? JSON.parse(raw) : [])
-  }
-  catch {
+    return normaliseCards(raw ? JSON.parse(raw) : []);
+  } catch {
     // Private mode, cleared storage, or something else wrote nonsense here.
     // An unreadable box is an empty one, never a crash.
-    return []
+    return [];
   }
 }
 
 function writeLocal(cards: CardRecord[]) {
   if (import.meta.server) {
-    return
+    return;
   }
 
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cards))
-  }
-  catch {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+  } catch {
     // Quota or a blocked store. The in-memory copy is still correct for this
     // session, so the interface keeps working and only persistence is lost.
   }
@@ -61,107 +59,109 @@ function writeLocal(cards: CardRecord[]) {
 /** Local ids are negative, so they can never collide with an account's ids. */
 function nextLocalId(): number {
   if (import.meta.server) {
-    return -1
+    return -1;
   }
 
-  const current = Number(window.localStorage.getItem(STORAGE_SEQUENCE) ?? '0')
-  const next = (Number.isFinite(current) ? current : 0) + 1
+  const current = Number(window.localStorage.getItem(STORAGE_SEQUENCE) ?? '0');
+  const next = (Number.isFinite(current) ? current : 0) + 1;
 
   try {
-    window.localStorage.setItem(STORAGE_SEQUENCE, String(next))
+    window.localStorage.setItem(STORAGE_SEQUENCE, String(next));
+  } catch {
+    /* see writeLocal */
   }
-  catch { /* see writeLocal */ }
 
-  return -next
+  return -next;
 }
 
 export function useCardStore() {
-  const { account, signedIn } = useSession()
+  const { account, signedIn } = useSession();
 
-  const cards = useState<CardRecord[]>('juka:cards', () => [])
-  const loading = useState('juka:cards-loading', () => false)
-  const failed = useState('juka:cards-failed', () => false)
+  const cards = useState<CardRecord[]>('juka:cards', () => []);
+  const loading = useState('juka:cards-loading', () => false);
+  const failed = useState('juka:cards-failed', () => false);
   /** Null until the first load finishes, so the empty state cannot flash. */
-  const loaded = useState('juka:cards-loaded', () => false)
+  const loaded = useState('juka:cards-loaded', () => false);
 
-  const mode = computed<StoreMode>(() => (signedIn.value ? 'account' : 'local'))
+  const mode = computed<StoreMode>(() => (signedIn.value ? 'account' : 'local'));
 
   /** Local cards that exist right now, whether or not they are the live box. */
   function localCards(): CardRecord[] {
-    return readLocal()
+    return readLocal();
   }
 
   async function load() {
-    loading.value = true
-    failed.value = false
+    loading.value = true;
+    failed.value = false;
 
     try {
       if (!signedIn.value) {
-        cards.value = readLocal()
-        return
+        cards.value = readLocal();
+        return;
       }
 
       // Walk every page of the keyset route rather than asking for an offset.
-      const collected: CardRecord[] = []
-      let cursor: number | null = null
+      const collected: CardRecord[] = [];
+      let cursor: number | null = null;
 
       do {
         const page: CardListResponse = await $fetch<CardListResponse>('/api/cards', {
           query: { limit: PAGE_SIZE, ...(cursor ? { cursor } : {}) }
-        })
-        collected.push(...page.items)
-        cursor = page.hasMore ? page.nextCursor : null
-      } while (cursor !== null)
+        });
+        collected.push(...page.items);
+        cursor = page.hasMore ? page.nextCursor : null;
+      } while (cursor !== null);
 
-      cards.value = collected
-    }
-    catch {
+      cards.value = collected;
+    } catch {
       /*
        * A list that failed to load is not an empty list. The interface reads
        * this flag and says so, rather than rendering the empty box and letting
        * someone think their cards are gone.
        */
-      failed.value = true
-      cards.value = []
-    }
-    finally {
-      loading.value = false
-      loaded.value = true
+      failed.value = true;
+      cards.value = [];
+    } finally {
+      loading.value = false;
+      loaded.value = true;
     }
   }
 
   // Signing in or out swaps which box is live, so the list is re-read.
-  watch(() => account.value?.id ?? null, () => {
-    if (import.meta.client) {
-      load()
+  watch(
+    () => account.value?.id ?? null,
+    () => {
+      if (import.meta.client) {
+        load();
+      }
     }
-  })
+  );
 
   /** The word is already filed. Checked before every write, in both modes. */
   function findByHanzi(hanzi: string): CardRecord | undefined {
-    const wanted = hanzi.trim()
-    return cards.value.find(card => card.hanzi === wanted)
+    const wanted = hanzi.trim();
+    return cards.value.find((card) => card.hanzi === wanted);
   }
 
   async function add(input: CardCreateInput): Promise<CardRecord> {
-    const hanzi = input.hanzi.trim()
-    const clash = findByHanzi(hanzi)
+    const hanzi = input.hanzi.trim();
+    const clash = findByHanzi(hanzi);
 
     if (clash) {
       throw createError({
         statusCode: 409,
         data: { cardId: clash.id },
         message: `${hanzi} is already in your box`
-      })
+      });
     }
 
     if (signedIn.value) {
-      const created = await $fetch<CardRecord>('/api/cards', { method: 'POST', body: input })
-      cards.value = [created, ...cards.value]
-      return created
+      const created = await $fetch<CardRecord>('/api/cards', { method: 'POST', body: input });
+      cards.value = [created, ...cards.value];
+      return created;
     }
 
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
     const created: CardRecord = {
       id: nextLocalId(),
       hanzi,
@@ -177,35 +177,35 @@ export function useCardStore() {
       groupIds: input.groupIds ?? [],
       createdAt: now,
       updatedAt: now
-    }
+    };
 
-    cards.value = [created, ...cards.value]
-    writeLocal(cards.value)
+    cards.value = [created, ...cards.value];
+    writeLocal(cards.value);
 
-    return created
+    return created;
   }
 
   async function update(id: number, changes: CardUpdateInput): Promise<CardRecord> {
     if (changes.hanzi) {
-      const clash = findByHanzi(changes.hanzi)
+      const clash = findByHanzi(changes.hanzi);
       if (clash && clash.id !== id) {
         throw createError({
           statusCode: 409,
           data: { cardId: clash.id },
           message: `${changes.hanzi} is already in your box`
-        })
+        });
       }
     }
 
     if (signedIn.value) {
-      const saved = await $fetch<CardRecord>(`/api/cards/${id}`, { method: 'PATCH', body: changes })
-      cards.value = cards.value.map(card => (card.id === id ? saved : card))
-      return saved
+      const saved = await $fetch<CardRecord>(`/api/cards/${id}`, { method: 'PATCH', body: changes });
+      cards.value = cards.value.map((card) => (card.id === id ? saved : card));
+      return saved;
     }
 
-    const existing = cards.value.find(card => card.id === id)
+    const existing = cards.value.find((card) => card.id === id);
     if (!existing) {
-      throw createError({ statusCode: 404, message: 'Card not found' })
+      throw createError({ statusCode: 404, message: 'Card not found' });
     }
 
     const saved: CardRecord = {
@@ -221,23 +221,23 @@ export function useCardStore() {
       ...(changes.notes !== undefined && { notes: changes.notes ?? null }),
       ...(changes.groupIds !== undefined && { groupIds: changes.groupIds }),
       updatedAt: new Date().toISOString()
-    }
+    };
 
-    cards.value = cards.value.map(card => (card.id === id ? saved : card))
-    writeLocal(cards.value)
+    cards.value = cards.value.map((card) => (card.id === id ? saved : card));
+    writeLocal(cards.value);
 
-    return saved
+    return saved;
   }
 
   async function remove(id: number): Promise<void> {
     if (signedIn.value) {
-      await $fetch(`/api/cards/${id}`, { method: 'DELETE' })
-      cards.value = cards.value.filter(card => card.id !== id)
-      return
+      await $fetch(`/api/cards/${id}`, { method: 'DELETE' });
+      cards.value = cards.value.filter((card) => card.id !== id);
+      return;
     }
 
-    cards.value = cards.value.filter(card => card.id !== id)
-    writeLocal(cards.value)
+    cards.value = cards.value.filter((card) => card.id !== id);
+    writeLocal(cards.value);
   }
 
   /** Puts a deleted card back, for the undo that follows a swipe to the bin. */
@@ -256,13 +256,13 @@ export function useCardStore() {
           notes: card.notes,
           groupIds: card.groupIds
         }
-      })
-      cards.value = [recreated, ...cards.value]
-      return
+      });
+      cards.value = [recreated, ...cards.value];
+      return;
     }
 
-    cards.value = [card, ...cards.value]
-    writeLocal(cards.value)
+    cards.value = [card, ...cards.value];
+    writeLocal(cards.value);
   }
 
   /**
@@ -272,12 +272,10 @@ export function useCardStore() {
    * local box has no foreign keys, so the cleanup is explicit.
    */
   async function dropGroup(groupId: number): Promise<void> {
-    cards.value = cards.value.map(card => (
-      card.groupIds.includes(groupId)
-        ? { ...card, groupIds: card.groupIds.filter(id => id !== groupId) }
-        : card
-    ))
-    writeLocal(cards.value)
+    cards.value = cards.value.map((card) =>
+      card.groupIds.includes(groupId) ? { ...card, groupIds: card.groupIds.filter((id) => id !== groupId) } : card
+    );
+    writeLocal(cards.value);
   }
 
   return {
@@ -294,5 +292,5 @@ export function useCardStore() {
     remove,
     restore,
     dropGroup
-  }
+  };
 }

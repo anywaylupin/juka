@@ -1,5 +1,5 @@
-import { RATING_WEIGHTS, type Rating } from '#shared/constants/rating'
-import type { CardRecord } from '#shared/types/card'
+import { RATING_WEIGHTS, type Rating } from '#shared/constants/rating';
+import type { CardRecord } from '#shared/types/card';
 
 /**
  * Shuffles a filtered list so weakly known cards come up more often.
@@ -22,15 +22,15 @@ import type { CardRecord } from '#shared/types/card'
  */
 export function usePracticeOrder(source: Ref<CardRecord[]>, enabled: Ref<boolean>) {
   /** Bumped to reshuffle without changing the filters. */
-  const seed = ref(0)
+  const seed = ref(0);
 
   const ordered = computed<CardRecord[]>(() => {
     if (!enabled.value) {
-      return source.value
+      return source.value;
     }
 
     // Referenced so a reshuffle re-runs this computed.
-    void seed.value
+    void seed.value;
 
     /*
      * Efraimidis-Spirakis: give each item a key of random^(1/weight) and sort
@@ -39,17 +39,17 @@ export function usePracticeOrder(source: Ref<CardRecord[]>, enabled: Ref<boolean
      * the whole list is covered.
      */
     return source.value
-      .map(card => ({
+      .map((card) => ({
         card,
         key: Math.random() ** (1 / (RATING_WEIGHTS[card.rating as Rating] ?? 1))
       }))
       .sort((a, b) => b.key - a.key)
-      .map(entry => entry.card)
-  })
+      .map((entry) => entry.card);
+  });
 
   function reshuffle() {
-    seed.value += 1
+    seed.value += 1;
   }
 
-  return { ordered, reshuffle }
+  return { ordered, reshuffle };
 }

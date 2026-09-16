@@ -64,6 +64,13 @@
       "when": 1789402345394,
       "tag": "0008_card_vietnamese",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1789499386027,
+      "tag": "0009_drop_translations",
+      "breakpoints": true
     }
   ]
 }

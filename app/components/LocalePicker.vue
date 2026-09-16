@@ -7,16 +7,16 @@
  * two countries whose flags these are, the set is closed at two, and a flag is
  * readable at 20px where "Tiếng Việt" is not.
  */
-const { locale, locales, setLocale } = useI18n()
-const { t } = useI18n()
+const { locale, locales, setLocale } = useI18n();
+const { t } = useI18n();
 
 const FLAGS: Record<string, string> = {
   en: 'i-circle-flags-gb',
   vi: 'i-circle-flags-vn'
-}
+};
 
 const items = computed(() => [
-  locales.value.map(entry => ({
+  locales.value.map((entry) => ({
     label: entry.name ?? entry.code,
     icon: FLAGS[entry.code],
     /** A tick would compete with the flag, so the current one is just checked. */
@@ -24,20 +24,15 @@ const items = computed(() => [
     type: 'checkbox' as const,
     onSelect: () => setLocale(entry.code)
   }))
-])
+]);
 
-const currentFlag = computed(() => FLAGS[locale.value] ?? 'i-lucide-languages')
+const currentFlag = computed(() => FLAGS[locale.value] ?? 'i-lucide-languages');
 </script>
 
 <template>
   <UDropdownMenu :items="items">
     <UTooltip :text="t('nav.language')">
-      <UButton
-        color="neutral"
-        variant="ghost"
-        :aria-label="t('nav.language')"
-        :icon="currentFlag"
-      />
+      <UButton color="neutral" variant="ghost" :aria-label="t('nav.language')" :icon="currentFlag" />
     </UTooltip>
   </UDropdownMenu>
 </template>

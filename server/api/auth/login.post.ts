@@ -1,16 +1,13 @@
-import { eq } from 'drizzle-orm'
-import { loginSchema } from '#shared/schemas/auth'
-import type { AccountRecord } from '#shared/types/auth'
-import { users } from '../../database/schema'
+import { eq } from 'drizzle-orm';
+import { loginSchema } from '#shared/schemas/auth';
+import type { AccountRecord } from '#shared/types/auth';
+import { users } from '../../database/schema';
 
 export default defineEventHandler(async (event): Promise<AccountRecord> => {
-  const input = await readValidatedBody(event, loginSchema.parse)
-  const db = useDrizzle(event)
+  const input = await readValidatedBody(event, loginSchema.parse);
+  const db = useDrizzle(event);
 
-  const [account] = await db
-    .select()
-    .from(users)
-    .where(eq(users.username, input.username))
+  const [account] = await db.select().from(users).where(eq(users.username, input.username));
 
   /*
    * One message for both an unknown username and a wrong password, so the form
@@ -22,14 +19,14 @@ export default defineEventHandler(async (event): Promise<AccountRecord> => {
    * the old bootstrap row, and verifyPassword returns false for it rather than
    * throwing.
    */
-  const hash = account?.passwordHash ?? '!'
-  const ok = await verifyPassword(hash, input.password).catch(() => false)
+  const hash = account?.passwordHash ?? '!';
+  const ok = await verifyPassword(hash, input.password).catch(() => false);
 
   if (!account || !ok) {
-    throw createError({ statusCode: 401, message: 'Wrong username or password' })
+    throw createError({ statusCode: 401, message: 'Wrong username or password' });
   }
 
-  await setUserSession(event, { user: { id: account.id, username: account.username } })
+  await setUserSession(event, { user: { id: account.id, username: account.username } });
 
-  return toAccount(account)
-})
+  return toAccount(account);
+});

@@ -1,4 +1,4 @@
-import { MAX_RATING_LABEL, RATING_VALUES, type Rating } from '#shared/constants/rating'
+import { MAX_RATING_LABEL, RATING_VALUES, type Rating } from '#shared/constants/rating';
 
 /**
  * What the five rating levels are called.
@@ -16,56 +16,53 @@ import { MAX_RATING_LABEL, RATING_VALUES, type Rating } from '#shared/constants/
  * name the user typed is theirs and is never replaced when the locale changes.
  */
 
-const STORAGE_KEY = 'juka.ratingLabels'
+const STORAGE_KEY = 'juka.ratingLabels';
 
 /** What was stored, unresolved. A blank entry means "use the locale default". */
 function readLocal(): string[] {
   if (import.meta.server) {
-    return []
+    return [];
   }
 
   try {
-    const parsed: unknown = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? 'null')
-    return Array.isArray(parsed) ? parsed.map(entry => (typeof entry === 'string' ? entry : '')) : []
-  }
-  catch {
-    return []
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? 'null');
+    return Array.isArray(parsed) ? parsed.map((entry) => (typeof entry === 'string' ? entry : '')) : [];
+  } catch {
+    return [];
   }
 }
 
 export function useRatingLabels() {
-  const session = useSession()
-  const { t } = useI18n()
+  const session = useSession();
+  const { t } = useI18n();
 
-  const local = useState<string[]>('juka:rating-labels', () => [])
+  const local = useState<string[]>('juka:rating-labels', () => []);
 
   if (import.meta.client) {
-    local.value = readLocal()
+    local.value = readLocal();
   }
 
   /** What the user stored, blanks and all. */
   const stored = computed<string[]>(() => {
-    const source = session.signedIn.value ? session.account.value?.ratingLabels : local.value
-    return Array.isArray(source) ? source : []
-  })
+    const source = session.signedIn.value ? session.account.value?.ratingLabels : local.value;
+    return Array.isArray(source) ? source : [];
+  });
 
   const labels = computed<string[]>(() => [
     '',
     ...RATING_VALUES.map((value) => {
-      const own = (stored.value[value] ?? '').trim().slice(0, MAX_RATING_LABEL)
-      return own || t(`rating.default.${value}`)
+      const own = (stored.value[value] ?? '').trim().slice(0, MAX_RATING_LABEL);
+      return own || t(`rating.default.${value}`);
     })
-  ])
+  ]);
 
   /** The name for a rating, or empty for unrated, which has none. */
   function labelFor(rating: Rating): string {
-    return labels.value[rating] ?? ''
+    return labels.value[rating] ?? '';
   }
 
   /** True once any name was set by hand, so a reset can be offered. */
-  const customised = computed(() =>
-    RATING_VALUES.some(value => (stored.value[value] ?? '').trim().length > 0)
-  )
+  const customised = computed(() => RATING_VALUES.some((value) => (stored.value[value] ?? '').trim().length > 0));
 
   async function save(next: string[] | null) {
     /*
@@ -73,30 +70,34 @@ export function useRatingLabels() {
      * word. Otherwise switching to Vietnamese would leave the English names
      * frozen in place, because they would look like a deliberate choice.
      */
-    const cleaned = next === null
-      ? null
-      : ['', ...RATING_VALUES.map((value) => {
-          const own = (next[value] ?? '').trim().slice(0, MAX_RATING_LABEL)
-          return own === t(`rating.default.${value}`) ? '' : own
-        })]
+    const cleaned =
+      next === null
+        ? null
+        : [
+            '',
+            ...RATING_VALUES.map((value) => {
+              const own = (next[value] ?? '').trim().slice(0, MAX_RATING_LABEL);
+              return own === t(`rating.default.${value}`) ? '' : own;
+            })
+          ];
 
     if (session.signedIn.value) {
-      await session.updateSettings({ ratingLabels: cleaned })
-      return
+      await session.updateSettings({ ratingLabels: cleaned });
+      return;
     }
 
-    local.value = cleaned ?? []
+    local.value = cleaned ?? [];
 
     try {
       if (cleaned === null) {
-        window.localStorage.removeItem(STORAGE_KEY)
+        window.localStorage.removeItem(STORAGE_KEY);
+      } else {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
       }
-      else {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned))
-      }
+    } catch {
+      /* quota or a blocked store; the session copy is still correct */
     }
-    catch { /* quota or a blocked store; the session copy is still correct */ }
   }
 
-  return { labels, labelFor, customised, save }
+  return { labels, labelFor, customised, save };
 }
