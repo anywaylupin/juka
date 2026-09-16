@@ -7,14 +7,10 @@ import type { CardFilters } from '~/composables/useCardFilters';
 /**
  * Filters, in named groups rather than one long rail of chips.
  *
- * Four groups, because there are four questions worth asking of a box of
- * flashcards: how well do I know it, what kind of word is it, how long is it,
- * and which of my own piles is it in. Each group is independent and
- * multi-select, and each carries its own clear, so narrowing down never means
- * starting over.
+ * Four groups, because there are four questions worth asking of a box of flashcards: how well do I know it, what kind of word is it, how long is it, and which of my own piles is it in.
+ * Each group is independent and multi-select, and each carries its own clear, so narrowing down never means starting over.
  *
- * Counts are shown per option, so a filter that would empty the box says so
- * before it is pressed.
+ * Counts are shown per option, so a filter that would empty the box says so before it is pressed.
  */
 const props = defineProps<{
   filters: CardFilters;

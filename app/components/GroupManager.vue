@@ -4,9 +4,9 @@ import { GROUP_COLOURS } from '~/composables/useGroups';
 /**
  * Making and renaming groups.
  *
- * Deleting one removes a label, never a card. That is the difference between a
- * group and the units this replaced: a unit was a folder a card had to be in,
- * so deleting it left cards homeless. A group is a tag.
+ * Deleting one removes a label, never a card.
+ * That is the difference between a group and the units this replaced: a unit was a folder a card had to be in, so deleting it left cards homeless.
+ * A group is a tag.
  */
 const { t } = useI18n();
 const toast = useToast();

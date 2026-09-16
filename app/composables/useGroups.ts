@@ -3,12 +3,9 @@ import type { GroupRecord } from '#shared/types/card';
 /**
  * The user's groups, wherever the box happens to be.
  *
- * Same shape as useCardStore and for the same reason: signed out they live in
- * local storage, signed in they live on the account, and nothing else in the
- * app has to know which.
+ * Same shape as useCardStore and for the same reason: signed out they live in local storage, signed in they live on the account, and nothing else in the app has to know which.
  *
- * Counts are computed here rather than trusted from the server, because the
- * card list is already in memory and a local box has no server to ask.
+ * Counts are computed here rather than trusted from the server, because the card list is already in memory and a local box has no server to ask.
  */
 
 const STORAGE_KEY = 'juka.groups';
@@ -94,9 +91,8 @@ export function useGroups() {
   /**
    * Groups with a live count taken from the cards in memory.
    *
-   * The server sends a count too, but it goes stale the moment a card is filed,
-   * and a local box never had one. Counting what is already loaded is both
-   * cheaper and more correct.
+   * The server sends a count too, but it goes stale the moment a card is filed, and a local box never had one.
+   * Counting what is already loaded is both cheaper and more correct.
    */
   const withCounts = computed<GroupRecord[]>(() => {
     const counts = new Map<number, number>();
@@ -159,8 +155,8 @@ export function useGroups() {
   }
 
   /**
-   * Removing a group is removing a label, never a card. The join table cascades
-   * on the server; locally the ids are stripped from every card by hand.
+   * Removing a group is removing a label, never a card.
+   * The join table cascades on the server; locally the ids are stripped from every card by hand.
    */
   async function remove(id: number): Promise<void> {
     if (signedIn.value) {

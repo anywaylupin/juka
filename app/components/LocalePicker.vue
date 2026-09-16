@@ -2,10 +2,8 @@
 /**
  * Two languages, shown as flags.
  *
- * A flag is a country and a language is not, which is normally a good reason to
- * avoid them. Here the two languages happen to be the national languages of the
- * two countries whose flags these are, the set is closed at two, and a flag is
- * readable at 20px where "Tiếng Việt" is not.
+ * A flag is a country and a language is not, which is normally a good reason to avoid them.
+ * Here the two languages happen to be the national languages of the two countries whose flags these are, the set is closed at two, and a flag is readable at 20px where "Tiếng Việt" is not.
  */
 const { locale, locales, setLocale } = useI18n();
 const { t } = useI18n();

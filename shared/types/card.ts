@@ -9,9 +9,8 @@ export interface CardRecord {
   hanViet: string | null;
   translation: string;
   /**
-   * The meaning in Vietnamese, or null. Shown in place of the English one when
-   * the interface is Vietnamese, and editable, because it is pivoted through
-   * the English gloss and a homograph pivots wrong.
+   * The meaning in Vietnamese, or null.
+   * Shown in place of the English one when the interface is Vietnamese, and editable, because it is pivoted through the English gloss and a homograph pivots wrong.
    */
   translationVi: string | null;
   pos: PartOfSpeech | null;
@@ -50,8 +49,7 @@ export interface CardStats {
 }
 
 /**
- * One entry from the bundled dictionary: what the hanzi field offers while you
- * type, and where the reading, meaning and part of speech come from.
+ * One entry from the bundled dictionary: what the hanzi field offers while you type, and where the reading, meaning and part of speech come from.
  */
 export interface DictionaryEntry {
   hanzi: string;
@@ -65,14 +63,13 @@ export interface DictionaryEntry {
   /**
    * Sino-Vietnamese reading, or null.
    *
-   * Null for roughly half the dictionary, because Unihan's kVietnamese field is
-   * provisional and has no entry for characters as common as 时 or 就. A word is
-   * given a reading only when every one of its characters resolves.
+   * Null for roughly half the dictionary, because Unihan's kVietnamese field is provisional and has no entry for characters as common as 时 or 就.
+   * A word is given a reading only when every one of its characters resolves.
    */
   hanViet: string | null;
   /**
-   * Words that mean close to the same thing, derived at build time from words
-   * that share an English gloss. Empty for about 39% of the dictionary.
+   * Words that mean close to the same thing, derived at build time from words that share an English gloss.
+   * Empty for about 39% of the dictionary.
    */
   synonyms: string[];
 }

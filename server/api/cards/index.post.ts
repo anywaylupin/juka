@@ -9,9 +9,8 @@ export default defineEventHandler(async (event): Promise<CardRecord> => {
   const db = useDrizzle(event);
 
   /*
-   * One card per word. Checked here so the user gets a sentence instead of a
-   * constraint violation, and enforced by the unique index underneath so two
-   * simultaneous writes cannot both win.
+   * One card per word.
+   * Checked here so the user gets a sentence instead of a constraint violation, and enforced by the unique index underneath so two simultaneous writes cannot both win.
    */
   const [duplicate] = await db
     .select({ id: cards.id })

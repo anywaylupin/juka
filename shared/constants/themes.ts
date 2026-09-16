@@ -1,28 +1,24 @@
 /**
- * Themes are still named after citrus, but the colour is now the **vibe the
- * name carries**, not the literal colour of the fruit.
+ * Themes are still named after citrus, but the colour is now the **vibe the name carries**, not the literal colour of the fruit.
  *
- * The old rule, every primary is the real colour of that fruit, produced twelve
- * themes spread across roughly sixty degrees of hue. Ponkan, Kumquat,
- * Honeybell and Meyer were four oranges. Naming them after different cultivars
- * did not make them look different.
+ * The old rule, every primary is the real colour of that fruit, produced twelve themes spread across roughly sixty degrees of hue.
+ * Ponkan, Kumquat, Honeybell and Meyer were four oranges.
+ * Naming them after different cultivars did not make them look different.
  *
- * So: Clementine is the blue of the character's hair, not the skin of a
- * clementine. Bergamot is Earl Grey, so it is tea-flower violet. Tarocco is a
- * blood orange, so it is blood. The name still carries the colour, it just
- * carries the association rather than the photograph, and the set finally spans
- * the wheel.
+ * So: Clementine is the blue of the character's hair, not the skin of a clementine.
+ * Bergamot is Earl Grey, so it is tea-flower violet.
+ * Tarocco is a blood orange, so it is blood.
+ * The name still carries the colour, it just carries the association rather than the photograph, and the set finally spans the wheel.
  *
- * The colour scales live in app/assets/css/themes.css, which is generated from
- * this list by scripts/generate-theme-css.ts. This list is also what the picker
- * renders and what the preferences route validates against.
+ * The colour scales live in app/assets/css/themes.css, which is generated from this list by scripts/generate-theme-css.ts.
+ * This list is also what the picker renders and what the preferences route validates against.
  */
 export interface ThemeDefinition {
   name: string;
   label: string;
   /**
-   * Light and dark are literally white and black pages. Sepia is the single
-   * exception: chenpi is a reading mode, so it keeps a warm paper page.
+   * Light and dark are literally white and black pages.
+   * Sepia is the single exception: chenpi is a reading mode, so it keeps a warm paper page.
    */
   mode: 'light' | 'sepia' | 'dark';
   /** The accent. Shown as the picker swatch, matching --color-<name>-500. */
@@ -30,9 +26,8 @@ export interface ThemeDefinition {
   /**
    * The page colour, for reading modes only.
    *
-   * Light themes are white and dark themes are black, and neither needs to say
-   * so. A sepia theme is the exception: paper is the whole point of it, so it
-   * names its own.
+   * Light themes are white and dark themes are black, and neither needs to say so.
+   * A sepia theme is the exception: paper is the whole point of it, so it names its own.
    */
   page?: string;
   /** One line on where the colour comes from. Shown as the swatch tooltip. */
@@ -41,13 +36,10 @@ export interface ThemeDefinition {
 
 export const THEMES = [
   /*
-   * Seville is the Claude palette: clay on warm paper. It is a reading mode
-   * rather than a light mode, which is why it names a page colour, and it is
-   * the default because it is the one that is comfortable to sit in front of
-   * for an hour.
+   * Seville is the Claude palette: clay on warm paper.
+   * It is a reading mode rather than a light mode, which is why it names a page colour, and it is the default because it is the one that is comfortable to sit in front of for an hour.
    *
-   * Seville oranges are the bitter ones nobody eats raw and everybody turns
-   * into marmalade, which is about the right amount of warmth for the colour.
+   * Seville oranges are the bitter ones nobody eats raw and everybody turns into marmalade, which is about the right amount of warmth for the colour.
    */
   {
     name: 'seville',

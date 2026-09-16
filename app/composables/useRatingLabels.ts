@@ -3,17 +3,14 @@ import { MAX_RATING_LABEL, RATING_VALUES, type Rating } from '#shared/constants/
 /**
  * What the five rating levels are called.
  *
- * Signed in, the names live on the account so they follow you. Signed out they
- * live in local storage, same deal as the cards and the groups.
+ * Signed in, the names live on the account so they follow you.
+ * Signed out they live in local storage, same deal as the cards and the groups.
  *
- * There is always an answer: an account that never set them, a browser with
- * nothing stored, and a half filled array all fall back, so no caller ever has
- * to handle a missing name.
+ * There is always an answer: an account that never set them, a browser with nothing stored, and a half filled array all fall back, so no caller ever has to handle a missing name.
  *
- * The fallback is the **locale's** wording, not a fixed English list. Vietnamese
- * gets mới, khó, lưỡng lự, khá and thuộc, which are the words a Vietnamese
- * learner would actually use rather than translations of the English ones. A
- * name the user typed is theirs and is never replaced when the locale changes.
+ * The fallback is the **locale's** wording, not a fixed English list.
+ * Vietnamese gets mới, khó, lưỡng lự, khá and thuộc, which are the words a Vietnamese learner would actually use rather than translations of the English ones.
+ * A name the user typed is theirs and is never replaced when the locale changes.
  */
 
 const STORAGE_KEY = 'juka.ratingLabels';
@@ -66,9 +63,8 @@ export function useRatingLabels() {
 
   async function save(next: string[] | null) {
     /*
-     * A box matching the locale default is stored blank rather than as that
-     * word. Otherwise switching to Vietnamese would leave the English names
-     * frozen in place, because they would look like a deliberate choice.
+     * A box matching the locale default is stored blank rather than as that word.
+     * Otherwise switching to Vietnamese would leave the English names frozen in place, because they would look like a deliberate choice.
      */
     const cleaned =
       next === null

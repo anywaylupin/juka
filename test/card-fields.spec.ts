@@ -52,10 +52,8 @@ describe('buildSearchMatch', () => {
   });
 
   it('strips FTS5 syntax instead of letting it reach the query', () => {
-    // Only Han runs and alphanumeric runs are extracted, so quotes, dashes and
-    // equals signs never survive. Operators come back lowercased, and FTS5
-    // only treats OR, AND, NOT and NEAR as operators in uppercase, so they
-    // land as ordinary terms.
+    // Only Han runs and alphanumeric runs are extracted, so quotes, dashes and equals signs never survive.
+    // Operators come back lowercased, and FTS5 only treats OR, AND, NOT and NEAR as operators in uppercase, so they land as ordinary terms.
     expect(buildSearchMatch('" OR 1=1 --')).toBe('or* 1* 1*');
     expect(buildSearchMatch('NEAR("a" "b")')).toBe('near* a* b*');
 

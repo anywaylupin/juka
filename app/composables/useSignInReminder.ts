@@ -1,21 +1,17 @@
 /**
  * The nudge to make an account, and the rules that keep it a nudge.
  *
- * Cards live in local storage until there is an account, and local storage is
- * one cleared browser away from gone. That is worth saying. It is not worth
- * saying in a dialog that has to be dismissed before the app can be used, so
- * this is a toast: it appears beside the work, it never takes focus, and it
- * carries its own off switch.
+ * Cards live in local storage until there is an account, and local storage is one cleared browser away from gone.
+ * That is worth saying.
+ * It is not worth saying in a dialog that has to be dismissed before the app can be used, so this is a toast: it appears beside the work, it never takes focus, and it carries its own off switch.
  *
  * Three rules, so it stays welcome:
  *
  * - **Never while signed in.** There is nothing to remind anyone of.
  * - **Never twice in a week**, unless the user asked to be reminded later.
- * - **Never again once they say so.** A choice that is not honoured is not a
- *   choice, and this is the kind of prompt people learn to resent.
+ * - **Never again once they say so.** A choice that is not honoured is not a choice, and this is the kind of prompt people learn to resent.
  *
- * First visit is the exception to the second rule: it fires with no cards,
- * because that is the moment to explain where cards are about to be kept.
+ * First visit is the exception to the second rule: it fires with no cards, because that is the moment to explain where cards are about to be kept.
  */
 
 const SEEN_KEY = 'juka.signin.lastShown';

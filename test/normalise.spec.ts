@@ -2,15 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { normaliseCard, normaliseCards, normaliseGroups } from '../shared/utils/normalise';
 
 /**
- * Local storage has no migrations, so this is the migration. Every shape here
- * is one a real browser could be holding from an earlier release.
+ * Local storage has no migrations, so this is the migration.
+ * Every shape here is one a real browser could be holding from an earlier release.
  */
 describe('normaliseCard', () => {
   it('fills in groupIds for a card written before groups existed', () => {
     /*
-     * The exact crash this exists for: CardFace called .map on groupIds, which
-     * was undefined on every card written before migration 0007, and a
-     * component that cannot render its props takes the page down with it.
+     * The exact crash this exists for: CardFace called .map on groupIds, which was undefined on every card written before migration 0007, and a component that cannot render its props takes the page down with it.
      */
     const card = normaliseCard(
       {
@@ -38,9 +36,8 @@ describe('normaliseCard', () => {
 
   it('recomputes the derived columns rather than trusting them', () => {
     /*
-     * A card written by the version with the broken pinyin folding holds
-     * pinyinPlain "xux", so typing xuexi would never find it again. Recomputing
-     * on read repairs it without the user doing anything.
+     * A card written by the version with the broken pinyin folding holds pinyinPlain "xux", so typing xuexi would never find it again.
+     * Recomputing on read repairs it without the user doing anything.
      */
     const card = normaliseCard(
       {

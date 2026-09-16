@@ -1,8 +1,7 @@
 /**
  * Which way the box is open, remembered per browser.
  *
- * A cookie rather than local storage, so the server renders the same view the
- * client is about to and the layout does not jump on hydration.
+ * A cookie rather than local storage, so the server renders the same view the client is about to and the layout does not jump on hydration.
  */
 export type BoxView = 'gallery' | 'stack' | 'chart';
 
@@ -26,8 +25,8 @@ export function useBoxView() {
 /**
  * Whether the gallery turns one card at a time or all of them together.
  *
- * One at a time is for testing yourself: every other card stays face down while
- * you check one. All together is for reading back through what you have.
+ * One at a time is for testing yourself: every other card stays face down while you check one.
+ * All together is for reading back through what you have.
  */
 export type FlipMode = 'single' | 'all';
 

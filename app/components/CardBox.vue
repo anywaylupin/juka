@@ -6,14 +6,11 @@ import type { CardRecord } from '#shared/types/card';
 /**
  * The box, seen the way it sits on a desk.
  *
- * Cards stand on edge in a row, close enough to overlap, with only the spine of
- * each one showing: the word, and a coloured stripe for its part of speech. The
- * one you are on rises out of the box and opens.
+ * Cards stand on edge in a row, close enough to overlap, with only the spine of each one showing: the word, and a coloured stripe for its part of speech.
+ * The one you are on rises out of the box and opens.
  *
- * This is the browse view rather than a grid because a grid of flashcards is
- * just a table with rounded corners. Standing them up keeps the hanzi readable
- * at a glance, fits far more of them on a screen than a grid does, and makes
- * running along them feel like running a thumb down real card stock.
+ * This is the browse view rather than a grid because a grid of flashcards is just a table with rounded corners.
+ * Standing them up keeps the hanzi readable at a glance, fits far more of them on a screen than a grid does, and makes running along them feel like running a thumb down real card stock.
  */
 const props = defineProps<{
   cards: CardRecord[];
@@ -94,9 +91,8 @@ function onKeydown(event: KeyboardEvent) {
     </div>
 
     <!--
-      The box itself. Spines overlap by a negative margin, so a hundred cards
-      still fit in a couple of screens of scrolling, and the selected one lifts
-      and separates from its neighbours.
+      The box itself.
+      Spines overlap by a negative margin, so a hundred cards still fit in a couple of screens of scrolling, and the selected one lifts and separates from its neighbours.
     -->
     <div class="juka-box relative rounded-xl bg-elevated ring ring-default">
       <div
@@ -149,8 +145,8 @@ function onKeydown(event: KeyboardEvent) {
 
 <style scoped>
 /*
-  The front lip of the box. A gradient rather than a border, so the cards look
-  like they are standing behind something rather than sitting on top of a line.
+  The front lip of the box.
+  A gradient rather than a border, so the cards look like they are standing behind something rather than sitting on top of a line.
 */
 .juka-box::after {
   content: '';

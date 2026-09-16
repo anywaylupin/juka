@@ -6,9 +6,7 @@ import type { JukaDatabase } from './db';
 /**
  * Everything the card routes need to know about groups.
  *
- * Kept out of the handlers because three of them need the same two things:
- * which groups a set of cards belongs to, and whether a group the caller named
- * is actually theirs.
+ * Kept out of the handlers because three of them need the same two things: which groups a set of cards belongs to, and whether a group the caller named is actually theirs.
  */
 
 /** One place that decides the wire shape of a group. */
@@ -28,9 +26,8 @@ export function toGroup(
 /**
  * Guards against a card being filed into someone else's group.
  *
- * Returns the ids that are genuinely the caller's. Anything else is dropped
- * rather than rejected: a stale group id from a client that has not refreshed
- * should not fail an otherwise good card write.
+ * Returns the ids that are genuinely the caller's.
+ * Anything else is dropped rather than rejected: a stale group id from a client that has not refreshed should not fail an otherwise good card write.
  */
 export async function ownedGroupIds(db: JukaDatabase, userId: number, wanted: number[]): Promise<number[]> {
   if (wanted.length === 0) {
@@ -73,9 +70,7 @@ export async function groupsForCards(db: JukaDatabase, cardIds: number[]): Promi
 /**
  * Replaces a card's group membership with exactly the ids given.
  *
- * Delete then insert rather than diffing: the set is small enough that working
- * out the difference costs more than redoing it, and doing it this way means
- * there is one code path instead of three.
+ * Delete then insert rather than diffing: the set is small enough that working out the difference costs more than redoing it, and doing it this way means there is one code path instead of three.
  */
 export async function setCardGroups(
   db: JukaDatabase,

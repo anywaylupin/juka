@@ -4,11 +4,11 @@ import type { CardStats } from '#shared/types/card';
 import { cards } from '../../database/schema';
 
 /**
- * Collection totals. One grouped pass, so the header does not cost a second
- * full read of the card list.
+ * Collection totals.
+ * One grouped pass, so the header does not cost a second full read of the card list.
  *
- * This is a count of labels the user set. It is not progress toward anything
- * the app decided, and nothing here schedules a card.
+ * This is a count of labels the user set.
+ * It is not progress toward anything the app decided, and nothing here schedules a card.
  */
 export default defineEventHandler(async (event): Promise<CardStats> => {
   const userId = await requireUserId(event);

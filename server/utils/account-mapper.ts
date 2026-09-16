@@ -14,20 +14,17 @@ export interface AccountRow {
 /**
  * One place that decides the wire shape of an account.
  *
- * The password hash is not a field here, which is the point: a route cannot
- * leak it by forgetting to pick columns, because the only way to build the
- * response goes through this function.
+ * The password hash is not a field here, which is the point: a route cannot leak it by forgetting to pick columns, because the only way to build the response goes through this function.
  */
 export function toAccount(row: AccountRow): AccountRecord {
   return {
     id: row.id,
     username: row.username,
     email: row.email,
-    // A theme that was removed from the list since it was chosen would
-    // otherwise render as no theme at all.
+    // A theme that was removed from the list since it was chosen would otherwise render as no theme at all.
     theme: THEMES.some((entry) => entry.name === row.theme) ? (row.theme as ThemeName) : DEFAULT_THEME,
-    // Stored as JSON text. Anything unparseable falls back to the defaults
-    // rather than leaving the interface with nameless ratings.
+    // Stored as JSON text.
+    // Anything unparseable falls back to the defaults rather than leaving the interface with nameless ratings.
     ratingLabels: normaliseRatingLabels(parseLabels(row.ratingLabels)),
     createdAt: row.createdAt.toISOString()
   };

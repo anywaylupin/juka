@@ -1,0 +1,89 @@
+# Every check that has to pass before a change is trusted, in the order that
+# fails fastest. Formatting and linting take seconds and catch the most common
+# mistakes; the build takes a minute and catches the rest.
+#
+# There is no deploy job on purpose. Deploying needs a Cloudflare API token and
+# a migration against the live D1, and neither belongs on a push trigger.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A second push to the same branch makes the first run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Wrangler phones home about usage otherwise, and CI is not a user.
+  WRANGLER_SEND_METRICS: false
+
+jobs:
+  check:
+    name: Format, lint, types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # The version comes from packageManager in package.json, so the runner
+      # and a laptop never disagree about which pnpm built the lockfile.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # postinstall runs `nuxt prepare`, which writes .nuxt. eslint.config.mjs
+      # imports from there, so linting before this step cannot work.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      # Migration SQL is hand written here, and a broken one takes the cards_fts
+      # triggers with it without failing anything else. Applying every migration
+      # to a fresh local D1 is the cheapest way to find that out.
+      - name: Apply migrations to a fresh local database
+        run: pnpm db:migrate:local
+
+      # The failure this guards against is silent: drizzle rebuilds `cards`
+      # through a copy and a DROP TABLE, the three triggers go with it, and the
+      # search index then mirrors nothing while every test still passes.
+      - name: Check the search index kept its triggers
+        run: |
+          triggers=$(pnpm exec wrangler d1 execute juka --local --json \
+            --command "select name from sqlite_master where type = 'trigger'" \
+            | jq -r '.[0].results[].name' | sort | tr '\n' ' ')
+          echo "Triggers on cards: $triggers"
+          for required in cards_fts_delete cards_fts_insert cards_fts_update; do
+            case "$triggers" in
+              *"$required"*) ;;
+              *) echo "::error::$required is missing after the migrations ran"; exit 1 ;;
+            esac
+          done
+
+      # A session password is required at build time and is not a secret here:
+      # nothing is deployed and no cookie this key signs ever leaves the runner.
+      - name: Build
+        run: pnpm build
+        env:
+          NUXT_SESSION_PASSWORD: ci-build-only-not-a-secret-000000

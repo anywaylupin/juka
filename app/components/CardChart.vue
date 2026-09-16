@@ -6,13 +6,10 @@ import type { CardRecord, GroupRecord } from '#shared/types/card';
 /**
  * What the box looks like from above.
  *
- * Three questions, in the order they are worth asking: how well do I know it,
- * am I actually keeping it up, and what is in it.
+ * Three questions, in the order they are worth asking: how well do I know it, am I actually keeping it up, and what is in it.
  *
- * Built from divs rather than SVG or a charting library. Everything here is a
- * proportion or a count, which a flex row and a grid draw perfectly well, and
- * it means no dependency, no canvas, and text that is selectable and readable
- * by a screen reader.
+ * Built from divs rather than SVG or a charting library.
+ * Everything here is a proportion or a count, which a flex row and a grid draw perfectly well, and it means no dependency, no canvas, and text that is selectable and readable by a screen reader.
  */
 const props = defineProps<{
   cards: CardRecord[];
@@ -31,10 +28,9 @@ const byRating = computed(() => {
   }
 
   /*
-   * One hue at five strengths rather than five hues. The rating colour is fixed
-   * across every theme precisely so a rating is never mistaken for a button,
-   * and inventing a five colour ramp here would undo that. More colour means
-   * more of the thing.
+   * One hue at five strengths rather than five hues.
+   * The rating colour is fixed across every theme precisely so a rating is never mistaken for a button, and inventing a five colour ramp here would undo that.
+   * More colour means more of the thing.
    */
   return [0, ...RATING_VALUES].map((rating) => ({
     rating: rating as Rating,
@@ -86,7 +82,7 @@ const calendar = computed(() => {
 const busiestDay = computed(() => Math.max(1, ...calendar.value.flat().map((day) => day.count)));
 
 const addedThisWeek = computed(() => {
-  const last = calendar.value[calendar.value.length - 1] ?? [];
+  const last = calendar.value.at(-1) ?? [];
   return last.reduce((total, day) => total + day.count, 0);
 });
 
@@ -202,8 +198,8 @@ const dayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { date
               :class="day.future && 'invisible'"
               :style="{
                 backgroundColor: day.count > 0 ? 'var(--ui-color-primary-500)' : 'var(--ui-bg-elevated)',
-                // Four visible steps. Any more and the difference between two
-                // busy days stops being readable at this size.
+                // Four visible steps.
+                // Any more and the difference between two busy days stops being readable at this size.
                 opacity: day.count > 0 ? 0.35 + Math.min(1, day.count / busiestDay) * 0.65 : 1
               }"
             />

@@ -1,19 +1,15 @@
 /**
  * Generates app/assets/css/themes.css from the citrus theme list.
  *
- * Each theme contributes one accent colour, pinned to the 500 stop exactly as
- * given in shared/constants/themes.ts. The rest of the scale is built around it
- * in OKLab, so the steps are perceptually even rather than the muddy result of
- * mixing toward white in sRGB.
+ * Each theme contributes one accent colour, pinned to the 500 stop exactly as given in shared/constants/themes.ts.
+ * The rest of the scale is built around it in OKLab, so the steps are perceptually even rather than the muddy result of mixing toward white in sRGB.
  *
- * Deliberately small. An earlier version generated a full set of surface,
- * border and text tokens per theme, which meant twelve hand tuned palettes to
- * keep in balance and a page that was never quite white. Now a theme repoints
- * the primary ramp and nothing else: Nuxt UI derives every surface from its own
- * defaults, the page is white or black, and there is one thing per theme that
- * can be wrong instead of fifteen.
+ * Deliberately small.
+ * An earlier version generated a full set of surface, border and text tokens per theme, which meant twelve hand tuned palettes to keep in balance and a page that was never quite white.
+ * Now a theme repoints the primary ramp and nothing else: Nuxt UI derives every surface from its own defaults, the page is white or black, and there is one thing per theme that can be wrong instead of fifteen.
  *
  * Run after changing shared/constants/themes.ts:
+ *
  *   node scripts/generate-theme-css.ts
  */
 import { writeFile } from 'node:fs/promises';
@@ -80,8 +76,7 @@ function toHex(rgb: Triple): string {
 }
 
 /**
- * Walks chroma down until the colour fits in sRGB, so a vivid hue at an extreme
- * lightness desaturates instead of clipping to a flat wrong colour.
+ * Walks chroma down until the colour fits in sRGB, so a vivid hue at an extreme lightness desaturates instead of clipping to a flat wrong colour.
  */
 function fitToGamut(L: number, a: number, b: number): string {
   let scale = 1;
@@ -95,8 +90,7 @@ function fitToGamut(L: number, a: number, b: number): string {
   return toHex(oklabToRgb([L, 0, 0]));
 }
 
-// How far each stop sits between the base colour and the near-white or
-// near-black end of its ramp.
+// How far each stop sits between the base colour and the near-white or near-black end of its ramp.
 const LIGHTER = [
   { stop: 50, t: 0.0, chroma: 0.2 },
   { stop: 100, t: 0.14, chroma: 0.32 },
@@ -134,8 +128,8 @@ function buildScale(hex: string): Record<number, string> {
 const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
 /**
- * A warm neutral rather than stock grey, which reads cold next to every accent
- * in this set. One ramp, shared by every theme, light and dark.
+ * A warm neutral rather than stock grey, which reads cold next to every accent in this set.
+ * One ramp, shared by every theme, light and dark.
  */
 const NEUTRAL = buildScale('#8c7f76');
 
@@ -168,13 +162,10 @@ async function main() {
   lines.push('');
 
   /*
-   * Nuxt UI reads --ui-color-primary-* and --ui-color-neutral-*, so switching a
-   * theme is a matter of repointing the accent. These rules are unlayered on
-   * purpose: Nuxt UI ships its defaults inside @layer theme, and an unlayered
-   * rule outranks any layered one without needing a specificity trick.
+   * Nuxt UI reads --ui-color-primary-* and --ui-color-neutral-*, so switching a theme is a matter of repointing the accent.
+   * These rules are unlayered on purpose: Nuxt UI ships its defaults inside @layer theme, and an unlayered rule outranks any layered one without needing a specificity trick.
    *
-   * color-scheme is what makes Nuxt UI resolve its light or dark token set, and
-   * it is the only other thing a theme sets.
+   * color-scheme is what makes Nuxt UI resolve its light or dark token set, and it is the only other thing a theme sets.
    */
   for (const theme of THEMES) {
     const selector =
@@ -185,8 +176,8 @@ async function main() {
     for (const stop of STOPS) {
       lines.push(`  --ui-color-primary-${stop}: var(--color-${theme.name}-${stop});`);
     }
-    // Only a reading mode names its own page. Light and dark inherit the plain
-    // white and plain black set once in main.css.
+    // Only a reading mode names its own page.
+    // Light and dark inherit the plain white and plain black set once in main.css.
     if (theme.page) {
       lines.push(`  --ui-bg: ${theme.page};`);
     }

@@ -6,13 +6,11 @@ import type { CardRecord, DictionaryEntry } from '#shared/types/card';
 /**
  * Writing a card, shaped like the card it writes.
  *
- * One field. Type pinyin or hanzi and the reading, the meaning and the part of
- * speech arrive with the dictionary entry. None of those three is an input any
- * more: they are looked up, so they are shown on the card rather than offered
- * as boxes to fill in and get wrong.
+ * One field.
+ * Type pinyin or hanzi and the reading, the meaning and the part of speech arrive with the dictionary entry.
+ * None of those three is an input any more: they are looked up, so they are shown on the card rather than offered as boxes to fill in and get wrong.
  *
- * What is left for the user is the rating and the note, which sit in the bottom
- * corners where a thumb reaches.
+ * What is left for the user is the rating and the note, which sit in the bottom corners where a thumb reaches.
  */
 const props = defineProps<{
   card?: CardRecord | null;
@@ -68,19 +66,13 @@ watch(
 /**
  * A card says what it means in one language: the one the interface is in.
  *
- * Both meanings are stored, and both used to be shown here at once, which made
- * the editor the only place in the app that contradicted that rule and left a
- * Vietnamese reader reading English anyway.
+ * Both meanings are stored, and both used to be shown here at once, which made the editor the only place in the app that contradicted that rule and left a Vietnamese reader reading English anyway.
  *
- * The Vietnamese one is editable where the English is not, because it is
- * pivoted through the English gloss and a homograph pivots wrong: 爱好 "to
- * like" lands on giống, meaning "similar". Where the pivot found nothing the
- * English is shown underneath rather than a blank field, since a meaning you
- * can read beats a box you have to fill.
+ * The Vietnamese one is editable where the English is not, because it is pivoted through the English gloss and a homograph pivots wrong: 爱好 "to like" lands on giống, meaning "similar".
+ * Where the pivot found nothing the English is shown underneath rather than a blank field, since a meaning you can read beats a box you have to fill.
  *
- * Han-Viet has been taken off the card for now. The column and its data are
- * still there, and `docs/licences.md` still records where the readings come
- * from; only the field is gone.
+ * Han-Viet has been taken off the card for now.
+ * The column and its data are still there, and `docs/licences.md` still records where the readings come from; only the field is gone.
  */
 const showVietnamese = computed(() => locale.value === 'vi');
 const posColour = computed(() => partOfSpeechColour(state.pos));
@@ -95,8 +87,7 @@ function applyEntry(entry: DictionaryEntry | null) {
   state.pos = entry.pos;
   state.synonyms = entry.synonyms;
 
-  // Only fills a blank, so a wording the user corrected survives a later
-  // lookup that would otherwise overwrite it.
+  // Only fills a blank, so a wording the user corrected survives a later lookup that would otherwise overwrite it.
   if (entry.vi && !state.translationVi.trim()) {
     state.translationVi = entry.vi;
   }
@@ -149,8 +140,7 @@ async function submit() {
     });
     emit('saved', saved);
   } catch (error) {
-    // A duplicate word is the common failure and it has a useful message, so
-    // it is shown rather than replaced with something generic.
+    // A duplicate word is the common failure and it has a useful message, so it is shown rather than replaced with something generic.
     const message =
       (error as { data?: { message?: string } })?.data?.message ?? (error instanceof Error ? error.message : undefined);
 
@@ -190,9 +180,8 @@ async function submit() {
           </div>
 
           <!--
-            Looked up, so shown rather than offered as a field. Under the
-            Vietnamese locale this is the fallback rather than the answer, and
-            it only appears when the pivot found no Vietnamese.
+            Looked up, so shown rather than offered as a field.
+            Under the Vietnamese locale this is the fallback rather than the answer, and it only appears when the pivot found no Vietnamese.
           -->
           <p
             v-if="!showVietnamese || !state.translationVi.trim()"
@@ -214,8 +203,7 @@ async function submit() {
 
           <!--
             The Vietnamese meaning, filled from the dictionary and editable.
-            This is the card's meaning under the Vietnamese locale, not an
-            extra line beneath the English one.
+            This is the card's meaning under the Vietnamese locale, not an extra line beneath the English one.
           -->
           <UInput
             v-if="showVietnamese"
@@ -227,10 +215,8 @@ async function submit() {
           />
 
           <!--
-            Words that mean close to the same thing, from the bundled
-            dictionary rather than a model: two words sharing an English gloss
-            are near synonyms. Tapping one swaps the card over to it, so a
-            session of adding words can follow a thread.
+            Words that mean close to the same thing, from the bundled dictionary rather than a model: two words sharing an English gloss are near synonyms.
+            Tapping one swaps the card over to it, so a session of adding words can follow a thread.
           -->
           <div v-if="state.synonyms.length" class="flex flex-wrap items-center justify-center gap-1 pt-1">
             <span class="text-xs text-dimmed">{{ t('card.similar') }}</span>

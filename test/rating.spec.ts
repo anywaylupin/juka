@@ -22,8 +22,8 @@ describe('clampRating', () => {
   });
 
   it('survives the values a database column can actually hold', () => {
-    // The column is a plain integer, so a bad write or an older row can put
-    // anything in it. The mapper runs every row through here for that reason.
+    // The column is a plain integer, so a bad write or an older row can put anything in it.
+    // The mapper runs every row through here for that reason.
     expect(clampRating(Number.NaN)).toBe(0);
     expect(clampRating(Number.POSITIVE_INFINITY)).toBe(MAX_RATING);
     expect(clampRating(2.4)).toBe(2);
@@ -39,8 +39,7 @@ describe('rating labels', () => {
   });
 
   it('always returns six entries, whatever was stored', () => {
-    // The column is free text a user can edit, so every shape has to have an
-    // answer rather than leaving the interface with a nameless rating.
+    // The column is free text a user can edit, so every shape has to have an answer rather than leaving the interface with a nameless rating.
     for (const stored of [null, undefined, [], ['a'], 'nonsense', 42, {}]) {
       expect(normaliseRatingLabels(stored)).toHaveLength(6);
     }
@@ -78,17 +77,15 @@ describe('practice weights', () => {
   });
 
   it('still gives a mastered card a real chance of coming up', () => {
-    // The point of the shuffle is a thumb on the scale, not a filter. A weight
-    // of zero would quietly turn the stack into "cards you do not know", and a
-    // card you have wrongly marked mastered would never resurface.
+    // The point of the shuffle is a thumb on the scale, not a filter.
+    // A weight of zero would quietly turn the stack into "cards you do not know", and a card you have wrongly marked mastered would never resurface.
     expect(RATING_WEIGHTS[5]).toBeGreaterThan(0);
   });
 });
 
 describe('legacy status mapping', () => {
   it('maps the four old statuses onto the named scale', () => {
-    // The names are now new, difficult, hesitant, good, mastered, so the four
-    // old statuses sit at 2 through 5 with `new` beneath them.
+    // The names are now new, difficult, hesitant, good, mastered, so the four old statuses sit at 2 through 5 with `new` beneath them.
     expect(LEGACY_STATUS_RATING).toEqual({
       difficult: 2,
       hesitant: 3,

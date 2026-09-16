@@ -23,9 +23,8 @@ export default defineEventHandler(async (event): Promise<AccountRecord> => {
 
   if (input.password) {
     /*
-     * Changing a password needs the current one, even though the session
-     * already proves who this is. A session can be a borrowed laptop, and this
-     * is the one action that would lock the real owner out of their own account.
+     * Changing a password needs the current one, even though the session already proves who this is.
+     * A session can be a borrowed laptop, and this is the one action that would lock the real owner out of their own account.
      */
     const ok = await verifyPassword(account.passwordHash, input.currentPassword ?? '').catch(() => false);
 

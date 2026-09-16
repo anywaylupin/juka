@@ -21,15 +21,11 @@ function emptyFilters(): CardFilters {
 /**
  * Narrowing the box down, entirely in the browser.
  *
- * The store already holds every card, so filtering is a computed rather than a
- * round trip. That is what lets the filter groups feel instant, and it is what
- * lets the stack and the chart read the same narrowed list the gallery shows:
- * a filter applies to whatever view you are in, not just to one of them.
+ * The store already holds every card, so filtering is a computed rather than a round trip.
+ * That is what lets the filter groups feel instant, and it is what lets the stack and the chart read the same narrowed list the gallery shows: a filter applies to whatever view you are in, not just to one of them.
  *
- * Search is deliberately simpler than the FTS5 index behind /api/cards: it
- * matches the hanzi, either pinyin form, the meaning and the Han-Viet reading
- * as plain substrings. For a collection held in memory that is enough, and it
- * behaves the same signed in or out.
+ * Search is deliberately simpler than the FTS5 index behind /api/cards: it matches the hanzi, either pinyin form, the meaning and the Han-Viet reading as plain substrings.
+ * For a collection held in memory that is enough, and it behaves the same signed in or out.
  */
 export function useCardFilters(source: Ref<CardRecord[]>) {
   const filters = useState<CardFilters>('juka:filters', emptyFilters);
@@ -66,8 +62,7 @@ export function useCardFilters(source: Ref<CardRecord[]>) {
       if (groups.length > 0 && !groups.some((id) => card.groupIds.includes(id))) {
         return false;
       }
-      // The last bucket is "this many or more", so a five character idiom is
-      // not simply missing from every length filter.
+      // The last bucket is "this many or more", so a five character idiom is not simply missing from every length filter.
       if (
         lengths.length > 0 &&
         !lengths.some((length) => (length === 4 ? card.syllables >= 4 : card.syllables === length))
@@ -81,7 +76,7 @@ export function useCardFilters(source: Ref<CardRecord[]>) {
       return (
         card.hanzi.includes(q.trim()) ||
         card.pinyin.toLowerCase().includes(needle) ||
-        card.pinyinPlain.includes(needle.replace(/\s+/g, '')) ||
+        card.pinyinPlain.includes(needle.replaceAll(/\s+/g, '')) ||
         card.translation.toLowerCase().includes(needle) ||
         (card.hanViet?.toLowerCase().includes(needle) ?? false)
       );

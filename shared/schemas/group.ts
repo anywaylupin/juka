@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
 /**
- * Groups are the user's own division of the box, so the only rules here are the
- * ones a database needs: a name that is not blank, and a colour that is a
- * colour. Everything else is theirs.
+ * Groups are the user's own division of the box, so the only rules here are the ones a database needs: a name that is not blank, and a colour that is a colour.
+ * Everything else is theirs.
  */
 export const groupCreateSchema = z.object({
   name: z.string().trim().min(1, 'Name the group').max(40),

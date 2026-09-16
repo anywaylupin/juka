@@ -3,10 +3,8 @@ import { DEFAULT_THEME, THEMES, type ThemeName } from '#shared/constants/themes'
 /**
  * Theme state.
  *
- * The cookie is the source of truth for rendering, because it is readable
- * during SSR and therefore the only thing that can get the first paint right.
- * A signed in account also stores the choice, so it follows you to another
- * browser; that is a mirror of the cookie rather than a second opinion.
+ * The cookie is the source of truth for rendering, because it is readable during SSR and therefore the only thing that can get the first paint right.
+ * A signed in account also stores the choice, so it follows you to another browser; that is a mirror of the cookie rather than a second opinion.
  *
  * Signed out, the cookie is all there is, which is the same deal as the cards.
  */
@@ -31,8 +29,7 @@ export function useJukaTheme() {
     { immediate: true }
   );
 
-  // data-theme drives the colour variables, so it has to be on the html tag
-  // during SSR as well or the first paint uses the wrong palette.
+  // data-theme drives the colour variables, so it has to be on the html tag during SSR as well or the first paint uses the wrong palette.
   useHead({
     htmlAttrs: {
       'data-theme': theme,
@@ -58,8 +55,7 @@ export function useJukaTheme() {
     try {
       await $fetch('/api/preferences', { method: 'PATCH', body: { theme: name } });
     } catch {
-      // The cookie already holds the choice, so the interface stays correct for
-      // this browser even though it did not reach the account.
+      // The cookie already holds the choice, so the interface stays correct for this browser even though it did not reach the account.
     }
   }
 

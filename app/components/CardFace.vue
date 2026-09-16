@@ -6,17 +6,13 @@ import type { CardRecord, GroupRecord } from '#shared/types/card';
 /**
  * One card, front and back.
  *
- * The front is the word and nothing else, which is the whole point of a
- * flashcard: you have to try before you turn it. The back carries the reading,
- * the meaning and the part of speech.
+ * The front is the word and nothing else, which is the whole point of a flashcard: you have to try before you turn it.
+ * The back carries the reading, the meaning and the part of speech.
  *
- * **Only the content rotates.** The action bar and the rating sit outside the
- * flipping element, pinned over it. An earlier version put a copy of both
- * inside each face, which meant they spun with the card and left eighteen
- * buttons in the tab order for a card with nine controls.
+ * **Only the content rotates.** The action bar and the rating sit outside the flipping element, pinned over it.
+ * An earlier version put a copy of both inside each face, which meant they spun with the card and left eighteen buttons in the tab order for a card with nine controls.
  *
- * The proportions are a 3 by 5 index card, the shape a paper flashcard actually
- * is, rather than whatever height the content happened to need.
+ * The proportions are a 3 by 5 index card, the shape a paper flashcard actually is, rather than whatever height the content happened to need.
  */
 const props = withDefaults(
   defineProps<{
@@ -56,9 +52,8 @@ const meaningSizes = { sm: 'text-base', md: 'text-xl', lg: 'text-2xl' };
 /**
  * The meaning in the interface's language.
  *
- * Vietnamese comes from the bundled dictionary, pivoted through the English
- * gloss. Where the pivot found nothing the English stands, which is a worse
- * card than a wrong one would be but an honest one.
+ * Vietnamese comes from the bundled dictionary, pivoted through the English gloss.
+ * Where the pivot found nothing the English stands, which is a worse card than a wrong one would be but an honest one.
  */
 const meaning = computed(() => {
   if (locale.value === 'vi' && props.card.translationVi) {
@@ -72,10 +67,8 @@ const posColour = computed(() => partOfSpeechColour(props.card.pos));
 /*
  * The chrome is sized against the card it sits on.
  *
- * A 44px target is the floor for a control you hit with a thumb, and the icons
- * were below it on every card. They scale with the card rather than being one
- * fixed size, so the stack, where the card is half the screen, gets buttons to
- * match instead of the same specks the gallery uses.
+ * A 44px target is the floor for a control you hit with a thumb, and the icons were below it on every card.
+ * They scale with the card rather than being one fixed size, so the stack, where the card is half the screen, gets buttons to match instead of the same specks the gallery uses.
  */
 const chromeSizes = { sm: 'sm', md: 'md', lg: 'xl' } as const;
 const ratingSizes = { sm: 'sm', md: 'md', lg: 'lg' } as const;
@@ -87,9 +80,8 @@ const cardGroups = computed(
 /*
  * The chrome hides while the card is turning.
  *
- * Buttons pinned over a rotating surface read as floating loose above it, and
- * a rating you can press mid-turn belongs to neither face. They come back once
- * the rotation settles, on the same 500ms the transform runs for.
+ * Buttons pinned over a rotating surface read as floating loose above it, and a rating you can press mid-turn belongs to neither face.
+ * They come back once the rotation settles, on the same 500ms the transform runs for.
  */
 const turning = ref(false);
 let settle: ReturnType<typeof setTimeout> | undefined;
@@ -106,9 +98,8 @@ watch(
 );
 
 /*
- * The press dip. Released on a window listener rather than the element's own
- * pointerup, because the stack view captures the pointer on its drag wrapper
- * and the element never sees the release.
+ * The press dip: the card shrinks a little under the finger before it turns.
+ * Released on a window listener rather than the element's own pointerup, so a press that ends anywhere else still lets the card back up.
  */
 const pressed = ref(false);
 
@@ -138,8 +129,8 @@ async function copy() {
     await navigator.clipboard.writeText(props.card.hanzi);
     toast.add({ title: t('card.copied', { hanzi: props.card.hanzi }), icon: 'i-lucide-check' });
   } catch {
-    // Denied permission, or an insecure origin. Nothing was copied, so say so
-    // rather than showing a success that did not happen.
+    // Denied permission, or an insecure origin.
+    // Nothing was copied, so say so rather than showing a success that did not happen.
     toast.add({ title: t('card.notCopied'), icon: 'i-lucide-triangle-alert', color: 'error' });
   }
 }
@@ -151,8 +142,7 @@ async function copy() {
     :class="[
       widths[size],
       !inert && flipOnClick && 'cursor-pointer',
-      // The card lifts toward the reader on hover, which is the other half of
-      // the shadow: without it the shadow grows under a card that has not moved.
+      // The card lifts toward the reader on hover, which is the other half of the shadow: without it the shadow grows under a card that has not moved.
       !inert && 'hover:-translate-y-0.5'
     ]"
     style="aspect-ratio: 5 / 3.2"
@@ -225,8 +215,8 @@ async function copy() {
     />
 
     <!--
-      Fixed chrome. Edit and delete top right, the way a card has a corner you
-      annotate; copy top left; audio bottom right under the thumb.
+      Fixed chrome.
+      Edit and delete top right, the way a card has a corner you annotate; copy top left; audio bottom right under the thumb.
     -->
     <div
       v-if="!inert"
@@ -304,9 +294,7 @@ async function copy() {
 
 <style scoped>
 /*
-  Card stock, not a panel. overflow-hidden on the faces is what keeps the
-  coloured part-of-speech edge inside the corner radius instead of squaring off
-  the top of the card.
+  Card stock, not a panel. overflow-hidden on the faces is what keeps the coloured part-of-speech edge inside the corner radius instead of squaring off the top of the card.
 */
 .juka-card {
   background-color: var(--ui-bg);
@@ -326,9 +314,8 @@ async function copy() {
 }
 
 /*
-  The hanzi is a thing to read and copy, not to drag-select. Selecting it by
-  accident while swiping the card is the common case, and the copy button is
-  the deliberate one.
+  The hanzi is a thing to read and copy, not to drag-select.
+  Selecting it by accident while swiping the card is the common case, and the copy button is the deliberate one.
 */
 .juka-hanzi {
   user-select: none;

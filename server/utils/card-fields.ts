@@ -12,9 +12,8 @@ export interface DerivedCardFields {
 }
 
 /**
- * The single place card fields are derived from hanzi. Everything here is
- * written on create and on update, so the stored values can never drift from
- * the hanzi they describe.
+ * The single place card fields are derived from hanzi.
+ * Everything here is written on create and on update, so the stored values can never drift from the hanzi they describe.
  */
 export function deriveCardFields(hanzi: string, suppliedPinyin?: string | null): DerivedCardFields {
   const trimmed = hanzi.trim();
@@ -41,12 +40,10 @@ export function deriveCardFields(hanzi: string, suppliedPinyin?: string | null):
 /**
  * Turns whatever the user typed into an FTS5 MATCH expression.
  *
- * Only runs of Han characters and alphanumerics are extracted, so no FTS5
- * syntax from the input ever reaches the query. Han runs become phrases
- * ("时 间"), Latin runs become prefix terms (shi*), and the terms are ANDed.
+ * Only runs of Han characters and alphanumerics are extracted, so no FTS5 syntax from the input ever reaches the query.
+ * Han runs become phrases ("时 间"), Latin runs become prefix terms (shi*), and the terms are ANDed.
  *
- * Returns null when there is nothing searchable, which callers read as
- * "no text filter".
+ * Returns null when there is nothing searchable, which callers read as "no text filter".
  */
 export function buildSearchMatch(raw: string): string | null {
   const terms: string[] = [];

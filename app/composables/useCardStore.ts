@@ -5,15 +5,13 @@ import { clampRating } from '#shared/constants/rating';
 /**
  * Every card in the box, wherever the box happens to be.
  *
- * Signed out, the box is local storage. Signed in, it is the account. The rest
- * of the app asks this composable and never finds out which, so there is one
- * code path for a card list instead of two that drift apart.
+ * Signed out, the box is local storage.
+ * Signed in, it is the account.
+ * The rest of the app asks this composable and never finds out which, so there is one code path for a card list instead of two that drift apart.
  *
- * The whole collection is held in memory in both modes. A personal vocabulary
- * is thousands of short rows at most, and holding it makes the card box scrub
- * instantly, filter without a round trip, and keep working offline. The account
- * mode still reads through the keyset paginated route, one page after another,
- * so the server never pays for an OFFSET.
+ * The whole collection is held in memory in both modes.
+ * A personal vocabulary is thousands of short rows at most, and holding it makes the card box scrub instantly, filter without a round trip, and keep working offline.
+ * The account mode still reads through the keyset paginated route, one page after another, so the server never pays for an OFFSET.
  */
 
 const STORAGE_KEY = 'juka.cards';
@@ -30,9 +28,8 @@ function readLocal(): CardRecord[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     /*
-     * Normalised, never cast. Local storage has no migrations, so whatever an
-     * older release wrote is still here: cards from before groups existed have
-     * no groupIds, and every caller that reached for it crashed the page.
+     * Normalised, never cast.
+     * Local storage has no migrations, so whatever an older release wrote is still here: cards from before groups existed have no groupIds, and every caller that reached for it crashed the page.
      * Repairing on read is the only migration this store gets.
      */
     return normaliseCards(raw ? JSON.parse(raw) : []);
@@ -51,8 +48,8 @@ function writeLocal(cards: CardRecord[]) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
   } catch {
-    // Quota or a blocked store. The in-memory copy is still correct for this
-    // session, so the interface keeps working and only persistence is lost.
+    // Quota or a blocked store.
+    // The in-memory copy is still correct for this session, so the interface keeps working and only persistence is lost.
   }
 }
 
@@ -115,9 +112,8 @@ export function useCardStore() {
       cards.value = collected;
     } catch {
       /*
-       * A list that failed to load is not an empty list. The interface reads
-       * this flag and says so, rather than rendering the empty box and letting
-       * someone think their cards are gone.
+       * A list that failed to load is not an empty list.
+       * The interface reads this flag and says so, rather than rendering the empty box and letting someone think their cards are gone.
        */
       failed.value = true;
       cards.value = [];
@@ -268,8 +264,8 @@ export function useCardStore() {
   /**
    * Strips a deleted group's id off every card in the local box.
    *
-   * The account path does not need this: the join table cascades on delete. A
-   * local box has no foreign keys, so the cleanup is explicit.
+   * The account path does not need this: the join table cascades on delete.
+   * A local box has no foreign keys, so the cleanup is explicit.
    */
   async function dropGroup(groupId: number): Promise<void> {
     cards.value = cards.value.map((card) =>

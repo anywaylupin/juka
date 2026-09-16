@@ -1,13 +1,11 @@
 /**
  * Part of speech is a closed list, not free text.
  *
- * Two reasons. The model answers with whatever wording it likes unless it is
- * given a menu, and a free string cannot be translated into Vietnamese or
- * filtered on. Anything the model returns outside this list is dropped rather
- * than stored, so the column only ever holds a value the interface can render.
+ * Two reasons.
+ * The model answers with whatever wording it likes unless it is given a menu, and a free string cannot be translated into Vietnamese or filtered on.
+ * Anything the model returns outside this list is dropped rather than stored, so the column only ever holds a value the interface can render.
  *
- * The set is the one Chinese grammar actually uses, which is why it has
- * measure words and particles and no "article".
+ * The set is the one Chinese grammar actually uses, which is why it has measure words and particles and no "article".
  */
 export const PART_OF_SPEECH_LIST = [
   'noun',
@@ -31,8 +29,7 @@ export type PartOfSpeech = (typeof PART_OF_SPEECH_LIST)[number];
 const LOOKUP = new Set<string>(PART_OF_SPEECH_LIST);
 
 /**
- * Accepts the abbreviations a model reaches for when it ignores the menu, so a
- * reply of "n." or "adj" still lands on a value the interface can render.
+ * Accepts the abbreviations a model reaches for when it ignores the menu, so a reply of "n." or "adj" still lands on a value the interface can render.
  * Anything else is null, which reads as "not classified".
  */
 const ALIASES: Record<string, PartOfSpeech> = {
@@ -87,14 +84,11 @@ export function normalisePartOfSpeech(raw: string | null | undefined): PartOfSpe
 /**
  * A colour per part of speech, so a box of cards reads at a glance.
  *
- * Fixed across every theme, like the rating mandarin, because this is
- * information rather than decoration. Hues are spread far enough apart that the
- * common four, noun, verb, adjective and adverb, are never close to each other,
- * and the rarer tags share the cooler end where a near miss costs less.
+ * Fixed across every theme, like the rating mandarin, because this is information rather than decoration.
+ * Hues are spread far enough apart that the common four, noun, verb, adjective and adverb, are never close to each other, and the rarer tags share the cooler end where a near miss costs less.
  *
- * These are the mid tones. The interface mixes them toward the page for a
- * background and toward the text colour for a label, so one value serves both
- * on white and on black.
+ * These are the mid tones.
+ * The interface mixes them toward the page for a background and toward the text colour for a label, so one value serves both on white and on black.
  */
 export const PART_OF_SPEECH_COLOURS: Record<PartOfSpeech, string> = {
   noun: '#2f6fd0',

@@ -6,10 +6,8 @@ import type { FlipMode } from '~/composables/useBoxView';
 /**
  * The whole box, laid out on the table.
  *
- * This replaced an edge-on deck where cards stood on their spines. The deck
- * looked like a card box and was miserable to read: a vertical word in a 44px
- * spine tells you almost nothing, and finding a card meant scrubbing sideways
- * through every other one.
+ * This replaced an edge-on deck where cards stood on their spines.
+ * The deck looked like a card box and was miserable to read: a vertical word in a 44px spine tells you almost nothing, and finding a card meant scrubbing sideways through every other one.
  *
  * Paged rather than infinite, because a page is a place you can come back to.
  */
@@ -39,22 +37,17 @@ const visible = computed(() => {
 /**
  * Which cards are face up.
  *
- * In `single` mode this holds at most one id, so turning a card turns the last
- * one back: the point of testing yourself is that the others stay hidden. In
- * `all` mode it holds as many as you like.
+ * In `single` mode this holds at most one id, so turning a card turns the last one back: the point of testing yourself is that the others stay hidden.
+ * In `all` mode it holds as many as you like.
  */
 const turned = ref<Set<number>>(new Set());
 
 /*
- * Turning a card back is something the reader does, not something the app does
- * behind them.
+ * Turning a card back is something the reader does, not something the app does behind them.
  *
- * This used to watch `props.cards` and clear the whole set whenever it changed,
- * and that array is rebuilt on every store write. So rating one card, or
- * editing one, turned every face-up card back over: in `all` mode you could not
- * keep two cards open long enough to compare them. Now only a page turn or a
- * change of mode clears it, and ids that have left the box are pruned rather
- * than the set being emptied.
+ * This used to watch `props.cards` and clear the whole set whenever it changed, and that array is rebuilt on every store write.
+ * So rating one card, or editing one, turned every face-up card back over: in `all` mode you could not keep two cards open long enough to compare them.
+ * Now only a page turn or a change of mode clears it, and ids that have left the box are pruned rather than the set being emptied.
  */
 watch([() => props.page, () => props.flipMode], () => {
   turned.value = new Set();

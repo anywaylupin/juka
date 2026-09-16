@@ -5,8 +5,8 @@ import { healthChecks } from '../database/schema';
 import type { H3Event } from 'h3';
 
 /**
- * Proves the deployment end to end: bindings resolve, drizzle talks to D1, the
- * migration ran, and R2 answers. Read only, so it is safe to poll.
+ * Proves the deployment end to end: bindings resolve, drizzle talks to D1, the migration ran, and R2 answers.
+ * Read only, so it is safe to poll.
  */
 export default defineEventHandler(async (event): Promise<HealthResponse> => {
   const { probe } = await getValidatedQuery(event, healthQuerySchema.parse);
@@ -35,8 +35,7 @@ async function probeDatabase(event: H3Event): Promise<DatabaseProbe> {
     const db = useDrizzle(event);
 
     // Raw SQL proves the driver, the query builder proves the schema binding.
-    // D1 blocks sqlite_version(), so the migration count stands in as the
-    // evidence that the database is the one the migrations ran against.
+    // D1 blocks sqlite_version(), so the migration count stands in as the evidence that the database is the one the migrations ran against.
     const [meta] = await db.all<{ tables: number; migrations: number }>(sql`
       select (select count(*) from sqlite_master where type = 'table') as tables,
              (select count(*) from sqlite_master where type = 'table' and name = 'd1_migrations') as migrations
@@ -93,8 +92,8 @@ async function probeStorage(event: H3Event): Promise<StorageProbe> {
 }
 
 /**
- * Drizzle wraps a failed query in "Failed query: ..." and hides the D1 message
- * on the cause, which is the only part worth reading. Unwrap it.
+ * Drizzle wraps a failed query in "Failed query: ..." and hides the D1 message on the cause, which is the only part worth reading.
+ * Unwrap it.
  */
 function describeError(error: unknown): string {
   if (!(error instanceof Error)) {

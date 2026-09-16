@@ -21,10 +21,7 @@ export interface CardRow {
 /**
  * One place that decides the wire shape of a card.
  *
- * Group membership lives in a join table, so it is passed in rather than read
- * from the row: the list route fetches every card's groups in one query and
- * hands them down, which is the difference between one extra query and one per
- * card.
+ * Group membership lives in a join table, so it is passed in rather than read from the row: the list route fetches every card's groups in one query and hands them down, which is the difference between one extra query and one per card.
  */
 export function toCardRecord(row: CardRow, groupIds: number[] = []): CardRecord {
   return {
@@ -35,8 +32,8 @@ export function toCardRecord(row: CardRow, groupIds: number[] = []): CardRecord 
     hanViet: row.hanViet,
     translation: row.translation,
     translationVi: row.translationVi,
-    // Rows written before the closed list existed can hold free text. Narrow
-    // here so the client never has to guess whether pos is renderable.
+    // Rows written before the closed list existed can hold free text.
+    // Narrow here so the client never has to guess whether pos is renderable.
     pos: normalisePartOfSpeech(row.pos),
     rating: clampRating(row.rating),
     syllables: row.syllables,

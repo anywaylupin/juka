@@ -5,8 +5,8 @@ import * as schema from '../database/schema';
 export type JukaDatabase = DrizzleD1Database<typeof schema>;
 
 /**
- * Only place in the codebase that touches the raw D1 binding. Handlers take the
- * drizzle instance and never reach into event.context themselves.
+ * Only place in the codebase that touches the raw D1 binding.
+ * Handlers take the drizzle instance and never reach into event.context themselves.
  */
 export function useDrizzle(event: H3Event): JukaDatabase {
   const binding = event.context.cloudflare?.env?.DB;

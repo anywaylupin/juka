@@ -50,9 +50,8 @@ function choose(value: Rating) {
 
   <div v-else class="flex items-center gap-0.5" role="radiogroup" :aria-label="t('rating.label')">
     <!--
-      One tooltip per mandarin, naming what that level means rather than just
-      its number. The scale is the user's own judgement, so the wording is about
-      recall and not about being correct.
+      One tooltip per mandarin, naming what that level means rather than just its number.
+      The scale is the user's own judgement, so the wording is about recall and not about being correct.
     -->
     <UTooltip v-for="value in RATING_VALUES" :key="value" :text="labelFor(value)">
       <button

@@ -4,8 +4,8 @@ import type { CardListResponse } from '#shared/types/card';
 import { cardGroups, cards } from '../../database/schema';
 
 /**
- * Keyset pagination, never OFFSET: ids descending, the cursor is the last id
- * seen. Reading page 900 costs the same as page one.
+ * Keyset pagination, never OFFSET: ids descending, the cursor is the last id seen.
+ * Reading page 900 costs the same as page one.
  */
 export default defineEventHandler(async (event): Promise<CardListResponse> => {
   const query = await getValidatedQuery(event, cardListQuerySchema.parse);
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event): Promise<CardListResponse> => {
     page.map((row) => row.id)
   );
   const items = page.map((row) => toCardRecord(row, byCard.get(row.id) ?? []));
-  const last = items[items.length - 1];
+  const last = items.at(-1);
 
   return {
     items,

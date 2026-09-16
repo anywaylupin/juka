@@ -1,13 +1,12 @@
 /**
  * FTS5 spike.
  *
- * Chinese does not tokenize on whitespace, so the default FTS5 tokenizer is
- * useless for this app. This script settles, against a real D1, three questions
- * that decide the search design before the schema hardens:
+ * Chinese does not tokenize on whitespace, so the default FTS5 tokenizer is useless for this app.
+ * This script settles, against a real D1, three questions that decide the search design before the schema hardens:
  *
- *   1. Does D1 build SQLite with FTS5 at all?
- *   2. Does tokenize='trigram' work, and does MATCH find short CJK words?
- *   3. Does the per-character fallback work for one and two character words?
+ * 1. Does D1 build SQLite with FTS5 at all?
+ * 2. Does tokenize='trigram' work, and does MATCH find short CJK words?
+ * 3. Does the per-character fallback work for one and two character words?
  *
  * Local by default, which runs the same workerd SQLite build wrangler ships.
  * Pass --remote to repeat the run against the real D1 instance.
@@ -236,10 +235,8 @@ const introspection = [
 /*
  * Scale phase.
  *
- * EXPLAIN QUERY PLAN reports `VIRTUAL TABLE INDEX 0:L0` for a LIKE against a
- * trigram table whether or not the trigram index can actually serve it, so the
- * plan cannot answer the question that matters. Timing can: compare each query
- * against an ordinary table doing a known full scan.
+ * EXPLAIN QUERY PLAN reports `VIRTUAL TABLE INDEX 0:L0` for a LIKE against a trigram table whether or not the trigram index can actually serve it, so the plan cannot answer the question that matters.
+ * Timing can: compare each query against an ordinary table doing a known full scan.
  */
 const HANZI_POOL = [
   ...'的一是不了人我在有他这为之大来以个中上们到说国和地也子时道出而要于就下得可你年生自会那后能对着事其里所去行过家十用发天如然作方成者多日都三小军二无同么经法当起与好看学进种将还分此心前面又定见只主没公从图书馆意思'

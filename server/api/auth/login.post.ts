@@ -10,14 +10,10 @@ export default defineEventHandler(async (event): Promise<AccountRecord> => {
   const [account] = await db.select().from(users).where(eq(users.username, input.username));
 
   /*
-   * One message for both an unknown username and a wrong password, so the form
-   * cannot be used to find out which accounts exist.
+   * One message for both an unknown username and a wrong password, so the form cannot be used to find out which accounts exist.
    *
-   * The password is verified even when there is no account, against a hash that
-   * cannot match, so a missing username does not answer faster than a wrong
-   * password. Migration 0006 uses '!' for the same "never matches" purpose on
-   * the old bootstrap row, and verifyPassword returns false for it rather than
-   * throwing.
+   * The password is verified even when there is no account, against a hash that cannot match, so a missing username does not answer faster than a wrong password.
+   * Migration 0006 uses '!' for the same "never matches" purpose on the old bootstrap row, and verifyPassword returns false for it rather than throwing.
    */
   const hash = account?.passwordHash ?? '!';
   const ok = await verifyPassword(hash, input.password).catch(() => false);

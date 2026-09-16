@@ -4,9 +4,8 @@ import type { BoxView, FlipMode } from '~/composables/useBoxView';
 /**
  * The top bar does the work here rather than a sidebar.
  *
- * Everything that is not a card lives on one line: what you are looking at, how
- * you are looking at it, what you are looking for, and who you are. The page
- * below is then nothing but cards, which is the point of a box.
+ * Everything that is not a card lives on one line: what you are looking at, how you are looking at it, what you are looking for, and who you are.
+ * The page below is then nothing but cards, which is the point of a box.
  */
 defineProps<{
   view: BoxView;
@@ -59,9 +58,8 @@ const views: Array<{ value: BoxView; icon: string; label: string }> = [
       </div>
 
       <!--
-        Search lives up here with the other things that act on the whole box,
-        rather than floating above the cards. It is the widest control in the
-        bar because it is the one people aim at.
+        Search lives up here with the other things that act on the whole box, rather than floating above the cards.
+        It is the widest control in the bar because it is the one people aim at.
       -->
       <UInput
         :model-value="search"

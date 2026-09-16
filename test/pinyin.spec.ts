@@ -11,9 +11,7 @@ describe('tonelessPinyin', () => {
 
   it('does not delete the vowel along with its accent', () => {
     /*
-     * The regression this exists for: lowercasing and dropping everything
-     * outside a-z removes an accented vowel outright, so xué xí came out as
-     * xux and typing xuexi found nothing.
+     * The regression this exists for: lowercasing and dropping everything outside a-z removes an accented vowel outright, so xué xí came out as xux and typing xuexi found nothing.
      */
     for (const vowel of [
       'ā',

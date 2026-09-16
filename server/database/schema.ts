@@ -13,8 +13,8 @@ export const users = sqliteTable(
     /** What you sign in with. Lowercased on write, so Lupin and lupin are one account. */
     username: text('username').notNull(),
     /**
-     * scrypt, via nuxt-auth-utils' hashPassword. The salt and parameters travel
-     * inside the string, so there is no second column to keep in step.
+     * scrypt, via nuxt-auth-utils' hashPassword.
+     * The salt and parameters travel inside the string, so there is no second column to keep in step.
      */
     passwordHash: text('password_hash').notNull(),
     /** Optional. Nothing in the app needs it, and nothing emails you. */
@@ -24,8 +24,7 @@ export const users = sqliteTable(
     /**
      * The five rating names, as a JSON array, or null for the defaults.
      *
-     * Text rather than a table: it is a fixed-length list of five strings that is
-     * always read and written whole, which is a column, not a relation.
+     * Text rather than a table: it is a fixed-length list of five strings that is always read and written whole, which is a column, not a relation.
      */
     ratingLabels: text('rating_labels'),
     createdAt: createdAt()
@@ -48,14 +47,10 @@ export const cards = sqliteTable(
     hanViet: text('han_viet'),
 
     /*
-     * Two derived search columns, both written by deriveCardFields and never by
-     * hand. cards_fts mirrors them through triggers, which is why they live on
-     * cards rather than being computed at query time.
+     * Two derived search columns, both written by deriveCardFields and never by hand. cards_fts mirrors them through triggers, which is why they live on cards rather than being computed at query time.
      *
-     * hanziChars holds the characters separated by spaces (时间 becomes 时 间) so
-     * a standard FTS5 tokenizer can index CJK. See docs/fts5-spike.md.
-     * pinyinSearch holds the joined form and the syllables (shijian shi jian) so
-     * both a full word and a single syllable match.
+     * hanziChars holds the characters separated by spaces (时间 becomes 时 间) so a standard FTS5 tokenizer can index CJK.
+     * See docs/fts5-spike.md. pinyinSearch holds the joined form and the syllables (shijian shi jian) so both a full word and a single syllable match.
      */
     hanziChars: text('hanzi_chars').notNull().default(''),
     pinyinSearch: text('pinyin_search').notNull().default(''),
@@ -64,19 +59,16 @@ export const cards = sqliteTable(
     /**
      * The meaning in Vietnamese, or null.
      *
-     * Filled from the bundled dictionary when the card is written, and editable,
-     * because it is pivoted through the English gloss and a homograph pivots
-     * wrong: 爱好 "to like" lands on giống, meaning "similar". Stored rather than
-     * looked up at render, so a card keeps the wording it was filed with and a
-     * later dictionary rebuild cannot silently reword it.
+     * Filled from the bundled dictionary when the card is written, and editable, because it is pivoted through the English gloss and a homograph pivots wrong: 爱好 "to like" lands on giống, meaning "similar".
+     * Stored rather than looked up at render, so a card keeps the wording it was filed with and a later dictionary rebuild cannot silently reword it.
      */
     translationVi: text('translation_vi'),
     pos: text('pos'),
 
     /**
-     * How well the user knows the card, 0 to 5, drawn as mandarins. Zero means
-     * unrated, which is what a new card is. A label the user sets: it never
-     * drives scheduling.
+     * How well the user knows the card, 0 to 5, drawn as mandarins.
+     * Zero means unrated, which is what a new card is.
+     * A label the user sets: it never drives scheduling.
      */
     rating: integer('rating').notNull().default(0),
     /** Character count, derived on write so it can be filtered without a scan. */
@@ -94,24 +86,20 @@ export const cards = sqliteTable(
     index('cards_user_rating_idx').on(table.userId, table.rating),
     index('cards_user_syllables_idx').on(table.userId, table.syllables),
     /*
-     * One card per word per owner. A box with 时间 in it twice is a box you stop
-     * trusting, and the merge on sign-in leans on this to decide what to skip.
-     * Enforced here as well as in the route, because a unique index is the only
-     * check that survives a concurrent write.
+     * One card per word per owner.
+     * A box with 时间 in it twice is a box you stop trusting, and the merge on sign-in leans on this to decide what to skip.
+     * Enforced here as well as in the route, because a unique index is the only check that survives a concurrent write.
      */
     uniqueIndex('cards_user_hanzi_idx').on(table.userId, table.hanzi)
   ]
 );
 
 /**
- * A user's own way of dividing the box: HSK 1, verbs to drill, words from the
- * news, whatever they want.
+ * A user's own way of dividing the box: HSK 1, verbs to drill, words from the news, whatever they want.
  *
- * This is the third attempt at grouping. Units were one-per-card folders and
- * were removed in migration 0002 because a card had to be filed somewhere and
- * a second place to keep tidy earned nothing. Groups are many-to-many and
- * optional, which is the difference: a card can be in none, and being in two is
- * not a conflict to resolve.
+ * This is the third attempt at grouping.
+ * Units were one-per-card folders and were removed in migration 0002 because a card had to be filed somewhere and a second place to keep tidy earned nothing.
+ * Groups are many-to-many and optional, which is the difference: a card can be in none, and being in two is not a conflict to resolve.
  */
 export const groups = sqliteTable(
   'groups',
@@ -128,8 +116,7 @@ export const groups = sqliteTable(
   },
   (table) => [
     index('groups_user_order_idx').on(table.userId, table.orderIndex),
-    // Two groups with the same name is a box you stop trusting, same reasoning as
-    // one card per word.
+    // Two groups with the same name is a box you stop trusting, same reasoning as one card per word.
     uniqueIndex('groups_user_name_idx').on(table.userId, table.name)
   ]
 );
@@ -182,8 +169,7 @@ export const storyCards = sqliteTable(
 );
 
 /**
- * Keyed by content hash rather than by card, so the same word across users
- * shares one object in R2.
+ * Keyed by content hash rather than by card, so the same word across users shares one object in R2.
  */
 export const audio = sqliteTable('audio', {
   hanziHash: text('hanzi_hash').primaryKey(),
@@ -193,8 +179,7 @@ export const audio = sqliteTable('audio', {
 });
 
 /**
- * Kept from the bootstrap so /api/health can prove the binding, the migration
- * runner, and the query path without depending on user data.
+ * Kept from the bootstrap so /api/health can prove the binding, the migration runner, and the query path without depending on user data.
  */
 export const healthChecks = sqliteTable('health_checks', {
   id: integer('id').primaryKey({ autoIncrement: true }),

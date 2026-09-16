@@ -1,9 +1,8 @@
 import { CARD_AUDIO_LOCALE, CARD_AUDIO_RATE } from '#shared/constants/audio';
 
 /**
- * Tier one of the audio plan: the Web Speech API, which needs no
- * infrastructure and covers most desktop and iOS users. The Piper batch and the
- * R2 fallback come later and slot in behind the same speak() call.
+ * Tier one of the audio plan: the Web Speech API, which needs no infrastructure and covers most desktop and iOS users.
+ * The Piper batch and the R2 fallback come later and slot in behind the same speak() call.
  */
 export function useSpeech() {
   const supported = ref(false);

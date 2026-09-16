@@ -5,9 +5,8 @@ import { groups } from '../../database/schema';
 /**
  * Deleting a group does not delete its cards.
  *
- * The foreign key on card_groups cascades, so the cards simply stop being in
- * it. That is the difference between a group and the units this replaced: a
- * group is a label, so removing it removes a label and nothing else.
+ * The foreign key on card_groups cascades, so the cards simply stop being in it.
+ * That is the difference between a group and the units this replaced: a group is a label, so removing it removes a label and nothing else.
  */
 export default defineEventHandler(async (event): Promise<{ deleted: number }> => {
   const { id } = await getValidatedRouterParams(event, groupIdSchema.parse);

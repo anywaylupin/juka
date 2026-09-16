@@ -4,16 +4,13 @@ import type { DictionaryEntry } from '#shared/types/card';
 /**
  * The bundled Mandarin dictionary, read from public/dict.
  *
- * This is what lets the hanzi field accept pinyin: type `shijian` and it offers
- * 时间, and the entry carries the reading, the meaning and the part of speech so
- * the rest of the card fills itself in.
+ * This is what lets the hanzi field accept pinyin: type `shijian` and it offers 时间, and the entry carries the reading, the meaning and the part of speech so the rest of the card fills itself in.
  *
- * Sharded by first pinyin syllable, so typing `shi` fetches one file of a few
- * dozen kilobytes rather than a six megabyte dictionary. Shards are cached for
- * the life of the page, and an in-flight fetch is shared rather than repeated.
+ * Sharded by first pinyin syllable, so typing `shi` fetches one file of a few dozen kilobytes rather than a six megabyte dictionary.
+ * Shards are cached for the life of the page, and an in-flight fetch is shared rather than repeated.
  *
- * Built by scripts/build-dictionary.ts. See public/dict/LICENCE.txt: the data
- * is CC BY-SA, not MIT like the rest of the app.
+ * Built by scripts/build-dictionary.ts.
+ * See public/dict/LICENCE.txt: the data is CC BY-SA, not MIT like the rest of the app.
  */
 
 interface Manifest {
@@ -22,8 +19,7 @@ interface Manifest {
 }
 
 /**
- * Packed on disk as arrays to halve the bytes:
- * [hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi]
+ * Packed on disk as arrays to halve the bytes: [hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi]
  */
 type PackedEntry = [string, string, string, string, string, string, string, string];
 
@@ -42,8 +38,7 @@ function unpack([hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi]: PackedE
     pos: normalisePartOfSpeech(pos),
     hanViet: hanViet || null,
     vi: vi || null,
-    // Space separated on disk, because a JSON array of six short strings costs
-    // more in brackets and quotes than it does in content.
+    // Space separated on disk, because a JSON array of six short strings costs more in brackets and quotes than it does in content.
     synonyms: synonyms ? synonyms.split(' ').filter(Boolean) : []
   };
 }
@@ -99,10 +94,8 @@ export function useDictionary() {
   }
 
   /**
-   * Splits the leading syllable off a toneless pinyin string, greedily and
-   * longest first, using the same table the build script sharded with. Both
-   * sides therefore agree on where a syllable ends, so `shuang` is never looked
-   * for in the `shu` shard.
+   * Splits the leading syllable off a toneless pinyin string, greedily and longest first, using the same table the build script sharded with.
+   * Both sides therefore agree on where a syllable ends, so `shuang` is never looked for in the `shu` shard.
    */
   function firstSyllable(key: string): string {
     const syllables = manifest?.syllables;
@@ -115,13 +108,11 @@ export function useDictionary() {
   /**
    * Candidates for whatever the user has typed.
    *
-   * Latin input is treated as pinyin and matched as a prefix, so `shij` already
-   * narrows to 时间. Hanzi input is matched directly, which is what makes the
-   * field useful to someone pasting from elsewhere or using a system IME: the
-   * meaning and part of speech still arrive.
+   * Latin input is treated as pinyin and matched as a prefix, so `shij` already narrows to 时间.
+   * Hanzi input is matched directly, which is what makes the field useful to someone pasting from elsewhere or using a system IME: the meaning and part of speech still arrive.
    */
   async function lookup(raw: string, limit = 8): Promise<DictionaryEntry[]> {
-    const input = raw.trim().toLowerCase().replace(/\s+/g, '');
+    const input = raw.trim().toLowerCase().replaceAll(/\s+/g, '');
     if (!input) {
       return [];
     }
@@ -138,11 +129,10 @@ export function useDictionary() {
       return [];
     }
 
-    const entries = await loadShard(firstSyllable(input.replace(/ü/g, 'v')));
-    const key = input.replace(/ü/g, 'v');
+    const entries = await loadShard(firstSyllable(input.replaceAll('ü', 'v')));
+    const key = input.replaceAll('ü', 'v');
 
-    // Shards arrive sorted by frequency, so the first matches are already the
-    // ones a learner is most likely to have meant.
+    // Shards arrive sorted by frequency, so the first matches are already the ones a learner is most likely to have meant.
     const exact: DictionaryEntry[] = [];
     const prefixed: DictionaryEntry[] = [];
 
@@ -161,12 +151,10 @@ export function useDictionary() {
   }
 
   /**
-   * Looks a word up by its characters. Needs the shard the word's reading lives
-   * in, which is not known from the hanzi alone, so this scans the shards
-   * already in memory and falls back to nothing rather than fetching all 432.
+   * Looks a word up by its characters.
+   * Needs the shard the word's reading lives in, which is not known from the hanzi alone, so this scans the shards already in memory and falls back to nothing rather than fetching all 432.
    *
-   * That is enough in practice: by the time a card exists, its shard was loaded
-   * to create it.
+   * That is enough in practice: by the time a card exists, its shard was loaded to create it.
    */
   async function lookupByHanzi(hanzi: string, limit = 8): Promise<DictionaryEntry[]> {
     const found: DictionaryEntry[] = [];

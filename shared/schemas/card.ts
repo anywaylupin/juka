@@ -23,10 +23,8 @@ export const cardCreateSchema = z.object({
   pinyin: z.string().trim().max(128).optional(),
   hanViet: z.string().trim().max(128).nullable().optional(),
   /*
-   * The meaning and the part of speech come from the bundled dictionary, not
-   * from a field the user fills in. They are still accepted here because the
-   * client is the one that looked them up, and because a card written before a
-   * dictionary rebuild should keep the wording it was filed with.
+   * The meaning and the part of speech come from the bundled dictionary, not from a field the user fills in.
+   * They are still accepted here because the client is the one that looked them up, and because a card written before a dictionary rebuild should keep the wording it was filed with.
    */
   translation: z.string().trim().max(500).default(''),
   translationVi: z.string().trim().max(500).nullable().optional(),
@@ -34,8 +32,8 @@ export const cardCreateSchema = z.object({
   rating: ratingSchema.default(0),
   notes: z.string().trim().max(2000).nullable().optional(),
   /**
-   * Groups this card belongs to. Absent means "leave them alone" on an update,
-   * which is different from an empty array meaning "remove it from all of them".
+   * Groups this card belongs to.
+   * Absent means "leave them alone" on an update, which is different from an empty array meaning "remove it from all of them".
    */
   groupIds: z.array(z.coerce.number().int().positive()).max(50).optional()
 });
@@ -49,9 +47,8 @@ export const cardIdSchema = z.object({
 /**
  * The local storage cards handed up when someone signs in.
  *
- * Capped because this is one request carrying a whole collection. A box larger
- * than this is past the point where a single round trip is the right shape, and
- * the cap is the honest place to say so rather than timing out mid-merge.
+ * Capped because this is one request carrying a whole collection.
+ * A box larger than this is past the point where a single round trip is the right shape, and the cap is the honest place to say so rather than timing out mid-merge.
  */
 export const cardMergeSchema = z.object({
   cards: z.array(cardCreateSchema).max(2000)

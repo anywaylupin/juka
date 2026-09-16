@@ -19,8 +19,7 @@ describe('normalisePartOfSpeech', () => {
     expect(normalisePartOfSpeech('measure word')).toBe('measure');
     expect(normalisePartOfSpeech('classifier')).toBe('measure');
     expect(normalisePartOfSpeech('chengyu')).toBe('idiom');
-    // Chinese grammar calls these stative verbs, English grammar calls them
-    // adjectives, and the interface only has room for one of the two.
+    // Chinese grammar calls these stative verbs, English grammar calls them adjectives, and the interface only has room for one of the two.
     expect(normalisePartOfSpeech('stative verb')).toBe('adjective');
   });
 

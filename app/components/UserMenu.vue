@@ -9,8 +9,7 @@ const settingsOpen = ref(false);
 const ratingsOpen = ref(false);
 
 /*
- * The sign-in reminder toast lives outside this component but its action has to
- * open the dialog this component owns, so it raises a flag and this watches it.
+ * The sign-in reminder toast lives outside this component but its action has to open the dialog this component owns, so it raises a flag and this watches it.
  */
 const { requested } = useSignInReminder();
 
@@ -89,8 +88,8 @@ const items = computed(() => {
 async function signOut() {
   try {
     await session.logout();
-    // The store watches the account and re-reads, so what comes back is
-    // whatever was in local storage all along. Nothing was moved.
+    // The store watches the account and re-reads, so what comes back is whatever was in local storage all along.
+    // Nothing was moved.
     toast.add({ title: t('auth.signedOut'), description: t('auth.backToLocal'), icon: 'i-lucide-check' });
   } catch {
     toast.add({ title: t('auth.failed'), icon: 'i-lucide-triangle-alert', color: 'error' });

@@ -21,15 +21,13 @@ export default defineEventHandler(async (event): Promise<CardRecord> => {
   const hanzi = input.hanzi ?? existing.hanzi;
   const suppliedPinyin = input.pinyin ?? (input.hanzi ? undefined : existing.pinyin);
 
-  // Re-derive whenever the hanzi or the pinyin moved, so the search columns
-  // cannot drift from what the card says.
+  // Re-derive whenever the hanzi or the pinyin moved, so the search columns cannot drift from what the card says.
   const derived =
     input.hanzi !== undefined || input.pinyin !== undefined ? deriveCardFields(hanzi, suppliedPinyin) : {};
 
   /*
-   * A rewritten hanzi must not collide with another card. Same reasoning as on
-   * create: a sentence rather than a constraint violation, with the unique
-   * index underneath as the real guarantee.
+   * A rewritten hanzi must not collide with another card.
+   * Same reasoning as on create: a sentence rather than a constraint violation, with the unique index underneath as the real guarantee.
    */
   if (input.hanzi !== undefined && input.hanzi !== existing.hanzi) {
     const [duplicate] = await db
@@ -67,9 +65,8 @@ export default defineEventHandler(async (event): Promise<CardRecord> => {
   }
 
   /*
-   * Absent means leave the groups alone, which is not the same as an empty
-   * array meaning take it out of all of them. Both are reachable, so both are
-   * distinguished here rather than collapsed.
+   * Absent means leave the groups alone, which is not the same as an empty array meaning take it out of all of them.
+   * Both are reachable, so both are distinguished here rather than collapsed.
    */
   const groupIds =
     input.groupIds !== undefined

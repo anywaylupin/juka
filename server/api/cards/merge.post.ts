@@ -4,14 +4,11 @@ import type { MergeResult } from '#shared/types/auth';
 import { cards } from '../../database/schema';
 
 /**
- * Copies the cards a signed out visitor built up in local storage onto their
- * account, once, when they sign in.
+ * Copies the cards a signed out visitor built up in local storage onto their account, once, when they sign in.
  *
- * Deliberately additive. A word already on the account is skipped rather than
- * overwritten, because the account copy is the one that has been rated and the
- * local copy is usually the rougher of the two. Nothing here deletes anything,
- * on either side: the browser keeps its local cards after this runs, which is
- * what makes signing out safe.
+ * Deliberately additive.
+ * A word already on the account is skipped rather than overwritten, because the account copy is the one that has been rated and the local copy is usually the rougher of the two.
+ * Nothing here deletes anything, on either side: the browser keeps its local cards after this runs, which is what makes signing out safe.
  */
 export default defineEventHandler(async (event): Promise<MergeResult> => {
   const { cards: incoming } = await readValidatedBody(event, cardMergeSchema.parse);
@@ -53,20 +50,16 @@ export default defineEventHandler(async (event): Promise<MergeResult> => {
       });
 
       /*
-       * Groups are deliberately not carried across. A signed out box has its
-       * own local group ids, which mean nothing on an account that may already
-       * have groups of its own, and silently inventing matching groups would be
-       * a second guess on top of the merge. The cards arrive ungrouped and the
-       * user files them.
+       * Groups are deliberately not carried across.
+       * A signed out box has its own local group ids, which mean nothing on an account that may already have groups of its own, and silently inventing matching groups would be a second guess on top of the merge.
+       * The cards arrive ungrouped and the user files them.
        */
       filed.add(card.hanzi);
       result.added += 1;
     } catch {
       /*
-       * Almost certainly the unique index catching a duplicate that slipped
-       * past the read above, which is a skip rather than a failure. Anything
-       * else is counted honestly rather than swallowed, and one bad card never
-       * stops the rest of the merge.
+       * Almost certainly the unique index catching a duplicate that slipped past the read above, which is a skip rather than a failure.
+       * Anything else is counted honestly rather than swallowed, and one bad card never stops the rest of the merge.
        */
       result.failed += 1;
     }

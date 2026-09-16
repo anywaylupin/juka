@@ -8,8 +8,8 @@ const toast = useToast();
 const open = ref(false);
 
 /*
- * Grouped by mode. The mode is what someone is actually choosing between at
- * night; the cultivar is the choice within it.
+ * Grouped by mode.
+ * The mode is what someone is actually choosing between at night; the cultivar is the choice within it.
  */
 const groups = computed(() =>
   [

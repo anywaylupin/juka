@@ -1,7 +1,6 @@
 /**
- * Card audio is always Mandarin. This is deliberately a constant and not a
- * setting, and it is never derived from the i18n locale: a Vietnamese interface
- * reading Chinese text in a Vietnamese voice would be useless.
+ * Card audio is always Mandarin.
+ * This is deliberately a constant and not a setting, and it is never derived from the i18n locale: a Vietnamese interface reading Chinese text in a Vietnamese voice would be useless.
  */
 export const CARD_AUDIO_LOCALE = 'zh-CN';
 

@@ -6,16 +6,12 @@ import { countSyllables, tonelessPinyin } from './pinyin';
 /**
  * Repairs a card or a group read out of local storage.
  *
- * **Local storage has no migrations.** D1 gets a numbered SQL file whenever a
- * column appears; a browser gets whatever shape the app happened to write the
- * last time someone used it, possibly months and several releases ago. So the
- * read is the migration: every field is filled in, coerced, or dropped here,
- * and nothing downstream has to wonder whether it exists.
+ * **Local storage has no migrations.** D1 gets a numbered SQL file whenever a column appears; a browser gets whatever shape the app happened to write the last time someone used it, possibly months and several releases ago.
+ * So the read is the migration: every field is filled in, coerced, or dropped here, and nothing downstream has to wonder whether it exists.
  *
- * This is not hypothetical. Cards written before groups existed have no
- * `groupIds`, and seven call sites called `.map`, `.includes` or `.length` on
- * it. One of them threw and took the whole page down, because a component that
- * cannot render its props does not degrade, it crashes.
+ * This is not hypothetical.
+ * Cards written before groups existed have no `groupIds`, and seven call sites called `.map`, `.includes` or `.length` on it.
+ * One of them threw and took the whole page down, because a component that cannot render its props does not degrade, it crashes.
  *
  * The rule: a card needs a hanzi, and everything else has a default.
  */
@@ -58,8 +54,7 @@ export function normaliseCard(input: unknown, fallbackId: number): CardRecord | 
     id: typeof raw.id === 'number' && Number.isFinite(raw.id) ? raw.id : fallbackId,
     hanzi,
     pinyin,
-    // Derived columns are recomputed rather than trusted, so a card written by
-    // a version with the old broken folding gets a working search key back.
+    // Derived columns are recomputed rather than trusted, so a card written by a version with the old broken folding gets a working search key back.
     pinyinPlain: tonelessPinyin(pinyin),
     hanViet: nullableText(raw.hanViet),
     translation: text(raw.translation),
@@ -105,8 +100,7 @@ export function normaliseGroup(input: unknown, fallbackId: number): GroupRecord 
   return {
     id: typeof raw.id === 'number' && Number.isFinite(raw.id) ? raw.id : fallbackId,
     name,
-    // An invalid colour would land in a style binding, so it is checked rather
-    // than passed through.
+    // An invalid colour would land in a style binding, so it is checked rather than passed through.
     colour: HEX_COLOUR.test(colour) ? colour : FALLBACK_COLOUR,
     orderIndex: typeof raw.orderIndex === 'number' && Number.isFinite(raw.orderIndex) ? raw.orderIndex : 0
   };

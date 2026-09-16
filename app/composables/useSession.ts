@@ -3,9 +3,8 @@ import type { AccountRecord, MergeResult, SessionResponse } from '#shared/types/
 /**
  * Who is signed in, and the two moments that change it.
  *
- * Signed out is a first class state, not a locked door: the whole app works
- * without an account, against local storage. An account is a place to put the
- * cards so they survive a cleared browser and reach a second device.
+ * Signed out is a first class state, not a locked door: the whole app works without an account, against local storage.
+ * An account is a place to put the cards so they survive a cleared browser and reach a second device.
  */
 export function useSession() {
   const account = useState<AccountRecord | null>('juka:account', () => null);
@@ -18,8 +17,8 @@ export function useSession() {
       const { account: current } = await $fetch<SessionResponse>('/api/auth/session');
       account.value = current;
     } catch {
-      // An unreachable session route means signed out, not broken. The app
-      // falls back to local storage and keeps working.
+      // An unreachable session route means signed out, not broken.
+      // The app falls back to local storage and keeps working.
       account.value = null;
     } finally {
       ready.value = true;
@@ -53,8 +52,8 @@ export function useSession() {
   }
 
   /**
-   * Copies local storage cards up to the account. Additive: a word already on
-   * the account is skipped, and the local copy is never deleted by this.
+   * Copies local storage cards up to the account.
+   * Additive: a word already on the account is skipped, and the local copy is never deleted by this.
    */
   async function mergeLocal(cards: unknown[]): Promise<MergeResult> {
     return $fetch<MergeResult>('/api/cards/merge', { method: 'POST', body: { cards } });

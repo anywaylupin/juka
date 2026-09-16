@@ -4,13 +4,11 @@ import type { DictionaryEntry } from '#shared/types/card';
 /**
  * The hanzi field, with pinyin input built in.
  *
- * Type `shijian` and a candidate strip appears with 时间 first; pick it and the
- * field holds 时间, not the pinyin. Typing or pasting hanzi directly works too
- * and still resolves an entry, so a system IME loses nothing.
+ * Type `shijian` and a candidate strip appears with 时间 first; pick it and the field holds 时间, not the pinyin.
+ * Typing or pasting hanzi directly works too and still resolves an entry, so a system IME loses nothing.
  *
- * The field's value is always hanzi. The pinyin the user typed lives in local
- * state and never leaves this component, which is what "format input to hanzi"
- * means: the model never has to wonder which it is holding.
+ * The field's value is always hanzi.
+ * The pinyin the user typed lives in local state and never leaves this component, which is what "format input to hanzi" means: the model never has to wonder which it is holding.
  */
 const props = defineProps<{
   modelValue: string;
@@ -53,8 +51,7 @@ watch(draft, (value) => {
 
   const trimmed = value.trim();
 
-  // Hanzi is already the finished form, so it is committed straight through and
-  // only looked up to fill the meaning.
+  // Hanzi is already the finished form, so it is committed straight through and only looked up to fill the meaning.
   if (HAN.test(trimmed)) {
     open.value = false;
     candidates.value = [];
@@ -63,8 +60,8 @@ watch(draft, (value) => {
     return;
   }
 
-  // Anything else is pinyin in progress. The bound value stays empty rather than
-  // holding half a romanisation, so a half typed card can never be saved.
+  // Anything else is pinyin in progress.
+  // The bound value stays empty rather than holding half a romanisation, so a half typed card can never be saved.
   emit('update:modelValue', '');
 
   if (!trimmed) {
@@ -74,8 +71,8 @@ watch(draft, (value) => {
     return;
   }
 
-  // Short enough to feel instant, long enough that a fast typist does not fire
-  // a lookup per keystroke. The shard is cached after the first one anyway.
+  // Short enough to feel instant, long enough that a fast typist does not fire a lookup per keystroke.
+  // The shard is cached after the first one anyway.
   timer = setTimeout(() => search(trimmed), 90);
 });
 
@@ -139,9 +136,8 @@ function onKeydown(event: KeyboardEvent) {
 onBeforeUnmount(() => clearTimeout(timer));
 
 /*
- * The autofocus attribute only fires for elements present at page load, so it
- * does nothing for a field inside a modal that mounts on open. Without this the
- * modal's close button keeps focus and the first thing typed goes nowhere.
+ * The autofocus attribute only fires for elements present at page load, so it does nothing for a field inside a modal that mounts on open.
+ * Without this the modal's close button keeps focus and the first thing typed goes nowhere.
  */
 onMounted(() => {
   if (props.autofocus) {
@@ -174,8 +170,7 @@ defineExpose({ focus: () => input.value?.focus() });
     />
 
     <!--
-      The candidate strip, the way an input method shows it: numbered, the first
-      one already selected, horizontally scrollable when there are more.
+      The candidate strip, the way an input method shows it: numbered, the first one already selected, horizontally scrollable when there are more.
     -->
     <div v-if="open" id="hanzi-candidates" role="listbox" class="no-scrollbar mt-3 flex gap-1.5 overflow-x-auto pb-1">
       <button

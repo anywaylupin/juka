@@ -55,8 +55,8 @@ describe('registerSchema', () => {
 describe('loginSchema', () => {
   it('does not apply the length rule to an existing password', () => {
     /*
-     * Deliberate: tightening the password rules must not lock out someone whose
-     * password was set under the old ones. Only registration enforces length.
+     * Deliberate: tightening the password rules must not lock out someone whose password was set under the old ones.
+     * Only registration enforces length.
      */
     expect(loginSchema.parse({ username: 'lupin', password: 'old' }).password).toBe('old');
   });

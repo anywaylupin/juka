@@ -1,45 +1,29 @@
 /**
- * Builds the bundled Mandarin dictionary that makes the hanzi field accept
- * pinyin.
+ * Builds the bundled Mandarin dictionary that makes the hanzi field accept pinyin.
  *
- * Type `shijian` and the field offers 时间 first, and the same entry carries
- * the reading, the meaning, and the part of speech, so the rest of the card
- * fills itself in. All of it is local, so candidates appear on the keystroke
- * rather than after a round trip, and it works with the network off.
+ * Type `shijian` and the field offers 时间 first, and the same entry carries the reading, the meaning, and the part of speech, so the rest of the card fills itself in.
+ * All of it is local, so candidates appear on the keystroke rather than after a round trip, and it works with the network off.
  *
  * Four sources, because none is enough alone:
  *
- * - **CC-CEDICT** has the readings and the English meanings, but no frequency
- *   data at all. Ranked without it, `shijian` offers 世间, 事件, 始建, 实践 and
- *   尸检 before it offers 时间, which makes the feature worse than useless.
- * - **jieba's dict.txt** has a frequency and a part of speech tag for 349,000
- *   words, but no readings and no definitions.
- * - **Unihan** has the Sino-Vietnamese reading of a character, which is the
- *   whole Han-Viet feature. It is keyed on traditional forms, so a simplified
- *   headword has to be mapped through kTraditionalVariant first: without that
- *   step 学习 resolves to nothing, and with it, to học tập.
- * - **Vietnamese Wiktionary's English section** is an English to Vietnamese
- *   dictionary with 101,000 headwords, which is what finally gives a card a
- *   Vietnamese meaning. There is no usable Chinese to Vietnamese source, so the
- *   English gloss is the pivot: 教师 glosses "teacher", and teacher is giáo
- *   viên. See buildVietnamese for what that costs.
+ * - **CC-CEDICT** has the readings and the English meanings, but no frequency data at all. Ranked without it, `shijian` offers 世间, 事件, 始建, 实践 and 尸检 before it offers 时间, which makes the feature worse than useless.
+ * - **jieba's dict.txt** has a frequency and a part of speech tag for 349,000 words, but no readings and no definitions.
+ * - **Unihan** has the Sino-Vietnamese reading of a character, which is the whole Han-Viet feature. It is keyed on traditional forms, so a simplified headword has to be mapped through kTraditionalVariant first: without that step 学习 resolves to nothing, and with it, to học tập.
+ * - **Vietnamese Wiktionary's English section** is an English to Vietnamese dictionary with 101,000 headwords, which is what finally gives a card a Vietnamese meaning. There is no usable Chinese to Vietnamese source, so the English gloss is the pivot: 教师 glosses "teacher", and teacher is giáo viên. See buildVietnamese for what that costs.
  *
- * Joined on the simplified form, they give a candidate list ranked the way a
- * learner expects, a part of speech that does not have to be guessed from the
- * wording of an English gloss, and a Han-Viet reading where one exists.
+ * Joined on the simplified form, they give a candidate list ranked the way a learner expects, a part of speech that does not have to be guessed from the wording of an English gloss, and a Han-Viet reading where one exists.
  *
- * Synonyms come out of the same join rather than out of a model: two words that
- * carry the same English gloss mean close to the same thing. See buildSynonyms.
+ * Synonyms come out of the same join rather than out of a model: two words that carry the same English gloss mean close to the same thing.
+ * See buildSynonyms.
  *
- * Output is sharded by first pinyin syllable, so typing `shi` fetches one file
- * of a few dozen kilobytes rather than the whole dictionary. The syllable table
- * is derived from the source data and written into the manifest, so the client
- * splits syllables exactly the way this script did.
+ * Output is sharded by first pinyin syllable, so typing `shi` fetches one file of a few dozen kilobytes rather than the whole dictionary.
+ * The syllable table is derived from the source data and written into the manifest, so the client splits syllables exactly the way this script did.
  *
- * Licences differ per source and all four must travel with the output. See
- * public/dict/LICENCE.txt and docs/licences.md.
+ * Licences differ per source and all four must travel with the output.
+ * See public/dict/LICENCE.txt and docs/licences.md.
  *
  * Run:
+ *
  *   node scripts/build-dictionary.ts
  *   node scripts/build-dictionary.ts --cedict cedict.txt --jieba dict.txt --unihan Unihan.zip --envi envi.jsonl
  */
@@ -61,10 +45,8 @@ const OUT_DIR = 'public/dict';
 const MAX_HANZI = 4;
 
 /**
- * Entries jieba has never seen are kept only when they are single characters,
- * where the dictionary is acting as a character reference rather than an input
- * method. Everything else without a frequency is long-tail vocabulary that
- * would only ever push a common word further down the candidate list.
+ * Entries jieba has never seen are kept only when they are single characters, where the dictionary is acting as a character reference rather than an input method.
+ * Everything else without a frequency is long-tail vocabulary that would only ever push a common word further down the candidate list.
  */
 const KEEP_UNRANKED_SINGLE_CHARACTERS = true;
 
@@ -75,18 +57,13 @@ const MAX_GLOSS = 72;
 const MAX_SYNONYMS = 6;
 
 /**
- * Above this many words sharing one gloss, the gloss is a grammatical note
- * rather than a meaning and the group is dropped.
+ * Above this many words sharing one gloss, the gloss is a grammatical note rather than a meaning and the group is dropped.
  *
- * Without a ceiling every particle becomes a synonym of every other particle,
- * because they all gloss as "(particle)". Set too low, though, it throws away
- * exactly the groups worth having: earlier values of 12 and 40 both dropped
- * "happy" (52 words) and "beautiful" (57), which is the opposite of the intent.
+ * Without a ceiling every particle becomes a synonym of every other particle, because they all gloss as "(particle)".
+ * Set too low, though, it throws away exactly the groups worth having: earlier values of 12 and 40 both dropped "happy" (52 words) and "beautiful" (57), which is the opposite of the intent.
  *
- * The real offenders were never the popular meanings, they were CC-CEDICT's
- * cross references: "variant of" alone groups 2,432 words. Those are now cut by
- * pattern in CROSS_REFERENCE, which lets this ceiling sit high enough to keep
- * any genuine meaning, with the frequency sort deciding which six to offer.
+ * The real offenders were never the popular meanings, they were CC-CEDICT's cross references: "variant of" alone groups 2,432 words.
+ * Those are now cut by pattern in CROSS_REFERENCE, which lets this ceiling sit high enough to keep any genuine meaning, with the frequency sort deciding which six to offer.
  */
 const MAX_SHARED_GLOSS = 120;
 
@@ -94,8 +71,7 @@ const MAX_SHARED_GLOSS = 120;
  * Senses that point at another entry rather than carrying a meaning.
  *
  * Entries whose first sense looks like this are dropped wholesale further down.
- * This is the per-sense version, for entries that are kept but carry a cross
- * reference among their other senses.
+ * This is the per-sense version, for entries that are kept but carry a cross reference among their other senses.
  */
 const CROSS_REFERENCE =
   /^(variant of|old variant of|erhua variant of|see|used in|abbr[.]? for|also pr[.]?|taiwan pr[.]?|same as|equivalent to)(?:\s|$)/i;
@@ -106,9 +82,8 @@ const HAN_ONLY = /^[\u4e00-\u9fff\u3400-\u4dbf]+$/;
 /**
  * jieba's tag set mapped onto the closed list in shared/constants/pos.ts.
  *
- * Only the tags that map cleanly are listed. A tag that is not here leaves the
- * part of speech null, because a wrong label on a card is worse than a blank
- * one and the user can set it in one tap.
+ * Only the tags that map cleanly are listed.
+ * A tag that is not here leaves the part of speech null, because a wrong label on a card is worse than a blank one and the user can set it in one tap.
  */
 const JIEBA_POS: Record<string, string> = {
   n: 'noun',
@@ -182,9 +157,8 @@ interface Entry {
   /**
    * The Sino-Vietnamese reading, or empty.
    *
-   * Only written when **every** character in the word resolves. A partial
-   * reading like "? gian" for 时间 is worse than none: it looks like data, and
-   * a Vietnamese reader cannot tell which half to trust.
+   * Only written when **every** character in the word resolves.
+   * A partial reading like "? gian" for 时间 is worse than none: it looks like data, and a Vietnamese reader cannot tell which half to trust.
    */
   hanViet: string;
   frequency: number;
@@ -205,10 +179,10 @@ function toneSyllable(raw: string): string {
   const base = raw
     .replace(/[0-5]$/, '')
     .toLowerCase()
-    .replace(/u:/g, 'v');
+    .replaceAll('u:', 'v');
 
   if (tone < 1 || tone > 4) {
-    return base.replace(/v/g, 'ü');
+    return base.replaceAll('v', 'ü');
   }
 
   // Standard placement: a and e always win, ou takes the o, otherwise the last vowel.
@@ -221,27 +195,25 @@ function toneSyllable(raw: string): string {
         : Math.max(base.lastIndexOf('i'), base.lastIndexOf('o'), base.lastIndexOf('u'), base.lastIndexOf('v'));
 
   if (index === -1) {
-    return base.replace(/v/g, 'ü');
+    return base.replaceAll('v', 'ü');
   }
 
   const vowel = base[index] as string;
   const marked = TONE_MARKS[vowel]?.[tone - 1] ?? vowel;
 
-  return (base.slice(0, index) + marked + base.slice(index + 1)).replace(/v/g, 'ü');
+  return (base.slice(0, index) + marked + base.slice(index + 1)).replaceAll('v', 'ü');
 }
 
-const toneless = (raw: string) => raw.replace(/[0-9]/g, '').toLowerCase().replace(/u:/g, 'v');
+const toneless = (raw: string) => raw.replaceAll(/[0-9]/g, '').toLowerCase().replaceAll('u:', 'v');
 
 /**
  * Character to Sino-Vietnamese reading, from Unihan's kVietnamese field.
  *
- * kVietnamese is recorded against traditional characters, and this app stores
- * simplified ones, so kTraditionalVariant is used as a bridge. That single step
- * takes coverage of the common vocabulary from 25% to 63%.
+ * kVietnamese is recorded against traditional characters, and this app stores simplified ones, so kTraditionalVariant is used as a bridge.
+ * That single step takes coverage of the common vocabulary from 25% to 63%.
  *
- * Unicode marks kVietnamese provisional, and it shows: very frequent characters
- * including 时, 就, 很, 咖 and 啡 simply have no entry. Words containing one are
- * left without a reading rather than given half of one.
+ * Unicode marks kVietnamese provisional, and it shows: very frequent characters including 时, 就, 很, 咖 and 啡 simply have no entry.
+ * Words containing one are left without a reading rather than given half of one.
  */
 async function readUnihan(): Promise<Map<string, string>> {
   const local = flag('unihan');
@@ -259,8 +231,7 @@ async function readUnihan(): Promise<Map<string, string>> {
       'Unihan_Readings.txt',
       (ch: string, field: string, value: string) => {
         if (field === 'kVietnamese') {
-          // Several readings are listed for some characters; the first is the
-          // common one, and a card face has room for one.
+          // Several readings are listed for some characters; the first is the common one, and a card face has room for one.
           readings.set(ch, value.split(/\s+/)[0] as string);
         }
       }
@@ -291,8 +262,7 @@ async function readUnihan(): Promise<Map<string, string>> {
     }
   }
 
-  // Fold the traditional readings down onto the simplified forms, so a lookup
-  // is one map access rather than two with a fallback.
+  // Fold the traditional readings down onto the simplified forms, so a lookup is one map access rather than two with a fallback.
   for (const [simplified, trad] of traditional) {
     if (!readings.has(simplified)) {
       const reading = readings.get(trad);
@@ -369,20 +339,14 @@ function parseJieba(source: string): Map<string, [number, string]> {
 /**
  * Fills in each entry's synonyms, from words that share an English gloss.
  *
- * The idea is the whole trick: CC-CEDICT glosses are terse and repetitive, so
- * 高兴, 快乐 and 开心 all carry "happy" somewhere in their sense list. Grouping
- * by normalised gloss and reading the groups back out gives a synonym list with
- * no model, no extra dataset, and no licence beyond the one already recorded.
+ * The idea is the whole trick: CC-CEDICT glosses are terse and repetitive, so 高兴, 快乐 and 开心 all carry "happy" somewhere in their sense list.
+ * Grouping by normalised gloss and reading the groups back out gives a synonym list with no model, no extra dataset, and no licence beyond the one already recorded.
  *
  * Three guards keep it honest:
  *
- * - A gloss shared by more than MAX_SHARED_GLOSS words is a function word or a
- *   bare grammatical note, and is dropped. Otherwise every particle becomes a
- *   synonym of every other particle.
- * - Glosses are normalised first, so "to study" and "study" meet, and the
- *   parenthetical asides CC-CEDICT is full of are stripped.
- * - Candidates are sorted by frequency, so the synonyms offered are words a
- *   learner might actually meet rather than the rarest match.
+ * - A gloss shared by more than MAX_SHARED_GLOSS words is a function word or a bare grammatical note, and is dropped. Otherwise every particle becomes a synonym of every other particle.
+ * - Glosses are normalised first, so "to study" and "study" meet, and the parenthetical asides CC-CEDICT is full of are stripped.
+ * - Candidates are sorted by frequency, so the synonyms offered are words a learner might actually meet rather than the rarest match.
  */
 function buildSynonyms(entries: Entry[], allSenses: Map<string, string[]>) {
   const byHanzi = new Map(entries.map((entry) => [entry.hanzi, entry]));
@@ -391,14 +355,14 @@ function buildSynonyms(entries: Entry[], allSenses: Map<string, string[]>) {
   const normalise = (gloss: string) =>
     gloss
       .toLowerCase()
-      // CC-CEDICT hangs register, domain and usage notes in brackets. They are
-      // not part of the meaning and they stop otherwise identical glosses meeting.
-      .replace(/\([^)]*\)/g, ' ')
-      .replace(/\[[^\]]*\]/g, ' ')
+      // CC-CEDICT hangs register, domain and usage notes in brackets.
+      // They are not part of the meaning and they stop otherwise identical glosses meeting.
+      .replaceAll(/\([^)]*\)/g, ' ')
+      .replaceAll(/\[[^\]]*\]/g, ' ')
       // A leading "to " is an infinitive marker, not a distinction.
       .replace(/^\s*to\s+/, '')
-      .replace(/[^a-z\s]/g, ' ')
-      .replace(/\s+/g, ' ')
+      .replaceAll(/[^a-z\s]/g, ' ')
+      .replaceAll(/\s+/g, ' ')
       .trim();
 
   for (const [hanzi, senses] of allSenses) {
@@ -451,24 +415,17 @@ function buildSynonyms(entries: Entry[], allSenses: Map<string, string[]>) {
 /**
  * Fills in each entry's Vietnamese meaning, pivoted through the English gloss.
  *
- * There is no licensable Chinese to Vietnamese dictionary of usable quality:
- * the ones measured are written up in docs/licences.md. But Vietnamese
- * Wiktionary has a large English section, which is an English to Vietnamese
- * dictionary, and every card already carries an English gloss. So 教师 glosses
- * "teacher", and teacher is giáo viên.
+ * There is no licensable Chinese to Vietnamese dictionary of usable quality: the ones measured are written up in docs/licences.md.
+ * But Vietnamese Wiktionary has a large English section, which is an English to Vietnamese dictionary, and every card already carries an English gloss.
+ * So 教师 glosses "teacher", and teacher is giáo viên.
  *
- * **Pivoting costs accuracy and the cost is worth naming.** An English gloss
- * that is a homograph resolves to whichever Vietnamese sense the pivot picks,
- * so 爱好 "to like" once came back as giống, meaning "similar". Two guards cut
- * most of that:
+ * **Pivoting costs accuracy and the cost is worth naming.** An English gloss that is a homograph resolves to whichever Vietnamese sense the pivot picks, so 爱好 "to like" once came back as giống, meaning "similar".
+ * Two guards cut most of that:
  *
- * - The lookup is keyed by head word **and part of speech**. The card already
- *   knows it is a verb, so the verb sense of "like" wins over the preposition.
- * - Head words shorter than three letters are skipped. Otherwise 阿拉, glossed
- *   "(Wu dialect) I; me", matched the English letter I.
+ * - The lookup is keyed by head word **and part of speech**. The card already knows it is a verb, so the verb sense of "like" wins over the preposition.
+ * - Head words shorter than three letters are skipped. Otherwise 阿拉, glossed "(Wu dialect) I; me", matched the English letter I.
  *
- * What survives is a first sense, not a considered translation, and the card
- * keeps it as written so a later rebuild cannot silently reword an old card.
+ * What survives is a first sense, not a considered translation, and the card keeps it as written so a later rebuild cannot silently reword an old card.
  */
 async function buildVietnamese(entries: Entry[]) {
   const source = await readSource('envi', ENVI_URL, false);
@@ -477,8 +434,7 @@ async function buildVietnamese(entries: Entry[]) {
   const byWordAndPos = new Map<string, string>();
   const byWord = new Map<string, string>();
 
-  // Vietnamese Wiktionary's own part of speech names, mapped onto the closed
-  // list the cards use.
+  // Vietnamese Wiktionary's own part of speech names, mapped onto the closed list the cards use.
   const POS: Record<string, string> = {
     noun: 'noun',
     verb: 'verb',
@@ -553,9 +509,8 @@ function headWord(gloss: string): string {
   return (
     gloss
       .toLowerCase()
-      // CC-CEDICT hangs register and domain notes in brackets; they are not the
-      // meaning and they are never the thing to translate.
-      .replace(/\([^)]*\)/g, ' ')
+      // CC-CEDICT hangs register and domain notes in brackets; they are not the meaning and they are never the thing to translate.
+      .replaceAll(/\([^)]*\)/g, ' ')
       .split(';')[0]!
       .split(',')[0]!
       .replace(/^\s*(to|a|an|the)\s+/, '')
@@ -584,11 +539,8 @@ async function main() {
   /** hanzi -> every English sense it has, for the synonym pass. */
   const allSenses = new Map<string, string[]>();
   /*
-   * Derived from the source rather than hand written. Every syllable that
-   * appears in CC-CEDICT is by definition a real syllable, and a hand kept list
-   * silently loses entries the moment it misses one: an earlier version of this
-   * script omitted sha, she and shu, which quietly misfiled a thousand words
-   * into a junk shard.
+   * Derived from the source rather than hand written.
+   * Every syllable that appears in CC-CEDICT is by definition a real syllable, and a hand kept list silently loses entries the moment it misses one: an earlier version of this script omitted sha, she and shu, which quietly misfiled a thousand words into a junk shard.
    */
   const syllables = new Set<string>();
   let parsed = 0;
@@ -610,8 +562,8 @@ async function main() {
       continue;
     }
 
-    // CC-CEDICT capitalises the pinyin of proper nouns, which is the only marker
-    // it gives for them. A flashcard box does not want 17,000 place names.
+    // CC-CEDICT capitalises the pinyin of proper nouns, which is the only marker it gives for them.
+    // A flashcard box does not want 17,000 place names.
     const rawSyllables = pinyin.split(/\s+/);
     if (rawSyllables.some((part) => /^[A-Z]/.test(part))) {
       continue;
@@ -645,9 +597,8 @@ async function main() {
     }
 
     /*
-     * Every sense, not just the one shown, and split on semicolons as well as
-     * slashes. CC-CEDICT writes 快乐 as "happy; joyful" in a single sense, so
-     * without the second split it never meets 高兴, whose sense is bare "happy".
+     * Every sense, not just the one shown, and split on semicolons as well as slashes.
+     * CC-CEDICT writes 快乐 as "happy; joyful" in a single sense, so without the second split it never meets 高兴, whose sense is bare "happy".
      */
     allSenses.set(
       simplified,
@@ -694,8 +645,7 @@ async function main() {
   const manifest: Record<string, number> = {};
 
   for (const [shard, bucket] of shards) {
-    // Frequency is the whole point of the jieba join: the candidate a learner
-    // meant is the one they meet most often, not the one that sorts first.
+    // Frequency is the whole point of the jieba join: the candidate a learner meant is the one they meet most often, not the one that sorts first.
     bucket.sort(
       (a, b) => b.frequency - a.frequency || a.hanzi.length - b.hanzi.length || a.hanzi.localeCompare(b.hanzi)
     );
@@ -728,8 +678,7 @@ async function main() {
       synonyms: 'derived from shared CC-CEDICT glosses',
       builtAt: new Date().toISOString().slice(0, 10),
       entries: entries.length,
-      // The client splits the leading syllable with this same list, so the two
-      // sides can never disagree about which shard to fetch.
+      // The client splits the leading syllable with this same list, so the two sides can never disagree about which shard to fetch.
       syllables: ordered,
       shards: manifest
     }),

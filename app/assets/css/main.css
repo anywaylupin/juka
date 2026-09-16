@@ -3,33 +3,30 @@
 @import './themes.css';
 
 /*
-  Deliberately small. Nuxt UI's own rings, focus states and surfaces are used as
-  they come; nothing here re-implements them.
+  Deliberately small.
+  Nuxt UI's own rings, focus states and surfaces are used as they come; nothing here re-implements them.
 
-  What is left is the handful of things Nuxt UI does not provide: the font
-  stacks, the fixed rating colour, the page colour, and a scrollbar that does
-  not look like it belongs to a different application.
+  What is left is the handful of things Nuxt UI does not provide: the font stacks, the fixed rating colour, the page colour, and a scrollbar that does not look like it belongs to a different application.
 */
 @theme static {
   /*
-    A rounded geometric sans for Latin text and LXGW WenKai for hanzi. Both are
-    fetched and self hosted by @nuxt/fonts, which ships with Nuxt UI and scans
-    these declarations. The fallbacks are listed in full because a CJK face is
-    large enough that the first paint often lands before it arrives.
+    A rounded geometric sans for Latin text and LXGW WenKai for hanzi.
+    Both are fetched and self hosted by @nuxt/fonts, which ships with Nuxt UI and scans these declarations.
+    The fallbacks are listed in full because a CJK face is large enough that the first paint often lands before it arrives.
   */
   --font-sans: 'Nunito', ui-rounded, 'Segoe UI Variable', system-ui, sans-serif;
   --font-hanzi: 'LXGW WenKai TC', 'LXGW WenKai', 'Songti SC', 'SimSun', serif;
 
   /*
-    The rating mandarin. One fixed colour across every theme, because a rating
-    is information and must never be mistaken for the accent on a button.
+    The rating mandarin.
+    One fixed colour across every theme, because a rating is information and must never be mistaken for the accent on a button.
   */
   --color-rating: #f5821f;
 }
 
 /*
-  White in light themes, black in dark ones. A reading mode overrides this with
-  its own paper colour in themes.css, which is generated.
+  White in light themes, black in dark ones.
+  A reading mode overrides this with its own paper colour in themes.css, which is generated.
 */
 :root {
   --ui-bg: #ffffff;
@@ -53,9 +50,8 @@ body {
 /*
   The scrollbar, in the theme rather than in the operating system's grey.
 
-  Firefox takes the two keyword properties and Chromium takes the pseudo
-  elements, so both are declared. `scrollbar-gutter` keeps the page from
-  shifting sideways when a list grows past one screen.
+  Firefox takes the two keyword properties and Chromium takes the pseudo elements, so both are declared.
+  `scrollbar-gutter` keeps the page from shifting sideways when a list grows past one screen.
 */
 * {
   scrollbar-width: thin;
@@ -102,9 +98,8 @@ html {
 }
 
 /*
-  Tailwind's reset gives every button `cursor: default`, which is correct for a
-  form control and wrong for an application: nothing on the page then says it
-  can be pressed. Put the pointer back on everything that acts when clicked.
+  Tailwind's reset gives every button `cursor: default`, which is correct for a form control and wrong for an application: nothing on the page then says it can be pressed.
+  Put the pointer back on everything that acts when clicked.
 */
 button:not(:disabled),
 summary,
@@ -124,10 +119,8 @@ button:disabled,
 /*
   Moving between views.
 
-  The three views sit in a row in the top bar, so switching slides along that
-  row: the outgoing view leaves the way you came from and the incoming one
-  arrives from the direction you picked. `mode="out-in"` means only one is ever
-  on screen, so nothing overlaps and the page height settles once.
+  The three views sit in a row in the top bar, so switching slides along that row: the outgoing view leaves the way you came from and the incoming one arrives from the direction you picked.
+  `mode="out-in"` means only one is ever on screen, so nothing overlaps and the page height settles once.
 */
 .juka-view-left-enter-active,
 .juka-view-left-leave-active,
@@ -161,9 +154,8 @@ button:disabled,
 /*
   Dealing a card off the stack.
 
-  Forward sends the top card up and away and brings the next one up from inside
-  the deck, which is where the cards behind it are drawn. Back runs the same
-  movement in reverse, so the button you pressed and the motion you see agree.
+  Forward sends the top card up and away and brings the next one up from inside the deck, which is where the cards behind it are drawn.
+  Back runs the same movement in reverse, so the button you pressed and the motion you see agree.
 */
 .juka-deal-enter-active,
 .juka-deal-leave-active,
@@ -201,10 +193,8 @@ button:disabled,
 }
 
 /*
-  Cards arriving in the gallery, one just after another. The stagger is set per
-  card as a custom property so a page of twelve lands as a wave rather than a
-  block, and it is capped so a later card never waits long enough to look
-  broken.
+  Cards arriving in the gallery, one just after another.
+  The stagger is set per card as a custom property so a page of twelve lands as a wave rather than a block, and it is capped so a later card never waits long enough to look broken.
 */
 .juka-card-enter-active {
   transition:
@@ -237,10 +227,8 @@ button:disabled,
 /*
   Waiting.
 
-  A skeleton in the shape of a card, breathing rather than sliding, and an
-  indeterminate bar under the top bar. Both are staggered from the same custom
-  property the cards use, so the placeholder and the thing it stands for move
-  the same way.
+  A skeleton in the shape of a card, breathing rather than sliding, and an indeterminate bar under the top bar.
+  Both are staggered from the same custom property the cards use, so the placeholder and the thing it stands for move the same way.
 */
 .juka-skeleton-card {
   aspect-ratio: 5 / 3.2;

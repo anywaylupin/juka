@@ -2,12 +2,10 @@
 import { loginSchema, registerSchema } from '#shared/schemas/auth';
 
 /**
- * Signing in, signing up, and the one decision that matters either way: what to
- * do with the cards already in this browser.
+ * Signing in, signing up, and the one decision that matters either way: what to do with the cards already in this browser.
  *
- * An account is optional. The offer is storage that survives a cleared browser
- * and reaches a second device, not a gate, and the copy says so rather than
- * implying the app needs one.
+ * An account is optional.
+ * The offer is storage that survives a cleared browser and reaches a second device, not a gate, and the copy says so rather than implying the app needs one.
  */
 const emit = defineEmits<{ done: [] }>();
 
@@ -48,8 +46,7 @@ async function submit() {
     return;
   }
 
-  // Read before signing in: the store swaps to the account the moment the
-  // session lands, and the local list is no longer what is in memory.
+  // Read before signing in: the store swaps to the account the moment the session lands, and the local list is no longer what is in memory.
   const local = store.localCards();
 
   busy.value = true;
@@ -131,9 +128,8 @@ async function submit() {
     </UFormField>
 
     <!--
-      Offered, not assumed, and worded so it is clear nothing is moved. The
-      local copy stays exactly where it is either way, which is what makes
-      signing out safe.
+      Offered, not assumed, and worded so it is clear nothing is moved.
+      The local copy stays exactly where it is either way, which is what makes signing out safe.
     -->
     <UAlert
       v-if="pending > 0"

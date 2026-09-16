@@ -4,13 +4,11 @@ import { MAX_RATING_LABEL, RATING_ICON, RATING_VALUES } from '#shared/constants/
 /**
  * Renaming the five rating levels.
  *
- * The defaults are new, difficult, hesitant, good and mastered, which is a
- * scale about recall. Someone drilling for an exam might want confident and
- * shaky instead, and someone else might want nothing but numbers. The scale is
- * theirs, so the words are too.
+ * The defaults are new, difficult, hesitant, good and mastered, which is a scale about recall.
+ * Someone drilling for an exam might want confident and shaky instead, and someone else might want nothing but numbers.
+ * The scale is theirs, so the words are too.
  *
- * Clearing a box restores that level's default rather than leaving a nameless
- * chip, so there is no way to end up with a rating that cannot be described.
+ * Clearing a box restores that level's default rather than leaving a nameless chip, so there is no way to end up with a rating that cannot be described.
  */
 const { t } = useI18n();
 const toast = useToast();

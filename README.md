@@ -1,5 +1,7 @@
 # Juka 橘卡
 
+[![CI](https://github.com/anywaylupin/juka/actions/workflows/ci.yml/badge.svg)](https://github.com/anywaylupin/juka/actions/workflows/ci.yml)
+
 Flashcard storage for HSK learners. A box of cards, not a tutor.
 
 Juka stores the cards you write, finds them fast, and reads them aloud in Mandarin. It does not decide what to show you

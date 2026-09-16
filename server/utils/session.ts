@@ -3,18 +3,14 @@ import type { H3Event } from 'h3';
 /**
  * Who is asking.
  *
- * The app is usable signed out, but not through this API: a signed out visitor
- * keeps their cards in local storage and never calls a card route at all. So
- * every route behind this either has a real session or gets a 401, and there is
- * no fallback owner any more. The single owner seeded by migration 0001 was
- * removed in 0006.
+ * The app is usable signed out, but not through this API: a signed out visitor keeps their cards in local storage and never calls a card route at all.
+ * So every route behind this either has a real session or gets a 401, and there is no fallback owner any more.
+ * The single owner seeded by migration 0001 was removed in 0006.
  */
 
 /*
- * nuxt-auth-utils exposes User as an empty interface meant to be augmented, but
- * it is re-exported from #auth-utils rather than declared there, so a module
- * augmentation against that alias silently does not merge. Reading the shape
- * structurally works and keeps working.
+ * nuxt-auth-utils exposes User as an empty interface meant to be augmented, but it is re-exported from #auth-utils rather than declared there, so a module augmentation against that alias silently does not merge.
+ * Reading the shape structurally works and keeps working.
  */
 export interface SessionUser {
   id: number;

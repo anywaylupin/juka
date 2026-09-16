@@ -67,6 +67,36 @@ lists, pointed at `app/assets/css/main.css` because Tailwind v4 keeps its config
 - `.prettierignore` covers what is generated or vendored: `public/dict`, `themes.css`, `favicon.svg`, the drizzle
   migration folder, build output and the lockfile. Reformatting a generated file only makes its next diff unreadable.
 
+### Comments
+
+Prettier does not reach inside a comment, so these are the rules it cannot enforce for you.
+
+- **One sentence per line, and never wrap one.** A sentence is the unit, however long the line runs. Hand wrapping at
+  some column means every edit reflows the paragraph and the diff shows five changed lines where one word changed.
+- **A blank comment line separates paragraphs**, and an indented line is a command or a code sample: it keeps its
+  indentation and gets a blank line in front of it.
+- **Comments go on declarations.** A function, a constant, a type, a component: the comment sits above the thing it
+  explains, as a `/** */` block. Not floating in the middle of a body, and not narrating the next statement. If a step
+  inside a function needs explaining, the explanation belongs in that function's block, or the step wants its own named
+  function.
+- **Say why, not what.** The code already says what. A comment earns its place by recording the thing the next reader
+  cannot see: the option that was tried and removed, the number that was measured, the bug that the odd looking line
+  prevents.
+
+### TypeScript
+
+Write the version of the language that exists now, not the one from five years ago. The rules that can be checked are in
+`eslint.config.mjs` under the unicorn plugin, switched on one by one rather than as a recommended set:
+
+- `replaceAll` over a global `replace`, and a plain string over a regex when the pattern is a literal.
+- `.at(-1)` over `list[list.length - 1]`.
+- `slice` over `substring` and `substr`, `startsWith` and `endsWith` over an index comparison.
+- `Number.parseInt` and `Number.isNaN` over the globals, `node:` prefixed imports, `catch {}` with no unused binding.
+- `flatMap` over `map().flat()`, `Object.fromEntries` over a reduce into an object.
+
+Beyond what lint can see: prefer `satisfies` to a cast when you want the check without widening, keep `as` for the cases
+where you genuinely know more than the compiler, and let inference do its job rather than annotating every local.
+
 ## Conventions
 
 - Data fetching in components uses `useFetch` or `useAsyncData`. `$fetch` only inside event handlers, callbacks, and
@@ -165,5 +195,11 @@ not add it back without a reason that has survived a week of use.
 - Licence records live in `docs/licences.md`. The `hanzi-writer` data is under the Arphic Public License, which expects
   an attribution notice, so the README notice must not be dropped.
 - Conventional commits.
+- **CI runs the same commands you have.** `.github/workflows/ci.yml` is `format:check`, `lint`, `typecheck`, `test`, a
+  migration apply against a fresh local D1, and a build, in that order: cheapest failure first. It also asserts the
+  three `cards_fts` triggers survived the migrations, because that is the breakage nothing else notices. Run the same
+  sequence before pushing rather than finding out from a red badge.
+- **There is no deploy workflow, on purpose.** Deploying needs a Cloudflare API token and `db:migrate:remote` against
+  the live database. Adding one is a decision about who can ship, not a chore.
 - Release codenames follow the citrus theme: Ponkan 0.1, Murcott 0.2, Tankan 0.3. Package and directory names stay
   descriptive, not fruit-named.
