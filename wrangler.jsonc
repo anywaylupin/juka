@@ -34,10 +34,5 @@
       "binding": "AUDIO",
       "bucket_name": "juka-audio"
     }
-  ],
-
-  "vars": {
-    "NUXT_OAUTH_GITHUB_CLIENT_ID": "Ov23lidHDb8EiILYD6pX",
-    "NUXT_OAUTH_GOOGLE_CLIENT_ID": "647059619209-oo4a10h168sgcpv5gilg10gie25rmao7.apps.googleusercontent.com"
-  }
+  ]
 }
