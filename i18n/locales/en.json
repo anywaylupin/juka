@@ -129,7 +129,27 @@
     "welcome": "Signed in as {username}",
     "failed": "That did not work",
     "checkDetails": "Check the details",
-    "optional": "You can keep using Juka without an account."
+    "optional": "You can keep using Juka without an account.",
+    "identifier": "Username or email",
+    "confirmPassword": "Repeat password",
+    "passwordsDiffer": "The two passwords do not match",
+    "continueWith": "Continue with {provider}",
+    "or": "or",
+    "forgot": "Forgot your password?",
+    "forgotHelp": "The address on your account, or your username.",
+    "sendResetLink": "Send a reset link",
+    "backToSignIn": "Back to sign in",
+    "resetSentTitle": "Check your email",
+    "resetSentHint": "If that account exists, a link is on its way. It works once and expires in an hour.",
+    "resetTitle": "Choose a new password",
+    "resetHint": "Type it twice, so a slip does not lock you out.",
+    "resetSubmit": "Set password and sign in",
+    "resetDone": "Password changed",
+    "resetNoToken": "This link is incomplete",
+    "resetNoTokenHint": "Open the link from the email, or ask for a new one.",
+    "backToCards": "Back to the cards",
+    "welcomeProvider": "Signed in with {provider}",
+    "providerFailed": "That sign-in did not finish"
   },
   "account": {
     "menu": "Account",
@@ -140,7 +160,13 @@
     "currentPassword": "Current password",
     "newPassword": "New password",
     "saved": "Account updated",
-    "notSaved": "That did not save"
+    "notSaved": "That did not save",
+    "emailHelp": "Used to sign in and to send a reset link. Nothing else.",
+    "setPassword": "Set a password",
+    "connections": "Connected accounts",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "disconnected": "{provider} disconnected"
   },
   "theme": {
     "title": "Theme",
@@ -168,7 +194,9 @@
     "emptyHint": "Make one above, then file cards into it from the card editor.",
     "deleteHint": "Deleting a group removes the label. The cards stay.",
     "confirmDelete": "Delete the group {name}? The cards stay.",
-    "notSaved": "That did not save"
+    "notSaved": "That did not save",
+    "seedDefaults": "Add HSK 1 to 6",
+    "seedDefaultsHint": "Six example groups to start from. Rename or delete any of them."
   },
   "chart": {
     "ripeness": "How well you know the box",

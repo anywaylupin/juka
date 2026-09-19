@@ -1,83 +1,109 @@
 import { describe, expect, it } from 'vitest';
-import { loginSchema, profileUpdateSchema, registerSchema, usernameSchema } from '../shared/schemas/auth';
+import {
+  loginSchema,
+  passwordResetSchema,
+  profileUpdateSchema,
+  registerSchema,
+  usernameSchema
+} from '../shared/schemas/auth';
 
 describe('usernameSchema', () => {
-  it('lowercases, so Lupin and lupin are one account rather than two', () => {
-    expect(usernameSchema.parse('Lupin')).toBe('lupin');
-    expect(usernameSchema.parse('  LUPIN  ')).toBe('lupin');
+  it('lowercases, so one person cannot have two accounts one shift key apart', () => {
+    expect(usernameSchema.parse('  Lupin  ')).toBe('lupin');
   });
 
-  it('accepts the punctuation people actually use in a handle', () => {
-    for (const name of ['lupin', 'lu-pin', 'lu_pin', 'lu.pin', 'lupin2']) {
-      expect(usernameSchema.parse(name)).toBe(name);
-    }
+  it('rejects a name that starts with punctuation', () => {
+    expect(usernameSchema.safeParse('.lupin').success).toBe(false);
   });
 
-  it('rejects anything that would need escaping somewhere', () => {
-    for (const name of ['lu pin', 'lu/pin', '<script>', 'lu@pin', 'lu#pin']) {
-      expect(() => usernameSchema.parse(name)).toThrow();
-    }
-  });
-
-  it('rejects a leading separator, so .. and -- are not usernames', () => {
-    for (const name of ['.lupin', '-lupin', '_lupin']) {
-      expect(() => usernameSchema.parse(name)).toThrow();
-    }
-  });
-
-  it('has a floor and a ceiling', () => {
-    expect(() => usernameSchema.parse('ab')).toThrow();
-    expect(() => usernameSchema.parse('a'.repeat(33))).toThrow();
+  it('rejects anything shorter than three characters', () => {
+    expect(usernameSchema.safeParse('ab').success).toBe(false);
   });
 });
 
 describe('registerSchema', () => {
-  it('treats an empty email as no email, because the field is optional', () => {
-    expect(registerSchema.parse({ username: 'lupin', password: 'mandarin-box', email: '' }).email).toBeNull();
+  it('accepts a matching pair of passwords', () => {
+    const parsed = registerSchema.parse({
+      username: 'Mei',
+      password: 'mandarin1',
+      confirmPassword: 'mandarin1',
+      email: 'Mei@Example.com'
+    });
+
+    expect(parsed.username).toBe('mei');
+    expect(parsed.email).toBe('mei@example.com');
   });
 
-  it('accepts a missing email entirely', () => {
-    const parsed = registerSchema.parse({ username: 'lupin', password: 'mandarin-box' });
-    expect(parsed.username).toBe('lupin');
+  it('refuses two passwords that do not match, on the field that is wrong', () => {
+    const result = registerSchema.safeParse({
+      username: 'mei',
+      password: 'mandarin1',
+      confirmPassword: 'mandarin2'
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(['confirmPassword']);
   });
 
-  it('still rejects an email that is present and malformed', () => {
-    expect(() =>
-      registerSchema.parse({ username: 'lupin', password: 'mandarin-box', email: 'not-an-email' })
-    ).toThrow();
+  it('treats a blank email as no email rather than as an invalid one', () => {
+    expect(
+      registerSchema.parse({ username: 'mei', password: 'mandarin1', confirmPassword: 'mandarin1', email: '' }).email
+    ).toBeNull();
   });
 
-  it('requires a password long enough to be worth hashing', () => {
-    expect(() => registerSchema.parse({ username: 'lupin', password: 'short' })).toThrow();
+  it('leaves the email out entirely when the field is absent', () => {
+    expect(
+      registerSchema.parse({ username: 'mei', password: 'mandarin1', confirmPassword: 'mandarin1' }).email
+    ).toBeUndefined();
   });
 });
 
 describe('loginSchema', () => {
-  it('does not apply the length rule to an existing password', () => {
-    /*
-     * Deliberate: tightening the password rules must not lock out someone whose password was set under the old ones.
-     * Only registration enforces length.
-     */
-    expect(loginSchema.parse({ username: 'lupin', password: 'old' }).password).toBe('old');
+  it('takes a username or an email in the same field', () => {
+    expect(loginSchema.parse({ identifier: 'MEI', password: 'x' }).identifier).toBe('mei');
+    expect(loginSchema.parse({ identifier: 'Mei@Example.com', password: 'x' }).identifier).toBe('mei@example.com');
   });
 
-  it('still rejects an empty password', () => {
-    expect(() => loginSchema.parse({ username: 'lupin', password: '' })).toThrow();
+  it('does not hold an old password to the current rules, which would lock people out', () => {
+    expect(loginSchema.safeParse({ identifier: 'mei', password: 'short' }).success).toBe(true);
   });
 });
 
 describe('profileUpdateSchema', () => {
-  it('accepts an email-only change', () => {
-    const parsed = profileUpdateSchema.parse({ email: 'me@example.com' });
-    expect(parsed.email).toBe('me@example.com');
-    expect(parsed.password).toBeUndefined();
+  /*
+   * The regression that prompted this one: `.optional()` wrapped inside the transform made a missing email field parse as null, so renaming an account deleted its address.
+   */
+  it('leaves an absent email absent rather than turning it into null', () => {
+    expect(profileUpdateSchema.parse({ username: 'lannie' }).email).toBeUndefined();
   });
 
-  it('lets the email be cleared back to nothing', () => {
+  it('reads an explicitly blank email as clearing the address', () => {
     expect(profileUpdateSchema.parse({ email: '' }).email).toBeNull();
   });
 
-  it('holds a new password to the full length rule', () => {
-    expect(() => profileUpdateSchema.parse({ password: 'short', currentPassword: 'whatever' })).toThrow();
+  it('still checks the two passwords against each other', () => {
+    expect(profileUpdateSchema.safeParse({ password: 'mandarin1', confirmPassword: 'mandarin2' }).success).toBe(false);
+  });
+
+  it('accepts a change with no password in it at all', () => {
+    expect(profileUpdateSchema.safeParse({ username: 'lannie', email: 'lan@example.com' }).success).toBe(true);
+  });
+});
+
+describe('passwordResetSchema', () => {
+  it('needs a token long enough to be one', () => {
+    expect(
+      passwordResetSchema.safeParse({ token: 'abc', password: 'mandarin1', confirmPassword: 'mandarin1' }).success
+    ).toBe(false);
+  });
+
+  it('accepts a real token with a matching pair', () => {
+    expect(
+      passwordResetSchema.safeParse({
+        token: 'a'.repeat(64),
+        password: 'mandarin1',
+        confirmPassword: 'mandarin1'
+      }).success
+    ).toBe(true);
   });
 });

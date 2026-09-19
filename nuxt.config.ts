@@ -31,8 +31,27 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Name of the D1 database as declared in wrangler.jsonc. Read by scripts, never by handlers.
     d1DatabaseName: 'juka',
+    /**
+     * The one email the app sends is a password reset, and it needs a provider.
+     * Both empty means the reset link is written to the server log instead, which is what development wants and what a missing key in production has to be visible as.
+     */
+    resendApiKey: '',
+    mailFrom: '',
+    /**
+     * Client ids and secrets for the sign-in providers, read by nuxt-auth-utils.
+     * The module declares these keys itself; they are repeated here so the shape is visible in one place and so `NUXT_OAUTH_GITHUB_CLIENT_ID` and friends have somewhere to land.
+     */
+    oauth: {
+      github: { clientId: '', clientSecret: '' },
+      google: { clientId: '', clientSecret: '' }
+    },
     public: {
-      releaseCodename: 'ponkan'
+      releaseCodename: 'ponkan',
+      /**
+       * Where this deployment lives, for the one link that cannot be built from the request.
+       * A Host header is attacker controlled, and a password reset link is the last place to trust one. Empty falls back to the request origin, which is correct in development.
+       */
+      siteUrl: ''
     }
   },
 

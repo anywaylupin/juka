@@ -13,6 +13,8 @@ useSeoMeta({
   description: () => t('tagline')
 });
 
+const route = useRoute();
+const router = useRouter();
 const session = useSession();
 const store = useCardStore();
 const groupStore = useGroups();
@@ -38,9 +40,34 @@ watch(view, (next, previous) => {
  */
 const reminder = useSignInReminder();
 
+/**
+ * A provider sign-in leaves the app and comes back here with a flag on the query, because a redirect cannot resolve a promise.
+ * The flag is read once and then removed from the URL, so a reload does not say hello twice.
+ */
+async function greetProviderReturn() {
+  const signedInWith = route.query.signedin;
+  const failedWith = route.query.autherror;
+
+  if (!signedInWith && !failedWith) {
+    return;
+  }
+
+  const provider = String(signedInWith ?? failedWith);
+  const name = provider === 'github' ? 'GitHub' : 'Google';
+
+  toast.add(
+    signedInWith
+      ? { title: t('auth.welcomeProvider', { provider: name }), icon: 'i-lucide-check', color: 'success' }
+      : { title: t('auth.providerFailed'), icon: 'i-lucide-triangle-alert', color: 'error' }
+  );
+
+  await router.replace({ query: {} });
+}
+
 onMounted(async () => {
   await session.refresh();
   await Promise.all([store.load(), groupStore.load()]);
+  await greetProviderReturn();
   // Scheduled after the box is known, so the wording can count the cards at risk rather than guessing.
   reminder.schedule();
 });

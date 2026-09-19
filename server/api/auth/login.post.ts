@@ -1,28 +1,24 @@
-import { eq } from 'drizzle-orm';
 import { loginSchema } from '#shared/schemas/auth';
 import type { AccountRecord } from '#shared/types/auth';
-import { users } from '../../database/schema';
 
 export default defineEventHandler(async (event): Promise<AccountRecord> => {
   const input = await readValidatedBody(event, loginSchema.parse);
-  const db = useDrizzle(event);
 
-  const [account] = await db.select().from(users).where(eq(users.username, input.username));
+  const account = await findAccountByIdentifier(event, input.identifier);
 
   /*
-   * One message for both an unknown username and a wrong password, so the form cannot be used to find out which accounts exist.
+   * One message for an unknown account, a wrong password, and an account that has no password at all, so the form cannot be used to find out which accounts exist or how they sign in.
    *
-   * The password is verified even when there is no account, against a hash that cannot match, so a missing username does not answer faster than a wrong password.
-   * Migration 0006 uses '!' for the same "never matches" purpose on the old bootstrap row, and verifyPassword returns false for it rather than throwing.
+   * The password is verified even when there is nothing to verify it against, using a hash that cannot match, so a missing account does not answer faster than a wrong password.
    */
   const hash = account?.passwordHash ?? '!';
   const ok = await verifyPassword(hash, input.password).catch(() => false);
 
-  if (!account || !ok) {
+  if (!account || !account.passwordHash || !ok) {
     throw createError({ statusCode: 401, message: 'Wrong username or password' });
   }
 
   await setUserSession(event, { user: { id: account.id, username: account.username } });
 
-  return toAccount(account);
+  return toAccount(account, await providersFor(event, account.id));
 });

@@ -53,6 +53,11 @@ and `--envi` to build from local copies.
 500 and the interface renders as an empty card box rather than an error, because a failed list looks the same as an
 empty one. Run it before reporting a bug about saving.
 
+**So does a changed `database_id`.** Miniflare keys local D1 state by database id, so editing that field in
+`wrangler.jsonc` silently repoints development at a brand new, unmigrated database: `.wrangler/state/v3/d1` ends up with
+the old file and an empty 4KB one beside it, and every route that touches the database answers 500. That is what "login
+cannot be done" turned out to be. Run `pnpm db:migrate:local` again after touching the id.
+
 ## Formatting
 
 **Prettier owns every character of layout**, in code, in templates, in CSS, in JSON and in prose. `.prettierrc.json` is
@@ -108,6 +113,13 @@ where you genuinely know more than the compiler, and let inference do its job ra
 - Config through `useRuntimeConfig()`, never `process.env` in app code.
 - D1 and R2 bindings come from `event.context.cloudflare.env` and are wrapped in `server/utils/db.ts` and
   `server/utils/storage.ts`. Handlers never touch the raw env. Use `useDrizzle(event)` and `useAudioBucket(event)`.
+- **Auth lives in `server/utils/accounts.ts`.** Finding an account by username or address, picking a free username, and
+  turning a provider profile into a session all happen there, because three routes and two OAuth callbacks need the same
+  answers and a second copy of that logic is how two accounts for one person get created.
+- **An optional field in zod wraps the transform, not the other way round.** `.transform(...).optional()` leaves a
+  missing key missing; `.optional().transform(...)` runs the transform on `undefined` and turns "not sent" into `null`.
+  That cost a data loss bug: renaming an account cleared its email address, because the PATCH route could not tell the
+  two apart.
 - Every card route calls `requireUserId(event)`, which throws a 401 when signed out. There is no fallback owner. A
   signed out visitor's cards are in local storage and never touch these routes.
 - Components never branch on signed in versus signed out to find cards or groups. They ask `useCardStore` and

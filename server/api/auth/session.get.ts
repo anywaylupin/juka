@@ -23,5 +23,5 @@ export default defineEventHandler(async (event): Promise<SessionResponse> => {
     return { account: null };
   }
 
-  return { account: toAccount(account) };
+  return { account: toAccount(account, await providersFor(event, account.id)) };
 });

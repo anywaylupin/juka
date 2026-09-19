@@ -129,7 +129,27 @@
     "welcome": "Đã đăng nhập với {username}",
     "failed": "Chưa thành công",
     "checkDetails": "Kiểm tra lại thông tin",
-    "optional": "Bạn vẫn dùng Juka được mà không cần tài khoản."
+    "optional": "Bạn vẫn dùng Juka được mà không cần tài khoản.",
+    "identifier": "Tên đăng nhập hoặc email",
+    "confirmPassword": "Nhập lại mật khẩu",
+    "passwordsDiffer": "Hai mật khẩu chưa khớp nhau",
+    "continueWith": "Tiếp tục với {provider}",
+    "or": "hoặc",
+    "forgot": "Quên mật khẩu?",
+    "forgotHelp": "Địa chỉ email trên tài khoản, hoặc tên đăng nhập.",
+    "sendResetLink": "Gửi liên kết đặt lại",
+    "backToSignIn": "Quay lại đăng nhập",
+    "resetSentTitle": "Kiểm tra email",
+    "resetSentHint": "Nếu tài khoản tồn tại, liên kết đang trên đường tới. Liên kết dùng một lần và hết hạn sau một giờ.",
+    "resetTitle": "Chọn mật khẩu mới",
+    "resetHint": "Nhập hai lần, để một lần gõ nhầm không khoá bạn ra ngoài.",
+    "resetSubmit": "Đặt mật khẩu và đăng nhập",
+    "resetDone": "Đã đổi mật khẩu",
+    "resetNoToken": "Liên kết này thiếu thông tin",
+    "resetNoTokenHint": "Mở liên kết từ email, hoặc xin một liên kết mới.",
+    "backToCards": "Quay lại hộp thẻ",
+    "welcomeProvider": "Đã đăng nhập bằng {provider}",
+    "providerFailed": "Lần đăng nhập đó chưa xong"
   },
   "account": {
     "menu": "Tài khoản",
@@ -140,7 +160,13 @@
     "currentPassword": "Mật khẩu hiện tại",
     "newPassword": "Mật khẩu mới",
     "saved": "Đã cập nhật tài khoản",
-    "notSaved": "Chưa lưu được"
+    "notSaved": "Chưa lưu được",
+    "emailHelp": "Dùng để đăng nhập và gửi liên kết đặt lại mật khẩu. Không gì khác.",
+    "setPassword": "Đặt mật khẩu",
+    "connections": "Tài khoản đã liên kết",
+    "connect": "Liên kết",
+    "disconnect": "Ngắt liên kết",
+    "disconnected": "Đã ngắt {provider}"
   },
   "theme": {
     "title": "Giao diện",
@@ -168,7 +194,9 @@
     "emptyHint": "Tạo một nhóm ở trên, rồi xếp thẻ vào nhóm khi sửa thẻ.",
     "deleteHint": "Xóa nhóm chỉ bỏ nhãn. Các thẻ vẫn còn.",
     "confirmDelete": "Xóa nhóm {name}? Các thẻ vẫn còn.",
-    "notSaved": "Chưa lưu được"
+    "notSaved": "Chưa lưu được",
+    "seedDefaults": "Thêm HSK 1 tới 6",
+    "seedDefaultsHint": "Sáu nhóm mẫu để bắt đầu. Đổi tên hoặc xoá nhóm nào cũng được."
   },
   "chart": {
     "ripeness": "Mức độ thuộc cả hộp",

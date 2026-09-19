@@ -24,7 +24,10 @@ Do not build these, and reject scope creep toward them:
   synonyms and the Vietnamese are all lookups in the bundled dictionary, which is a citation and not a guess. Workers AI
   was wired in twice and removed twice: for the HSK band and near synonyms in migration 0006, and for translating a
   gloss into Vietnamese in 0009, once the dictionary learned to answer that too. Do not wire it in a third time
-- No social features, sharing, or public decks
+- No social features, sharing, or public decks. Signing in with GitHub or Google is not one of these: it is a way in,
+  not a feed
+- **No email except a password reset.** No digests, no reminders, no "you have not studied in a week"
+
 - No mobile native app, a PWA is enough
 
 The storage-only premise is what makes this shippable. If a feature requires an algorithm deciding what the user sees
@@ -38,7 +41,7 @@ next, it is out of scope.
 ## Data model
 
 ```sql
-users(id, username, password_hash, email, theme, rating_labels, created_at)
+users(id, username, password_hash NULL, email UNIQUE, theme, rating_labels, created_at)
 
 cards(
   id, user_id,
@@ -51,11 +54,18 @@ cards(
 groups(id, user_id, name, colour, order_index, created_at)
 card_groups(card_id, group_id)
 
+oauth_accounts(id, user_id, provider, provider_account_id, email, created_at)
+password_resets(id, user_id, token_hash, expires_at, used_at, created_at)
+
 stories(id, user_id, title_zh, title_en, hsk_level, body, is_example, created_at)
 story_cards(story_id, card_id)
 audio(hanzi_hash, r2_key, voice, created_at)
 ```
 
+- **A new box starts with HSK 1 to 6**, in `shared/constants/groups.ts`, on an account and in local storage alike. They
+  are an example, not a schema: rename them, delete them, or ignore them and make thirty of your own. Grouping is
+  invisible without them, because the panel is a blank page with a plus on it and the first card has nowhere to go.
+  Deleting all six is remembered, so they do not grow back.
 - **Groups are the third attempt at dividing the box, and the first that works.** Units were one-per-card folders,
   removed in migration 0002 because a card had to be filed somewhere. Groups are many-to-many and optional: a card can
   be in none, and being in two is not a conflict. The user names them, colours them, and deleting one removes a label
@@ -76,7 +86,12 @@ audio(hanzi_hash, r2_key, voice, created_at)
 - **There is no `hsk_level` and no `insights` table.** Both were dropped in migration 0006 along with the Workers AI
   binding. The bundled dictionary answers the reading, the meaning and the part of speech, which left nothing for a
   model to say, and the app now has no model in it at all.
-- `email` is optional and unused. Nothing in the app emails anyone.
+- `email` is optional, unique when present, and lowercased on write. It is a second way to sign in and the only address
+  a reset link can go to, which is what made it unique in migration 0010.
+- `password_hash` is **nullable**. An account made through GitHub or Google has none until someone sets one, and the
+  routes ask for a current password only when there is one to ask for.
+- **Every field on an account is changeable at any time**: username, address, password, and which providers are
+  connected. Nothing is set once at sign-up and frozen.
 
 ### Search
 
@@ -158,9 +173,40 @@ drops back to exactly the cards that were there before.
 There is no continuous sync, no conflict resolution and no tombstones, on purpose. That machinery earns its place when
 two devices write at once, which is not what a single-owner card box does.
 
-Auth is username and password through `nuxt-auth-utils`, scrypt via `hashPassword`. Email is optional and unused.
+### Ways in
+
+Username and password through `nuxt-auth-utils`, scrypt via `hashPassword`, **or** GitHub, **or** Google. Sign-in takes
+a username or an email address in one field and works out which it is, because nobody remembers which they used.
+
 `requireUserId` returns a 401 rather than falling back to an owner: a signed out visitor never calls a card route at
 all.
+
+- **A provider sign-in is one route per provider**, `/auth/github` and `/auth/google`, which redirect out and come back.
+  No access token is stored: it is spent once in the callback to read the profile and dropped, because nothing in the
+  app ever calls a provider on the user's behalf.
+- **Matching is by provider account first, then by verified address.** Someone who signed up with an address and later
+  presses the Google button for the same address gets their box, not a second empty one. GitHub and Google both verify
+  before handing an address over, and Google's `email_verified` is checked rather than assumed.
+- **A provider button appears only when that provider has keys.** `/api/auth/providers` says which, so a deployment with
+  no OAuth configured shows a plain form rather than buttons that 500.
+- **A new password is always typed twice**, at sign-up, at a change, and at a reset. It is the one field nobody can read
+  back to check.
+- **Disconnecting the last way in is refused**, with the reason said out loud. An account with no password and no
+  provider is unreachable, and a settings toggle is not allowed to do that to someone.
+
+### Forgetting a password
+
+`/api/auth/forgot` answers 204 whatever happens: account or no account, address or no address, mail sent or not. Any
+other answer turns the form into a way to ask whether a person has an account here.
+
+The token is 32 random bytes, stored as a SHA-256 hash and never in the clear, single use, and good for an hour.
+Spending one deletes every other link for that account, so an older email stops working at the same moment. Setting the
+password signs them in, because they have just proved they hold the address.
+
+**This is the one email the app sends.** It goes through Resend when `NUXT_RESEND_API_KEY` and `NUXT_MAIL_FROM` are set
+and is written to the server log when they are not, which is what makes it usable in development and visible as a
+missing key in production. The link is built from `NUXT_PUBLIC_SITE_URL`, not from the request: a Host header is
+attacker controlled and this is the last link in the app to trust one.
 
 ## Audio
 

@@ -1,3 +1,4 @@
+import { DEFAULT_GROUPS } from '#shared/constants/groups';
 import type { GroupRecord } from '#shared/types/card';
 
 /**
@@ -10,6 +11,11 @@ import type { GroupRecord } from '#shared/types/card';
 
 const STORAGE_KEY = 'juka.groups';
 const STORAGE_SEQUENCE = 'juka.groups.seq';
+/**
+ * Set once the example groups have been offered, so deleting all six is a decision the app remembers.
+ * Without it an empty list is indistinguishable from a new browser, and the HSK groups would grow back every time the last one was removed.
+ */
+const STORAGE_SEEDED = 'juka.groups.seeded';
 
 /** Offered when creating a group, so a new one is never the same grey. */
 export const GROUP_COLOURS = ['#e35205', '#2f6fd0', '#2e9153', '#6b5bd2', '#e0596b', '#0e8f9e', '#d99e00', '#8c7f76'];
@@ -58,6 +64,39 @@ function nextLocalId(): number {
   return -next;
 }
 
+/**
+ * A signed out box starts with the same example HSK groups an account does.
+ *
+ * Grouping is invisible until there is something to group by: the panel is a blank page with a plus on it, and a card has nowhere to go.
+ * Six bands make the feature legible in one glance, and they are ordinary groups, so renaming or deleting them is the expected next move rather than a fight with a default.
+ */
+function seedLocalDefaults(existing: GroupRecord[]): GroupRecord[] {
+  if (import.meta.server || existing.length > 0) {
+    return existing;
+  }
+
+  try {
+    if (window.localStorage.getItem(STORAGE_SEEDED)) {
+      return existing;
+    }
+
+    const seeded = DEFAULT_GROUPS.map((group, index) => ({
+      id: nextLocalId(),
+      name: group.name,
+      colour: group.colour,
+      orderIndex: index
+    }));
+
+    window.localStorage.setItem(STORAGE_SEEDED, '1');
+    writeLocal(seeded);
+
+    return seeded;
+  } catch {
+    // Private mode, or a blocked store. A box with no groups still works.
+    return existing;
+  }
+}
+
 export function useGroups() {
   const { account, signedIn } = useSession();
   const store = useCardStore();
@@ -66,7 +105,7 @@ export function useGroups() {
 
   async function load() {
     if (!signedIn.value) {
-      groups.value = readLocal();
+      groups.value = seedLocalDefaults(readLocal());
       return;
     }
 

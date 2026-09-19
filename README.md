@@ -129,6 +129,12 @@ cards are copied up, a word already on the account is skipped rather than overwr
 deleted. That last part is what makes signing out safe, because it drops back to exactly the cards that were there
 before.
 
+Getting in takes whichever way suits: a username, an email address, GitHub, or Google. A provider button only appears
+when that provider has keys configured, so a fork with none shows a plain form rather than buttons that fail. An account
+made through a provider has no password until someone sets one, and everything on an account, the username included,
+stays changeable afterwards. Forgetting the password sends a single use link that expires in an hour; that is the only
+email this app ever sends.
+
 There is deliberately no continuous sync. Conflict resolution, delete tombstones and a replay log earn their place when
 two devices write at once, which is not what a single-owner card box does.
 

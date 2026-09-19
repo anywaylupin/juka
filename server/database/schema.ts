@@ -13,11 +13,15 @@ export const users = sqliteTable(
     /** What you sign in with. Lowercased on write, so Lupin and lupin are one account. */
     username: text('username').notNull(),
     /**
-     * scrypt, via nuxt-auth-utils' hashPassword.
+     * scrypt, via nuxt-auth-utils' hashPassword, or null for an account that signs in through a provider and has never set one.
      * The salt and parameters travel inside the string, so there is no second column to keep in step.
      */
-    passwordHash: text('password_hash').notNull(),
-    /** Optional. Nothing in the app needs it, and nothing emails you. */
+    passwordHash: text('password_hash'),
+    /**
+     * Optional, unique when present, and lowercased on write.
+     *
+     * It is a second way to sign in and the address a password reset goes to, which is why it is unique now: two accounts on one address makes "which account did you mean" unanswerable.
+     */
     email: text('email'),
     /** Chosen citrus theme, persisted per user rather than only in local storage. */
     theme: text('theme').notNull().default('seville'),
@@ -29,7 +33,58 @@ export const users = sqliteTable(
     ratingLabels: text('rating_labels'),
     createdAt: createdAt()
   },
-  (table) => [uniqueIndex('users_username_idx').on(table.username)]
+  (table) => [uniqueIndex('users_username_idx').on(table.username), uniqueIndex('users_email_idx').on(table.email)]
+);
+
+/**
+ * An account at GitHub or Google that signs in as this user.
+ *
+ * Separate from users because one person can have several, and because the columns belong to the provider rather than to us: what is stored is enough to recognise the same account next time and nothing else.
+ * No access token is kept. The token is used once during the callback to read the profile and is then dropped, because the app never calls a provider API on the user's behalf and storing one would mean holding a credential for no reason.
+ */
+export const oauthAccounts = sqliteTable(
+  'oauth_accounts',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    /** 'github' or 'google', matching the route that handles it. */
+    provider: text('provider').notNull(),
+    /** The provider's own id, which stays put when the address and the display name do not. */
+    providerAccountId: text('provider_account_id').notNull(),
+    /** What the provider said the address was, kept for support rather than for matching. */
+    email: text('email'),
+    createdAt: createdAt()
+  },
+  (table) => [
+    uniqueIndex('oauth_provider_account_idx').on(table.provider, table.providerAccountId),
+    index('oauth_user_idx').on(table.userId)
+  ]
+);
+
+/**
+ * A live password reset link.
+ *
+ * The token is stored as a SHA-256 hash for the same reason a password is: this table is what an attacker reads, and a raw token in it is a working link into every account at once.
+ * Rows are single use and short lived, and spending one deletes the rest for that user, so an older link in an older email stops working at the same moment.
+ */
+export const passwordResets = sqliteTable(
+  'password_resets',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull(),
+    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+    usedAt: integer('used_at', { mode: 'timestamp' }),
+    createdAt: createdAt()
+  },
+  (table) => [
+    uniqueIndex('password_resets_token_idx').on(table.tokenHash),
+    index('password_resets_user_idx').on(table.userId)
+  ]
 );
 
 export const cards = sqliteTable(
@@ -210,6 +265,8 @@ export const cardGroupsRelations = relations(cardGroups, ({ one }) => ({
 }));
 
 export type User = typeof users.$inferSelect;
+export type OauthAccount = typeof oauthAccounts.$inferSelect;
+export type PasswordReset = typeof passwordResets.$inferSelect;
 export type Card = typeof cards.$inferSelect;
 export type Group = typeof groups.$inferSelect;
 export type Story = typeof stories.$inferSelect;

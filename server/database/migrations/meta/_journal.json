@@ -71,6 +71,13 @@
       "when": 1789499386027,
       "tag": "0009_drop_translations",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1789809947275,
+      "tag": "0010_oauth_and_resets",
+      "breakpoints": true
     }
   ]
 }
