@@ -184,23 +184,24 @@ async function copy() {
       >
         <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColour }" />
 
-        <p class="font-medium text-muted" :class="size === 'sm' ? 'text-base' : 'text-xl'">
-          {{ card.pinyin }}
-        </p>
+        <div class="flex gap-2 items-center">
+          <p class="font-medium text-muted" :class="size === 'sm' ? 'text-base' : 'text-xl'">
+            {{ card.pinyin }}
+          </p>
+          <span
+            v-if="card.pos"
+            class="rounded-full px-2 py-0.5 text-xs font-semibold"
+            :style="{
+              color: posColour,
+              backgroundColor: `color-mix(in oklab, ${posColour} 14%, transparent)`
+            }"
+            >{{ t(`pos.${card.pos}`) }}</span
+          >
+        </div>
 
         <p class="font-semibold text-highlighted" :class="meaningSizes[size]">
           {{ meaning || t('card.noTranslation') }}
         </p>
-
-        <span
-          v-if="card.pos"
-          class="rounded-full px-2 py-0.5 text-xs font-semibold"
-          :style="{
-            color: posColour,
-            backgroundColor: `color-mix(in oklab, ${posColour} 14%, transparent)`
-          }"
-          >{{ t(`pos.${card.pos}`) }}</span
-        >
       </div>
     </div>
 
