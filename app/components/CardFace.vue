@@ -269,6 +269,10 @@ async function copy() {
         </UTooltip>
       </div>
 
+      <div class="pointer-events-auto absolute inset-x-0 bottom-2 flex justify-center">
+        <CardRating :model-value="card.rating" :size="ratingSizes[size]" @update:model-value="emit('rate', $event)" />
+      </div>
+
       <div class="pointer-events-auto absolute right-2 bottom-2">
         <UTooltip :text="t('card.listen')">
           <UButton
@@ -283,10 +287,6 @@ async function copy() {
             @click.stop="speak(card.hanzi)"
           />
         </UTooltip>
-      </div>
-
-      <div class="pointer-events-auto absolute inset-x-0 bottom-2 flex justify-center">
-        <CardRating :model-value="card.rating" :size="ratingSizes[size]" @update:model-value="emit('rate', $event)" />
       </div>
     </div>
   </div>
