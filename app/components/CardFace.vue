@@ -154,7 +154,7 @@ async function copy() {
     >
       <!-- Front -->
       <div
-        class="juka-card absolute inset-0 flex flex-col items-center justify-center overflow-hidden px-6 [backface-visibility:hidden]"
+        class="juka-card absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden px-6 [backface-visibility:hidden]"
         :class="inert && 'opacity-60'"
       >
         <!-- Clipped by the card's own overflow, so it follows the corner. -->
@@ -164,7 +164,7 @@ async function copy() {
           {{ card.hanzi }}
         </p>
 
-        <div v-if="cardGroups.length" class="absolute inset-x-0 bottom-10 flex flex-wrap justify-center gap-1 px-4">
+        <div v-if="cardGroups.length" class="inset-x-0 bottom-10 flex flex-wrap justify-center gap-1 px-4">
           <span
             v-for="group in cardGroups"
             :key="group.id"
