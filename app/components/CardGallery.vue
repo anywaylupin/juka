@@ -87,7 +87,7 @@ function setFlipped(card: CardRecord, value: boolean) {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 lg:pb-20">
     <TransitionGroup tag="div" name="juka-card" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <CardFace
         v-for="(card, position) in visible"
@@ -95,7 +95,7 @@ function setFlipped(card: CardRecord, value: boolean) {
         :card="card"
         :flipped="isFlipped(card)"
         size="md"
-        :style="{ '--juka-stagger': `${Math.min(position, 11) * 35}ms` }"
+        :style="{ '--juka-stagger': `${Math.min(position, 11) * 18}ms` }"
         @update:flipped="setFlipped(card, $event)"
         @edit="emit('edit', card)"
         @remove="emit('remove', card)"
@@ -103,18 +103,15 @@ function setFlipped(card: CardRecord, value: boolean) {
       />
     </TransitionGroup>
 
-    <nav v-if="pageCount > 1" class="flex items-center justify-center gap-3" :aria-label="t('cards.pagination')">
-      <UTooltip :text="t('cards.previous')">
-        <UButton
-          icon="i-lucide-chevron-left"
-          color="neutral"
-          variant="outline"
-          :disabled="page <= 1"
-          :aria-label="t('cards.previous')"
-          @click="emit('update:page', page - 1)"
-        />
-      </UTooltip>
-
+    <!--
+      UPagination carries its own previous and next arrows, so there are no extra ones around it.
+      Pinned to the bottom of the screen on desktop, where a long page would otherwise push it out of reach.
+    -->
+    <nav
+      v-if="pageCount > 1"
+      class="flex justify-center lg:fixed lg:inset-x-0 lg:bottom-0 lg:z-30 lg:border-t lg:border-default lg:bg-default/85 lg:py-3 lg:backdrop-blur"
+      :aria-label="t('cards.pagination')"
+    >
       <UPagination
         :page="page"
         :total="cards.length"
@@ -122,17 +119,6 @@ function setFlipped(card: CardRecord, value: boolean) {
         :sibling-count="1"
         @update:page="emit('update:page', $event)"
       />
-
-      <UTooltip :text="t('cards.next')">
-        <UButton
-          icon="i-lucide-chevron-right"
-          color="neutral"
-          variant="outline"
-          :disabled="page >= pageCount"
-          :aria-label="t('cards.next')"
-          @click="emit('update:page', page + 1)"
-        />
-      </UTooltip>
     </nav>
   </div>
 </template>

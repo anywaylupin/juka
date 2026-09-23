@@ -46,7 +46,16 @@ const { byId } = useGroups();
 
 /** 3 by 5, the index card everyone already owns. */
 const widths = { sm: 'max-w-[15rem]', md: 'max-w-[20rem]', lg: 'max-w-[26rem]' };
-const hanziSizes = { sm: 'text-5xl', md: 'text-7xl', lg: 'text-8xl sm:text-9xl' };
+/**
+ * Hanzi size by card size and word length.
+ * One size for every word wrapped 面条儿 onto two lines on the stack card, so longer words step down instead.
+ */
+const hanziSizes = {
+  sm: ['text-5xl', 'text-5xl', 'text-4xl', 'text-3xl'],
+  md: ['text-7xl', 'text-7xl', 'text-6xl', 'text-5xl'],
+  lg: ['text-8xl sm:text-9xl', 'text-8xl sm:text-9xl', 'text-7xl sm:text-8xl', 'text-6xl sm:text-7xl']
+};
+const hanziSize = computed(() => hanziSizes[props.size][Math.min([...props.card.hanzi].length, 4) - 1]);
 const meaningSizes = { sm: 'text-base', md: 'text-xl', lg: 'text-2xl' };
 
 /**
@@ -160,7 +169,7 @@ async function copy() {
         <!-- Clipped by the card's own overflow, so it follows the corner. -->
         <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColour }" />
 
-        <p class="juka-hanzi font-hanzi leading-none text-highlighted" :class="hanziSizes[size]">
+        <p class="juka-hanzi font-hanzi leading-none whitespace-nowrap text-highlighted" :class="hanziSize">
           {{ card.hanzi }}
         </p>
 

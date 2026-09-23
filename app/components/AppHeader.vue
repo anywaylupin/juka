@@ -37,7 +37,9 @@ const views: Array<{ value: BoxView; icon: string; label: string }> = [
 
 <template>
   <header class="sticky top-0 z-40 border-b border-default bg-default/85 backdrop-blur">
-    <div class="mx-auto flex h-14 w-full max-w-7xl items-center gap-2 px-4 sm:px-6">
+    <div
+      class="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-1 px-3 py-2 sm:h-14 sm:flex-nowrap sm:gap-2 sm:px-6 sm:py-0"
+    >
       <NuxtLink :to="localePath('/')" class="flex shrink-0 items-center gap-2 rounded-md" :aria-label="t('nav.cards')">
         <UIcon name="i-icon-park-outline-orange" class="size-6 text-primary" />
         <span class="hidden text-base font-semibold tracking-tight text-highlighted lg:inline">Juka</span>
@@ -64,7 +66,7 @@ const views: Array<{ value: BoxView; icon: string; label: string }> = [
       <UInput
         :model-value="search"
         icon="i-lucide-search"
-        class="min-w-0 flex-1"
+        class="order-last w-full min-w-0 sm:order-none sm:w-auto sm:flex-1"
         :placeholder="t('cards.searchPlaceholder')"
         :aria-label="t('cards.searchPlaceholder')"
         @update:model-value="emit('update:search', String($event))"
@@ -83,7 +85,7 @@ const views: Array<{ value: BoxView; icon: string; label: string }> = [
         </template>
       </UInput>
 
-      <div class="flex shrink-0 items-center gap-0.5">
+      <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:ml-0">
         <!-- Only meaningful in the gallery, so it only appears there. -->
         <UTooltip v-if="view === 'gallery'" :text="flipMode === 'single' ? t('view.flipSingle') : t('view.flipAll')">
           <UButton
@@ -112,7 +114,7 @@ const views: Array<{ value: BoxView; icon: string; label: string }> = [
           <UButton icon="i-lucide-plus" color="primary" :aria-label="t('card.add')" @click="emit('add')" />
         </UTooltip>
 
-        <USeparator orientation="vertical" class="mx-1 h-6" />
+        <USeparator orientation="vertical" class="mx-1 hidden h-6 sm:block" />
 
         <ThemePicker />
         <LocalePicker />
