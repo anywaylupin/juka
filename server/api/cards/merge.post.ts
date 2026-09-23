@@ -23,10 +23,12 @@ export default defineEventHandler(async (event): Promise<MergeResult> => {
 
   // One read to find out what is already filed, rather than a query per card.
   const wanted = [...new Set(incoming.map((card) => card.hanzi))];
-  const existing = await db
-    .select({ hanzi: cards.hanzi })
-    .from(cards)
-    .where(and(eq(cards.userId, userId), inArray(cards.hanzi, wanted)));
+  const existing = await inSlices(wanted, (slice) =>
+    db
+      .select({ hanzi: cards.hanzi })
+      .from(cards)
+      .where(and(eq(cards.userId, userId), inArray(cards.hanzi, slice)))
+  );
 
   const filed = new Set(existing.map((row) => row.hanzi));
 

@@ -184,7 +184,7 @@ async function copy() {
       >
         <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColour }" />
 
-        <div class="flex gap-2 items-center">
+        <div class="flex items-center gap-2">
           <p class="font-medium text-muted" :class="size === 'sm' ? 'text-base' : 'text-xl'">
             {{ card.pinyin }}
           </p>

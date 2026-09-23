@@ -34,10 +34,12 @@ export async function ownedGroupIds(db: JukaDatabase, userId: number, wanted: nu
     return [];
   }
 
-  const rows = await db
-    .select({ id: groups.id })
-    .from(groups)
-    .where(and(eq(groups.userId, userId), inArray(groups.id, wanted)));
+  const rows = await inSlices(wanted, (slice) =>
+    db
+      .select({ id: groups.id })
+      .from(groups)
+      .where(and(eq(groups.userId, userId), inArray(groups.id, slice)))
+  );
 
   return rows.map((row) => row.id);
 }
@@ -50,10 +52,12 @@ export async function groupsForCards(db: JukaDatabase, cardIds: number[]): Promi
     return byCard;
   }
 
-  const rows = await db
-    .select({ cardId: cardGroups.cardId, groupId: cardGroups.groupId })
-    .from(cardGroups)
-    .where(inArray(cardGroups.cardId, cardIds));
+  const rows = await inSlices(cardIds, (slice) =>
+    db
+      .select({ cardId: cardGroups.cardId, groupId: cardGroups.groupId })
+      .from(cardGroups)
+      .where(inArray(cardGroups.cardId, slice))
+  );
 
   for (const row of rows) {
     const existing = byCard.get(row.cardId);
