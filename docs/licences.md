@@ -104,7 +104,7 @@ and it is why the English is kept on the card record rather than replaced.
 before the first public release). Lucide is ISC. circle-flags is MIT.
 
 Every icon in the interface comes from these sets. Nothing is hand drawn. `public/favicon.svg` is the `orange` icon from
-`icon-park-outline`, recoloured by `scripts/build-favicon.ts`, and the recolouring is the only change.
+`icon-park-outline`, recolored by `scripts/build-favicon.ts`, and the recoloring is the only change.
 
 ### nuxt-auth-utils and @adonisjs/hash
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { partOfSpeechColour } from '#shared/constants/pos';
-import { RATING_COLOUR, RATING_VALUES, type Rating } from '#shared/constants/rating';
+import { partOfSpeechColor } from '#shared/constants/pos';
+import { RATING_COLOR, RATING_VALUES, type Rating } from '#shared/constants/rating';
 import type { CardRecord, GroupRecord } from '#shared/types/card';
 
 /**
@@ -29,14 +29,14 @@ const byRating = computed(() => {
 
   /*
    * One hue at five strengths rather than five hues.
-   * The rating colour is fixed across every theme precisely so a rating is never mistaken for a button, and inventing a five colour ramp here would undo that.
-   * More colour means more of the thing.
+   * The rating color is fixed across every theme precisely so a rating is never mistaken for a button, and inventing a five color ramp here would undo that.
+   * More color means more of the thing.
    */
   return [0, ...RATING_VALUES].map((rating) => ({
     rating: rating as Rating,
     label: rating === 0 ? t('filter.unrated') : labelFor(rating as Rating),
     count: counts.get(rating) ?? 0,
-    colour: rating === 0 ? 'var(--ui-bg-accented)' : RATING_COLOUR,
+    color: rating === 0 ? 'var(--ui-bg-accented)' : RATING_COLOR,
     opacity: rating === 0 ? 1 : 0.25 + (rating / 5) * 0.75
   }));
 });
@@ -101,7 +101,7 @@ const byType = computed(() => {
       key: pos,
       label: pos === 'unknown' ? t('chart.noType') : t(`pos.${pos}`),
       count,
-      colour: pos === 'unknown' ? 'var(--ui-bg-accented)' : partOfSpeechColour(pos as never)
+      color: pos === 'unknown' ? 'var(--ui-bg-accented)' : partOfSpeechColor(pos as never)
     }))
     .sort((a, b) => b.count - a.count);
 });
@@ -122,10 +122,10 @@ const byGroup = computed(() => {
       key: String(group.id),
       label: group.name,
       count: counts.get(group.id) ?? 0,
-      colour: group.colour
+      color: group.color
     })),
     ...(ungrouped > 0
-      ? [{ key: 'none', label: t('chart.noGroup'), count: ungrouped, colour: 'var(--ui-bg-accented)' }]
+      ? [{ key: 'none', label: t('chart.noGroup'), count: ungrouped, color: 'var(--ui-bg-accented)' }]
       : [])
   ].sort((a, b) => b.count - a.count);
 });
@@ -159,7 +159,7 @@ const dayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { date
             class="h-full transition-[width] duration-300"
             :style="{
               width: `${(band.count / total) * 100}%`,
-              backgroundColor: band.colour,
+              backgroundColor: band.color,
               opacity: band.opacity
             }"
           />
@@ -168,7 +168,7 @@ const dayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { date
 
       <div class="flex flex-wrap gap-x-4 gap-y-1">
         <div v-for="band in byRating" :key="band.rating" class="flex items-center gap-1.5 text-xs">
-          <span class="size-2.5 rounded-sm" :style="{ backgroundColor: band.colour, opacity: band.opacity }" />
+          <span class="size-2.5 rounded-sm" :style="{ backgroundColor: band.color, opacity: band.opacity }" />
           <span class="text-muted">{{ band.label }}</span>
           <span class="font-medium text-highlighted tabular-nums">{{ band.count }}</span>
         </div>
@@ -224,7 +224,7 @@ const dayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { date
             <div class="h-2 w-full overflow-hidden rounded-full bg-elevated">
               <div
                 class="h-full rounded-full transition-[width] duration-300"
-                :style="{ width: `${(row.count / total) * 100}%`, backgroundColor: row.colour }"
+                :style="{ width: `${(row.count / total) * 100}%`, backgroundColor: row.color }"
               />
             </div>
           </div>
@@ -249,7 +249,7 @@ const dayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { date
             <div class="h-2 w-full overflow-hidden rounded-full bg-elevated">
               <div
                 class="h-full rounded-full transition-[width] duration-300"
-                :style="{ width: `${(row.count / total) * 100}%`, backgroundColor: row.colour }"
+                :style="{ width: `${(row.count / total) * 100}%`, backgroundColor: row.color }"
               />
             </div>
           </div>

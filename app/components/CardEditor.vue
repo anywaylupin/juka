@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { partOfSpeechColour } from '#shared/constants/pos';
+import { partOfSpeechColor } from '#shared/constants/pos';
 import type { Rating } from '#shared/constants/rating';
 import type { CardRecord, DictionaryEntry } from '#shared/types/card';
 
@@ -75,7 +75,7 @@ watch(
  * The column and its data are still there, and `docs/licences.md` still records where the readings come from; only the field is gone.
  */
 const showVietnamese = computed(() => locale.value === 'vi');
-const posColour = computed(() => partOfSpeechColour(state.pos));
+const posColor = computed(() => partOfSpeechColor(state.pos));
 
 /** Everything the dictionary knows, straight onto the card. */
 function applyEntry(entry: DictionaryEntry | null) {
@@ -195,8 +195,8 @@ async function submit() {
             v-if="state.pos"
             class="rounded-full px-2 py-0.5 text-xs font-semibold"
             :style="{
-              color: posColour,
-              backgroundColor: `color-mix(in oklab, ${posColour} 14%, transparent)`
+              color: posColor,
+              backgroundColor: `color-mix(in oklab, ${posColor} 14%, transparent)`
             }"
             >{{ t(`pos.${state.pos}`) }}</span
           >
@@ -253,7 +253,7 @@ async function submit() {
                   :aria-pressed="state.groupIds.includes(group.id)"
                   @click="toggleGroup(group.id)"
                 >
-                  <span class="size-3 shrink-0 rounded-full" :style="{ backgroundColor: group.colour }" />
+                  <span class="size-3 shrink-0 rounded-full" :style="{ backgroundColor: group.color }" />
                   <span class="flex-1 truncate">{{ group.name }}</span>
                   <UIcon
                     v-if="state.groupIds.includes(group.id)"

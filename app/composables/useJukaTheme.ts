@@ -15,7 +15,7 @@ export function useJukaTheme() {
     default: () => null
   });
 
-  const theme = useState<ThemeName>('juka:theme', () => normalise(cookie.value));
+  const theme = useState<ThemeName>('juka:theme', () => normalize(cookie.value));
 
   const definition = computed(() => THEMES.find((entry) => entry.name === theme.value) ?? THEMES[0]);
 
@@ -29,7 +29,7 @@ export function useJukaTheme() {
     { immediate: true }
   );
 
-  // data-theme drives the colour variables, so it has to be on the html tag during SSR as well or the first paint uses the wrong palette.
+  // data-theme drives the color variables, so it has to be on the html tag during SSR as well or the first paint uses the wrong palette.
   useHead({
     htmlAttrs: {
       'data-theme': theme,
@@ -38,7 +38,7 @@ export function useJukaTheme() {
   });
 
   function applyTheme(name: ThemeName | null | undefined) {
-    const next = normalise(name);
+    const next = normalize(name);
     theme.value = next;
     cookie.value = next;
   }
@@ -62,6 +62,6 @@ export function useJukaTheme() {
   return { theme, definition, themes: THEMES, setTheme, applyTheme };
 }
 
-function normalise(name: ThemeName | null | undefined): ThemeName {
+function normalize(name: ThemeName | null | undefined): ThemeName {
   return THEMES.some((entry) => entry.name === name) ? (name as ThemeName) : DEFAULT_THEME;
 }

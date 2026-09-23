@@ -164,8 +164,8 @@ export const groups = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
-    /** Hex, chosen by the user. Groups are theirs, so the colour is too. */
-    colour: text('colour').notNull().default('#8c7f76'),
+    /** Hex, chosen by the user. Groups are theirs, so the color is too. */
+    color: text('color').notNull().default('#8c7f76'),
     orderIndex: integer('order_index').notNull().default(0),
     createdAt: createdAt()
   },

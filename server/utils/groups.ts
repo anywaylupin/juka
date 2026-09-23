@@ -11,13 +11,13 @@ import type { JukaDatabase } from './db';
 
 /** One place that decides the wire shape of a group. */
 export function toGroup(
-  row: { id: number; name: string; colour: string; orderIndex: number },
+  row: { id: number; name: string; color: string; orderIndex: number },
   count?: number
 ): GroupRecord {
   return {
     id: row.id,
     name: row.name,
-    colour: row.colour,
+    color: row.color,
     orderIndex: row.orderIndex,
     ...(count === undefined ? {} : { count })
   };
@@ -99,7 +99,7 @@ export async function listGroups(db: JukaDatabase, userId: number): Promise<Grou
     .select({
       id: groups.id,
       name: groups.name,
-      colour: groups.colour,
+      color: groups.color,
       orderIndex: groups.orderIndex,
       count: sql<number>`count(${cardGroups.cardId})`
     })

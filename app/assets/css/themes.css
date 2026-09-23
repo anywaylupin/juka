@@ -3,7 +3,7 @@
  *
  * One accent ramp per theme, built around the 500 stop in OKLab, plus a single
  * shared warm neutral. Surfaces, borders and text come from Nuxt UI's own
- * defaults, so a theme changes the accent and the page colour and nothing else.
+ * defaults, so a theme changes the accent and the page color and nothing else.
  */
 
 @theme static {
@@ -20,7 +20,7 @@
   --color-seville-900: #5c220d;
   --color-seville-950: #3e1304;
 
-  /* Ponkan: 椪柑. Deep mandarin orange, the colour of its own fruit */
+  /* Ponkan: 椪柑. Deep mandarin orange, the color of its own fruit */
   --color-ponkan-50: #fff8f6;
   --color-ponkan-100: #ffe3d8;
   --color-ponkan-200: #fec2ad;
@@ -206,7 +206,7 @@
   --ui-bg: #faf9f5;
 }
 
-/* Ponkan: 椪柑. Deep mandarin orange, the colour of its own fruit */
+/* Ponkan: 椪柑. Deep mandarin orange, the color of its own fruit */
 :root[data-theme="ponkan"] {
   --ui-color-primary-50: var(--color-ponkan-50);
   --ui-color-primary-100: var(--color-ponkan-100);

@@ -1,5 +1,5 @@
 import { DEFAULT_THEME, THEMES, type ThemeName } from '#shared/constants/themes';
-import { normaliseRatingLabels } from '#shared/constants/rating';
+import { normalizeRatingLabels } from '#shared/constants/rating';
 import type { AccountRecord, AuthProvider } from '#shared/types/auth';
 
 export interface AccountRow {
@@ -27,7 +27,7 @@ export function toAccount(row: AccountRow, providers: AuthProvider[] = []): Acco
     theme: THEMES.some((entry) => entry.name === row.theme) ? (row.theme as ThemeName) : DEFAULT_THEME,
     // Stored as JSON text.
     // Anything unparseable falls back to the defaults rather than leaving the interface with nameless ratings.
-    ratingLabels: normaliseRatingLabels(parseLabels(row.ratingLabels)),
+    ratingLabels: normalizeRatingLabels(parseLabels(row.ratingLabels)),
     hasPassword: Boolean(row.passwordHash),
     providers,
     createdAt: row.createdAt.toISOString()

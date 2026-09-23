@@ -1,16 +1,16 @@
 /**
- * Themes are still named after citrus, but the colour is now the **vibe the name carries**, not the literal colour of the fruit.
+ * Themes are still named after citrus, but the color is now the **vibe the name carries**, not the literal color of the fruit.
  *
- * The old rule, every primary is the real colour of that fruit, produced twelve themes spread across roughly sixty degrees of hue.
+ * The old rule, every primary is the real color of that fruit, produced twelve themes spread across roughly sixty degrees of hue.
  * Ponkan, Kumquat, Honeybell and Meyer were four oranges.
  * Naming them after different cultivars did not make them look different.
  *
  * So: Clementine is the blue of the character's hair, not the skin of a clementine.
  * Bergamot is Earl Grey, so it is tea-flower violet.
  * Tarocco is a blood orange, so it is blood.
- * The name still carries the colour, it just carries the association rather than the photograph, and the set finally spans the wheel.
+ * The name still carries the color, it just carries the association rather than the photograph, and the set finally spans the wheel.
  *
- * The colour scales live in app/assets/css/themes.css, which is generated from this list by scripts/generate-theme-css.ts.
+ * The color scales live in app/assets/css/themes.css, which is generated from this list by scripts/generate-theme-css.ts.
  * This list is also what the picker renders and what the preferences route validates against.
  */
 export interface ThemeDefinition {
@@ -24,22 +24,22 @@ export interface ThemeDefinition {
   /** The accent. Shown as the picker swatch, matching --color-<name>-500. */
   primary: string;
   /**
-   * The page colour, for reading modes only.
+   * The page color, for reading modes only.
    *
    * Light themes are white and dark themes are black, and neither needs to say so.
    * A sepia theme is the exception: paper is the whole point of it, so it names its own.
    */
   page?: string;
-  /** One line on where the colour comes from. Shown as the swatch tooltip. */
+  /** One line on where the color comes from. Shown as the swatch tooltip. */
   description: string;
 }
 
 export const THEMES = [
   /*
    * Seville is the Claude palette: clay on warm paper.
-   * It is a reading mode rather than a light mode, which is why it names a page colour, and it is the default because it is the one that is comfortable to sit in front of for an hour.
+   * It is a reading mode rather than a light mode, which is why it names a page color, and it is the default because it is the one that is comfortable to sit in front of for an hour.
    *
-   * Seville oranges are the bitter ones nobody eats raw and everybody turns into marmalade, which is about the right amount of warmth for the colour.
+   * Seville oranges are the bitter ones nobody eats raw and everybody turns into marmalade, which is about the right amount of warmth for the color.
    */
   {
     name: 'seville',
@@ -54,7 +54,7 @@ export const THEMES = [
     label: 'Ponkan',
     mode: 'light',
     primary: '#e35205',
-    description: '椪柑. Deep mandarin orange, the colour of its own fruit'
+    description: '椪柑. Deep mandarin orange, the color of its own fruit'
   },
   {
     name: 'tangerine',

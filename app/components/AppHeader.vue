@@ -66,7 +66,7 @@ const views: Array<{ value: BoxView; icon: string; label: string }> = [
       <UInput
         :model-value="search"
         icon="i-lucide-search"
-        class="order-last w-full min-w-0 sm:order-none sm:w-auto sm:flex-1"
+        class="order-last w-full min-w-0 sm:order-0 sm:w-auto sm:flex-1"
         :placeholder="t('cards.searchPlaceholder')"
         :aria-label="t('cards.searchPlaceholder')"
         @update:model-value="emit('update:search', String($event))"

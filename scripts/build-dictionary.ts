@@ -175,7 +175,7 @@ const TONE_MARKS: Record<string, string[]> = {
 };
 
 function toneSyllable(raw: string): string {
-  const tone = Number(raw.match(/[0-5]$/)?.[0] ?? 5);
+  const tone = Number(RegExp(/[0-5]$/).exec(raw)?.[0] ?? 5);
   const base = raw
     .replace(/[0-5]$/, '')
     .toLowerCase()
@@ -340,19 +340,19 @@ function parseJieba(source: string): Map<string, [number, string]> {
  * Fills in each entry's synonyms, from words that share an English gloss.
  *
  * The idea is the whole trick: CC-CEDICT glosses are terse and repetitive, so 高兴, 快乐 and 开心 all carry "happy" somewhere in their sense list.
- * Grouping by normalised gloss and reading the groups back out gives a synonym list with no model, no extra dataset, and no licence beyond the one already recorded.
+ * Grouping by normalized gloss and reading the groups back out gives a synonym list with no model, no extra dataset, and no licence beyond the one already recorded.
  *
  * Three guards keep it honest:
  *
  * - A gloss shared by more than MAX_SHARED_GLOSS words is a function word or a bare grammatical note, and is dropped. Otherwise every particle becomes a synonym of every other particle.
- * - Glosses are normalised first, so "to study" and "study" meet, and the parenthetical asides CC-CEDICT is full of are stripped.
+ * - Glosses are normalized first, so "to study" and "study" meet, and the parenthetical asides CC-CEDICT is full of are stripped.
  * - Candidates are sorted by frequency, so the synonyms offered are words a learner might actually meet rather than the rarest match.
  */
 function buildSynonyms(entries: Entry[], allSenses: Map<string, string[]>) {
   const byHanzi = new Map(entries.map((entry) => [entry.hanzi, entry]));
   const groups = new Map<string, string[]>();
 
-  const normalise = (gloss: string) =>
+  const normalize = (gloss: string) =>
     gloss
       .toLowerCase()
       // CC-CEDICT hangs register, domain and usage notes in brackets.
@@ -370,7 +370,7 @@ function buildSynonyms(entries: Entry[], allSenses: Map<string, string[]>) {
       continue;
     }
     for (const sense of senses) {
-      const key = normalise(sense);
+      const key = normalize(sense);
       // A one word gloss is the useful case; an empty one carries nothing.
       if (!key || key.length < 2) {
         continue;

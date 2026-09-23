@@ -27,7 +27,7 @@ CREATE TABLE `groups` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`user_id` integer NOT NULL,
 	`name` text NOT NULL,
-	`colour` text DEFAULT '#8c7f76' NOT NULL,
+	`color` text DEFAULT '#8c7f76' NOT NULL,
 	`order_index` integer DEFAULT 0 NOT NULL,
 	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade

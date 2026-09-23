@@ -1,4 +1,4 @@
-import { normalisePartOfSpeech } from '#shared/constants/pos';
+import { normalizePartOfSpeech } from '#shared/constants/pos';
 import { clampRating } from '#shared/constants/rating';
 import type { CardRecord } from '#shared/types/card';
 
@@ -34,7 +34,7 @@ export function toCardRecord(row: CardRow, groupIds: number[] = []): CardRecord 
     translationVi: row.translationVi,
     // Rows written before the closed list existed can hold free text.
     // Narrow here so the client never has to guess whether pos is renderable.
-    pos: normalisePartOfSpeech(row.pos),
+    pos: normalizePartOfSpeech(row.pos),
     rating: clampRating(row.rating),
     syllables: row.syllables,
     notes: row.notes,

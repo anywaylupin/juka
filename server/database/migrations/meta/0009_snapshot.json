@@ -312,8 +312,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "colour": {
-          "name": "colour",
+        "color": {
+          "name": "color",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

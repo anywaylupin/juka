@@ -1,4 +1,4 @@
-import { normalisePartOfSpeech } from '#shared/constants/pos';
+import { normalizePartOfSpeech } from '#shared/constants/pos';
 import type { DictionaryEntry } from '#shared/types/card';
 
 /**
@@ -35,7 +35,7 @@ function unpack([hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi]: PackedE
     pinyin,
     key,
     gloss,
-    pos: normalisePartOfSpeech(pos),
+    pos: normalizePartOfSpeech(pos),
     hanViet: hanViet || null,
     vi: vi || null,
     // Space separated on disk, because a JSON array of six short strings costs more in brackets and quotes than it does in content.

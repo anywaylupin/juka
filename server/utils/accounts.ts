@@ -10,14 +10,14 @@ import { oauthAccounts, users } from '../database/schema';
  */
 
 /** An address is not case sensitive in practice, and neither is a username here. */
-function normalise(identifier: string): string {
+function normalize(identifier: string): string {
   return identifier.trim().toLowerCase();
 }
 
 /** The account for a username or an email address, or undefined. */
 export async function findAccountByIdentifier(event: H3Event, identifier: string) {
   const db = useDrizzle(event);
-  const value = normalise(identifier);
+  const value = normalize(identifier);
 
   // An address always contains one, and a username can never contain one, so this needs no guessing.
   const column = value.includes('@') ? users.email : users.username;
@@ -46,7 +46,7 @@ export async function providersFor(event: H3Event, userId: number): Promise<Auth
 export async function availableUsername(event: H3Event, suggestion: string): Promise<string> {
   const db = useDrizzle(event);
   const base =
-    normalise(suggestion)
+    normalize(suggestion)
       .replaceAll(/[^a-z0-9._-]/g, '')
       .replace(/^[^a-z0-9]+/, '')
       .slice(0, 24) || 'learner';
@@ -105,7 +105,7 @@ export async function signInWithProvider(event: H3Event, profile: ProviderProfil
   }
 
   const current = await getCurrentUser(event);
-  const email = profile.email ? normalise(profile.email) : null;
+  const email = profile.email ? normalize(profile.email) : null;
 
   const [matched] = current
     ? await db.select().from(users).where(eq(users.id, current.id))

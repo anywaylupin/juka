@@ -1,4 +1,4 @@
-import { normalisePartOfSpeech } from '../constants/pos';
+import { normalizePartOfSpeech } from '../constants/pos';
 import { clampRating } from '../constants/rating';
 import type { CardRecord, GroupRecord } from '../types/card';
 import { countSyllables, tonelessPinyin } from './pinyin';
@@ -35,7 +35,7 @@ function numbers(value: unknown): number[] {
 }
 
 /** One card, or null when what was stored cannot be read as a card at all. */
-export function normaliseCard(input: unknown, fallbackId: number): CardRecord | null {
+export function normalizeCard(input: unknown, fallbackId: number): CardRecord | null {
   if (!input || typeof input !== 'object') {
     return null;
   }
@@ -59,7 +59,7 @@ export function normaliseCard(input: unknown, fallbackId: number): CardRecord | 
     hanViet: nullableText(raw.hanViet),
     translation: text(raw.translation),
     translationVi: nullableText(raw.translationVi),
-    pos: normalisePartOfSpeech(text(raw.pos)),
+    pos: normalizePartOfSpeech(text(raw.pos)),
     rating: clampRating(typeof raw.rating === 'number' ? raw.rating : 0),
     syllables: countSyllables(hanzi),
     notes: nullableText(raw.notes),
@@ -70,20 +70,20 @@ export function normaliseCard(input: unknown, fallbackId: number): CardRecord | 
 }
 
 /** Every readable card, in order, with unreadable entries dropped. */
-export function normaliseCards(input: unknown): CardRecord[] {
+export function normalizeCards(input: unknown): CardRecord[] {
   if (!Array.isArray(input)) {
     return [];
   }
 
   return input
-    .map((entry, index) => normaliseCard(entry, -(index + 1)))
+    .map((entry, index) => normalizeCard(entry, -(index + 1)))
     .filter((card): card is CardRecord => card !== null);
 }
 
-const HEX_COLOUR = /^#[0-9a-f]{6}$/i;
-const FALLBACK_COLOUR = '#8c7f76';
+const HEX_COLOR = /^#[0-9a-f]{6}$/i;
+const FALLBACK_COLOR = '#8c7f76';
 
-export function normaliseGroup(input: unknown, fallbackId: number): GroupRecord | null {
+export function normalizeGroup(input: unknown, fallbackId: number): GroupRecord | null {
   if (!input || typeof input !== 'object') {
     return null;
   }
@@ -95,23 +95,23 @@ export function normaliseGroup(input: unknown, fallbackId: number): GroupRecord 
     return null;
   }
 
-  const colour = text(raw.colour);
+  const color = text(raw.color);
 
   return {
     id: typeof raw.id === 'number' && Number.isFinite(raw.id) ? raw.id : fallbackId,
     name,
-    // An invalid colour would land in a style binding, so it is checked rather than passed through.
-    colour: HEX_COLOUR.test(colour) ? colour : FALLBACK_COLOUR,
+    // An invalid color would land in a style binding, so it is checked rather than passed through.
+    color: HEX_COLOR.test(color) ? color : FALLBACK_COLOR,
     orderIndex: typeof raw.orderIndex === 'number' && Number.isFinite(raw.orderIndex) ? raw.orderIndex : 0
   };
 }
 
-export function normaliseGroups(input: unknown): GroupRecord[] {
+export function normalizeGroups(input: unknown): GroupRecord[] {
   if (!Array.isArray(input)) {
     return [];
   }
 
   return input
-    .map((entry, index) => normaliseGroup(entry, -(index + 1)))
+    .map((entry, index) => normalizeGroup(entry, -(index + 1)))
     .filter((group): group is GroupRecord => group !== null);
 }

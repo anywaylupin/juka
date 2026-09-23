@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { partOfSpeechColour } from '#shared/constants/pos';
+import { partOfSpeechColor } from '#shared/constants/pos';
 import type { Rating } from '#shared/constants/rating';
 import type { CardRecord } from '#shared/types/card';
 
 /**
  * The box, seen the way it sits on a desk.
  *
- * Cards stand on edge in a row, close enough to overlap, with only the spine of each one showing: the word, and a coloured stripe for its part of speech.
+ * Cards stand on edge in a row, close enough to overlap, with only the spine of each one showing: the word, and a colored stripe for its part of speech.
  * The one you are on rises out of the box and opens.
  *
  * This is the browse view rather than a grid because a grid of flashcards is just a table with rounded corners.
@@ -92,22 +92,19 @@ function onKeydown(event: KeyboardEvent) {
 
     <!--
       The box itself.
-      Spines overlap by a negative margin, so a hundred cards still fit in a couple of screens of scrolling, and the selected one lifts and separates from its neighbours.
+      Spines overlap by a negative margin, so a hundred cards still fit in a couple of screens of scrolling, and the selected one lifts and separates from its neighbors.
     -->
     <div class="juka-box relative rounded-xl bg-elevated ring ring-default">
-      <div
+      <datalist
         ref="rail"
         class="no-scrollbar flex items-end gap-0 overflow-x-auto px-4 pt-8 pb-4"
-        role="listbox"
         :aria-label="t('view.box')"
         tabindex="0"
         @keydown="onKeydown"
       >
-        <button
+        <option
           v-for="(card, index) in cards"
           :key="card.id"
-          type="button"
-          role="option"
           :data-index="index"
           :aria-selected="index === modelValue"
           :title="`${card.hanzi} ${card.pinyin}`"
@@ -115,10 +112,10 @@ function onKeydown(event: KeyboardEvent) {
           :class="index === modelValue ? 'z-10 -mt-5 h-44 w-20 ring-primary' : '-ml-1 h-32 w-11 first:ml-0 hover:h-36'"
           @click="select(index)"
         >
-          <!-- The coloured edge is the part of speech, readable side on. -->
+          <!-- The colored edge is the part of speech, readable side on. -->
           <span
             class="absolute inset-x-0 top-0 h-1.5 rounded-t-md"
-            :style="{ backgroundColor: partOfSpeechColour(card.pos) }"
+            :style="{ backgroundColor: partOfSpeechColor(card.pos) }"
           />
 
           <span
@@ -130,11 +127,11 @@ function onKeydown(event: KeyboardEvent) {
           <!-- The rating shows on the spine, so a weak card is visible unopened. -->
           <span
             v-if="card.rating > 0"
-            class="absolute inset-x-0 bottom-1 text-center text-[10px] font-bold text-[var(--color-rating)] tabular-nums"
+            class="absolute inset-x-0 bottom-1 text-center text-[10px] font-bold text-(--color-rating) tabular-nums"
             >{{ card.rating }}</span
           >
-        </button>
-      </div>
+        </option>
+      </datalist>
     </div>
 
     <p v-if="current" class="text-center text-xs text-dimmed">

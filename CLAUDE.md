@@ -51,7 +51,7 @@ cards(
   created_at, updated_at
 )
 
-groups(id, user_id, name, colour, order_index, created_at)
+groups(id, user_id, name, color, order_index, created_at)
 card_groups(card_id, group_id)
 
 oauth_accounts(id, user_id, provider, provider_account_id, email, created_at)
@@ -68,7 +68,7 @@ audio(hanzi_hash, r2_key, voice, created_at)
   Deleting all six is remembered, so they do not grow back.
 - **Groups are the third attempt at dividing the box, and the first that works.** Units were one-per-card folders,
   removed in migration 0002 because a card had to be filed somewhere. Groups are many-to-many and optional: a card can
-  be in none, and being in two is not a conflict. The user names them, colours them, and deleting one removes a label
+  be in none, and being in two is not a conflict. The user names them, colors them, and deleting one removes a label
   rather than a card.
 - **One card per word per owner**, enforced by a unique index on `(user_id, hanzi)` as well as by a check in the route.
   A box with 时间 in it twice is a box you stop trusting, and the merge on sign-in leans on this to decide what to skip.
@@ -131,7 +131,7 @@ pinyin syllable, so typing `shi` fetches one file of a few dozen kilobytes rathe
 syllable table is derived from the source rather than hand written.
 
 **Synonyms come out of the same join, not out of a model.** Two words carrying the same English gloss mean close to the
-same thing, so grouping by normalised gloss and reading the groups back gives a synonym list for 61% of the dictionary.
+same thing, so grouping by normalized gloss and reading the groups back gives a synonym list for 61% of the dictionary.
 Two guards make it usable: cross references like "variant of" are cut by pattern (that one gloss alone groups 2,432
 words), and a gloss shared by more than 120 words is a grammatical note rather than a meaning. Both numbers were tuned
 against real output: caps of 12 and 40 each threw away "happy" and "beautiful" for being too popular, which is the
@@ -249,14 +249,14 @@ Do not scrape.
 
 ## Themes
 
-Named after citrus, but the colour is the **vibe the name carries**, not the literal colour of the fruit.
+Named after citrus, but the color is the **vibe the name carries**, not the literal color of the fruit.
 
-The old rule, every primary is the real colour of that fruit, produced twelve themes spread across sixty degrees of hue.
+The old rule, every primary is the real color of that fruit, produced twelve themes spread across sixty degrees of hue.
 Ponkan, Kumquat, Honeybell and Meyer were four oranges, and naming them after different cultivars did not make them look
 different. So Clementine is the blue of the character's hair, Bergamot is Earl Grey rather than rind, and Tarocco is
 blood.
 
-| Theme      | Mode  | Primary   | Where the colour comes from                  |
+| Theme      | Mode  | Primary   | Where the color comes from                   |
 | ---------- | ----- | --------- | -------------------------------------------- |
 | Seville    | sepia | `#D97757` | **The default.** Claude's clay on warm paper |
 | Ponkan     | light | `#E35205` | 椪柑. Deep mandarin orange                   |
@@ -277,22 +277,22 @@ Implementation:
 - **A theme sets the accent and nothing else.** Surfaces, borders and text come from Nuxt UI's defaults. An earlier
   version generated fifteen semantic tokens per theme, which meant twelve hand tuned palettes to keep in balance.
 - **The page is plain white in light modes and plain black in dark ones.** A reading mode is the exception and names its
-  own paper colour, which is the only reason `ThemeDefinition.page` exists.
+  own paper color, which is the only reason `ThemeDefinition.page` exists.
 - Generated into `app/assets/css/themes.css`. Edit `shared/constants/themes.ts` and run
   `node scripts/generate-theme-css.ts`.
 - Neutral is one warm taupe shared by every theme. Never stock grey.
 - The cookie is the source of truth for rendering, because it is the only thing readable during SSR. A signed in account
   mirrors it so the choice follows you to another browser.
 
-**The rating mandarin is one fixed colour, `#F5821F`, across every theme.** A five step colour ramp would be five things
+**The rating mandarin is one fixed color, `#F5821F`, across every theme.** A five step color ramp would be five things
 to learn where the count is already the whole message, and borrowing the theme accent would make a rating look like a
 button. The user has to be able to tell a button from a state.
 
 ## Look and feel
 
 **Nuxt UI's defaults, used as they come.** Rings, focus states and surfaces are Nuxt UI's own. The one override is the
-colour of the focus ring on a text field, which Nuxt UI paints in the accent and which reads as an orange glow on a warm
-palette; it is swapped to neutral and the extra translucent outline is dropped. That is a colour correction, not a
+color of the focus ring on a text field, which Nuxt UI paints in the accent and which reads as an orange glow on a warm
+palette; it is swapped to neutral and the extra translucent outline is dropped. That is a color correction, not a
 bespoke effect, and it is the only entry in `app.config.ts` besides the palette.
 
 Do not add a 3D press, a raised panel class, or a page gradient back. That was tried and removed: it read as heavy and
@@ -307,7 +307,7 @@ The metaphor is a real box of index cards, and the layout is built around that r
   edge-on deck was tried in between and removed: it looked like a card box and was miserable to read, because a vertical
   word in a 44px spine tells you almost nothing.
 - **Stack** is the one-at-a-time view, drawn as a deck: the two cards to come stand behind the top one and peek out
-  above it as coloured edges, one for each part of speech, so you can see there is more without counting. Forward and
+  above it as colored edges, one for each part of speech, so you can see there is more without counting. Forward and
   back are arrows under the deck, with the position between them; a click or the space bar turns the top card over.
   Stepping deals the old card up and away and brings the next one out of the deck. Its order comes from
   `usePracticeOrder` unless practice mode is switched off.
@@ -340,8 +340,8 @@ The metaphor is a real box of index cards, and the layout is built around that r
 - **Anything that acts when clicked has a pointer cursor.** Tailwind's reset gives buttons `cursor: default`, which
   leaves an interface where nothing looks pressable; `main.css` puts it back for buttons, summaries, and the menu,
   option and tab roles.
-- **Part of speech has its own colour**, fixed across every theme, on the card, on the spine, and in the filter.
-  `PART_OF_SPEECH_COLOURS` in `shared/constants/pos.ts`.
+- **Part of speech has its own color**, fixed across every theme, on the card, on the spine, and in the filter.
+  `PART_OF_SPEECH_COLORS` in `shared/constants/pos.ts`.
 - **Filters are grouped**, not one long rail: how well you know it, word type, and length. Each group is multi-select
   with per-option counts, so a filter that would empty the box says so before it is pressed.
 - **One add button in the app**, in the top bar.
@@ -384,7 +384,7 @@ Keep Notion running in parallel until the app has been used daily for two weeks.
 - **Auth is real.** Username and password through `nuxt-auth-utils`, scrypt hashing, sessions in a signed cookie.
   `requireUserId` returns a 401 rather than falling back to an owner; the bootstrap owner row from migration 0001 was
   removed in 0006. Signed out visitors never reach a card route, because their cards are in local storage.
-- **Theme colours are generated.** `app/assets/css/themes.css` is written by `node scripts/generate-theme-css.ts` from
+- **Theme colors are generated.** `app/assets/css/themes.css` is written by `node scripts/generate-theme-css.ts` from
   `shared/constants/themes.ts`. Edit the constants and regenerate, never the CSS.
 - **Derived card fields have one home.** `deriveCardFields` in `server/utils/card-fields.ts` produces `pinyin`,
   `pinyin_plain`, `hanzi_chars`, `pinyin_search`, and `syllables`. Nothing else may write those columns.

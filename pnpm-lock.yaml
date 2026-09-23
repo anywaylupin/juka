@@ -1427,7 +1427,7 @@ packages:
     peerDependencies:
       vue: '>=3.0.0'
 
-  '@img/colour@1.1.0':
+  '@img/color@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
     engines: {node: '>=18'}
 
@@ -7823,7 +7823,7 @@ snapshots:
       '@iconify/types': 2.0.0
       vue: 3.5.42(typescript@6.0.3)
 
-  '@img/colour@1.1.0': {}
+  '@img/color@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.35.4':
     optionalDependencies:
@@ -12959,7 +12959,7 @@ snapshots:
 
   sharp@0.35.4(@types/node@22.20.2):
     dependencies:
-      '@img/colour': 1.1.0
+      '@img/color': 1.1.0
       detect-libc: 2.1.2
       semver: 7.8.5
     optionalDependencies:

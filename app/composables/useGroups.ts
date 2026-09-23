@@ -18,7 +18,7 @@ const STORAGE_SEQUENCE = 'juka.groups.seq';
 const STORAGE_SEEDED = 'juka.groups.seeded';
 
 /** Offered when creating a group, so a new one is never the same grey. */
-export const GROUP_COLOURS = ['#e35205', '#2f6fd0', '#2e9153', '#6b5bd2', '#e0596b', '#0e8f9e', '#d99e00', '#8c7f76'];
+export const GROUP_COLORS = ['#e35205', '#2f6fd0', '#2e9153', '#6b5bd2', '#e0596b', '#0e8f9e', '#d99e00', '#8c7f76'];
 
 function readLocal(): GroupRecord[] {
   if (import.meta.server) {
@@ -26,9 +26,9 @@ function readLocal(): GroupRecord[] {
   }
 
   try {
-    // Normalised for the same reason the cards are: see shared/utils/normalise.
+    // Normalized for the same reason the cards are: see shared/utils/normalize.
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return normaliseGroups(raw ? JSON.parse(raw) : []);
+    return normalizeGroups(raw ? JSON.parse(raw) : []);
   } catch {
     return [];
   }
@@ -83,7 +83,7 @@ function seedLocalDefaults(existing: GroupRecord[]): GroupRecord[] {
     const seeded = DEFAULT_GROUPS.map((group, index) => ({
       id: nextLocalId(),
       name: group.name,
-      colour: group.colour,
+      color: group.color,
       orderIndex: index
     }));
 
@@ -149,7 +149,7 @@ export function useGroups() {
     return groups.value.find((group) => group.id === id);
   }
 
-  async function add(input: { name: string; colour: string }): Promise<GroupRecord> {
+  async function add(input: { name: string; color: string }): Promise<GroupRecord> {
     const name = input.name.trim();
 
     if (groups.value.some((group) => group.name === name)) {
@@ -159,7 +159,7 @@ export function useGroups() {
     if (signedIn.value) {
       const created = await $fetch<GroupRecord>('/api/groups', {
         method: 'POST',
-        body: { name, colour: input.colour }
+        body: { name, color: input.color }
       });
       groups.value = [...groups.value, created];
       return created;
@@ -168,7 +168,7 @@ export function useGroups() {
     const created: GroupRecord = {
       id: nextLocalId(),
       name,
-      colour: input.colour,
+      color: input.color,
       orderIndex: groups.value.length
     };
 
@@ -178,7 +178,7 @@ export function useGroups() {
     return created;
   }
 
-  async function update(id: number, changes: { name?: string; colour?: string }): Promise<void> {
+  async function update(id: number, changes: { name?: string; color?: string }): Promise<void> {
     if (changes.name && groups.value.some((group) => group.name === changes.name && group.id !== id)) {
       throw createError({ statusCode: 409, message: `You already have a group called ${changes.name}` });
     }

@@ -188,7 +188,7 @@
     "manageHint": "Your own way of dividing the box. A card can be in several, or none.",
     "name": "Group name",
     "namePlaceholder": "HSK 1, verbs to drill, words from the news",
-    "colour": "Colour",
+    "color": "Color",
     "add": "Add group",
     "none": "No groups yet",
     "emptyHint": "Make one above, then file cards into it from the card editor.",

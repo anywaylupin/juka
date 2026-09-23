@@ -28,7 +28,7 @@ export default defineEventHandler(async (event): Promise<GroupRecord> => {
     .values({
       userId,
       name: input.name,
-      colour: input.colour,
+      color: input.color,
       orderIndex: input.orderIndex ?? existing?.total ?? 0
     })
     .returning();

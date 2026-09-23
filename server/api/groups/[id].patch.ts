@@ -24,7 +24,7 @@ export default defineEventHandler(async (event): Promise<GroupRecord> => {
     .update(groups)
     .set({
       ...(input.name !== undefined && { name: input.name }),
-      ...(input.colour !== undefined && { colour: input.colour }),
+      ...(input.color !== undefined && { color: input.color }),
       ...(input.orderIndex !== undefined && { orderIndex: input.orderIndex })
     })
     .where(and(eq(groups.id, id), eq(groups.userId, userId)))

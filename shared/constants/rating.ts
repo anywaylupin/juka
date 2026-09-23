@@ -31,12 +31,12 @@ export const DEFAULT_RATING_LABELS = ['', 'new', 'difficult', 'hesitant', 'good'
 export const MAX_RATING_LABEL = 24;
 
 /**
- * One fixed colour, not a per level scale and not the theme primary.
+ * One fixed color, not a per level scale and not the theme primary.
  *
- * A five step colour ramp would be five things to learn where the count is already the whole message, and borrowing the theme primary would make a rating look like a button.
+ * A five step color ramp would be five things to learn where the count is already the whole message, and borrowing the theme primary would make a rating look like a button.
  * A filled mandarin is filled; the number of them is the information.
  */
-export const RATING_COLOUR = '#f5821f';
+export const RATING_COLOR = '#f5821f';
 
 /** Icons come from the installed sets. Nothing here is hand drawn. */
 export const RATING_ICON = 'i-icon-park-outline-orange';
@@ -84,16 +84,16 @@ export function clampRating(value: number): Rating {
     return MIN_RATING as Rating;
   }
 
-  return (rounded > MAX_RATING ? MAX_RATING : rounded) as Rating;
+  return Math.min(rounded, MAX_RATING) as Rating;
 }
 
 /**
- * Normalises a stored label set, which may be absent, short, or full of blanks.
+ * Normalizes a stored label set, which may be absent, short, or full of blanks.
  *
  * Always returns six entries so callers can index by rating without checking.
  * A blank at any position falls back to the default for that level rather than rendering an empty chip.
  */
-export function normaliseRatingLabels(stored: unknown): string[] {
+export function normalizeRatingLabels(stored: unknown): string[] {
   const source = Array.isArray(stored) ? stored : [];
 
   return DEFAULT_RATING_LABELS.map((fallback, index) => {

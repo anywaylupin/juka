@@ -237,23 +237,23 @@ yet.
 
 ## Design notes
 
-Themes are named after citrus, but the colour is the **vibe the name carries**, not the literal colour of the fruit.
+Themes are named after citrus, but the color is the **vibe the name carries**, not the literal color of the fruit.
 Clementine is the blue of the character's hair. Bergamot is Earl Grey, so it is tea-flower violet. Tarocco is blood.
 Seville, the default, is clay on warm paper.
 
-That is a correction, not a flourish. The first version used the real colour of each fruit and ended up with twelve
+That is a correction, not a flourish. The first version used the real color of each fruit and ended up with twelve
 themes spread across sixty degrees of hue: Ponkan, Kumquat, Honeybell and Meyer were four oranges, and naming them after
 different cultivars did not make them look different.
 
 A theme sets the accent and nothing else. Surfaces, borders and text come from Nuxt UI's own defaults, the page is plain
-white in light themes and plain black in dark ones, and the two reading modes name their own paper colour.
+white in light themes and plain black in dark ones, and the two reading modes name their own paper color.
 
 ### The box, not a dashboard
 
 The interface is built around a real box of index cards rather than around a list view.
 
 **Card box** is how you browse. Cards stand on edge in a row with only the spine showing: the word written vertically, a
-coloured stripe for the part of speech, and the rating at the foot. The card you are on rises out of the box and opens.
+colored stripe for the part of speech, and the rating at the foot. The card you are on rises out of the box and opens.
 A grid was built first and thrown away, because a grid of flashcards is a table with rounded corners, and because
 standing them up fits far more of them on a screen while keeping every hanzi readable.
 
@@ -267,8 +267,8 @@ Everything that is not a card lives in the top bar, as an icon with a tooltip: t
 button, the theme, the language and the account. Filters are grouped rather than strung along a rail, and each option
 carries a count, so a filter that would empty the box says so before you press it.
 
-Part of speech has its own fixed colour, on the card, on the spine and in the filter. The rating is five mandarins in
-one fixed colour that no theme changes: a five step ramp would be five things to learn where the count is already the
+Part of speech has its own fixed color, on the card, on the spine and in the filter. The rating is five mandarins in
+one fixed color that no theme changes: a five step ramp would be five things to learn where the count is already the
 whole message.
 
 ## Where this is

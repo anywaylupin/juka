@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { partOfSpeechColour } from '#shared/constants/pos';
+import { partOfSpeechColor } from '#shared/constants/pos';
 import type { Rating } from '#shared/constants/rating';
 import type { CardRecord, GroupRecord } from '#shared/types/card';
 
@@ -45,7 +45,7 @@ const { speak, speaking } = useSpeech();
 const { byId } = useGroups();
 
 /** 3 by 5, the index card everyone already owns. */
-const widths = { sm: 'max-w-[15rem]', md: 'max-w-[20rem]', lg: 'max-w-[26rem]' };
+const widths = { sm: 'max-w-60', md: 'max-w-[20rem]', lg: 'max-w-104' };
 /**
  * Hanzi size by card size and word length.
  * One size for every word wrapped 面条儿 onto two lines on the stack card, so longer words step down instead.
@@ -71,7 +71,7 @@ const meaning = computed(() => {
   return props.card.translation;
 });
 
-const posColour = computed(() => partOfSpeechColour(props.card.pos));
+const posColor = computed(() => partOfSpeechColor(props.card.pos));
 
 /*
  * The chrome is sized against the card it sits on.
@@ -147,7 +147,7 @@ async function copy() {
 
 <template>
   <div
-    class="group relative mx-auto w-full transition-transform duration-300 ease-out select-none [perspective:1600px]"
+    class="group relative mx-auto w-full transition-transform duration-300 ease-out select-none perspective-[1600px]"
     :class="[
       widths[size],
       !inert && flipOnClick && 'cursor-pointer',
@@ -158,16 +158,16 @@ async function copy() {
     @pointerdown="press"
   >
     <div
-      class="relative size-full transition-transform duration-500 [transform-style:preserve-3d]"
-      :class="[flipped && '[transform:rotateY(180deg)]', pressed && 'scale-[0.97]']"
+      class="relative size-full transition-transform duration-500 transform-3d"
+      :class="[flipped && 'transform-[rotateY(180deg)]', pressed && 'scale-[0.97]']"
     >
       <!-- Front -->
       <div
-        class="juka-card absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden px-6 [backface-visibility:hidden]"
+        class="juka-card absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden px-6 backface-hidden"
         :class="inert && 'opacity-60'"
       >
         <!-- Clipped by the card's own overflow, so it follows the corner. -->
-        <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColour }" />
+        <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColor }" />
 
         <p class="juka-hanzi font-hanzi leading-none whitespace-nowrap text-highlighted" :class="hanziSize">
           {{ card.hanzi }}
@@ -179,8 +179,8 @@ async function copy() {
             :key="group.id"
             class="rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
             :style="{
-              color: group.colour,
-              backgroundColor: `color-mix(in oklab, ${group.colour} 14%, transparent)`
+              color: group.color,
+              backgroundColor: `color-mix(in oklab, ${group.color} 14%, transparent)`
             }"
             >{{ group.name }}</span
           >
@@ -189,9 +189,9 @@ async function copy() {
 
       <!-- Back -->
       <div
-        class="juka-card absolute inset-0 flex [transform:rotateY(180deg)] flex-col items-center justify-center gap-2 overflow-hidden px-6 text-center [backface-visibility:hidden]"
+        class="juka-card absolute inset-0 flex transform-[rotateY(180deg)] flex-col items-center justify-center gap-2 overflow-hidden px-6 text-center backface-hidden"
       >
-        <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColour }" />
+        <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColor }" />
 
         <div class="flex items-center gap-2">
           <p class="font-medium text-muted" :class="size === 'sm' ? 'text-base' : 'text-xl'">
@@ -201,8 +201,8 @@ async function copy() {
             v-if="card.pos"
             class="rounded-full px-2 py-0.5 text-xs font-semibold"
             :style="{
-              color: posColour,
-              backgroundColor: `color-mix(in oklab, ${posColour} 14%, transparent)`
+              color: posColor,
+              backgroundColor: `color-mix(in oklab, ${posColor} 14%, transparent)`
             }"
             >{{ t(`pos.${card.pos}`) }}</span
           >
@@ -304,7 +304,7 @@ async function copy() {
 
 <style scoped>
 /*
-  Card stock, not a panel. overflow-hidden on the faces is what keeps the coloured part-of-speech edge inside the corner radius instead of squaring off the top of the card.
+  Card stock, not a panel. overflow-hidden on the faces is what keeps the colored part-of-speech edge inside the corner radius instead of squaring off the top of the card.
 */
 .juka-card {
   background-color: var(--ui-bg);

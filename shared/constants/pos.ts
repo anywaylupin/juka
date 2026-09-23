@@ -66,8 +66,8 @@ const ALIASES: Record<string, PartOfSpeech> = {
   'proper noun': 'name'
 };
 
-/** Normalises a model reply to the closed list, or null when it does not fit. */
-export function normalisePartOfSpeech(raw: string | null | undefined): PartOfSpeech | null {
+/** Normalizes a model reply to the closed list, or null when it does not fit. */
+export function normalizePartOfSpeech(raw: string | null | undefined): PartOfSpeech | null {
   if (!raw) {
     return null;
   }
@@ -82,15 +82,15 @@ export function normalisePartOfSpeech(raw: string | null | undefined): PartOfSpe
 }
 
 /**
- * A colour per part of speech, so a box of cards reads at a glance.
+ * A color per part of speech, so a box of cards reads at a glance.
  *
  * Fixed across every theme, like the rating mandarin, because this is information rather than decoration.
  * Hues are spread far enough apart that the common four, noun, verb, adjective and adverb, are never close to each other, and the rarer tags share the cooler end where a near miss costs less.
  *
  * These are the mid tones.
- * The interface mixes them toward the page for a background and toward the text colour for a label, so one value serves both on white and on black.
+ * The interface mixes them toward the page for a background and toward the text color for a label, so one value serves both on white and on black.
  */
-export const PART_OF_SPEECH_COLOURS: Record<PartOfSpeech, string> = {
+export const PART_OF_SPEECH_COLORS: Record<PartOfSpeech, string> = {
   noun: '#2f6fd0',
   verb: '#c2410c',
   adjective: '#7c3aed',
@@ -107,7 +107,7 @@ export const PART_OF_SPEECH_COLOURS: Record<PartOfSpeech, string> = {
   name: '#475569'
 };
 
-/** Falls back to the neutral text colour when a card has no part of speech. */
-export function partOfSpeechColour(pos: PartOfSpeech | null | undefined): string {
-  return pos ? PART_OF_SPEECH_COLOURS[pos] : 'var(--ui-text-muted)';
+/** Falls back to the neutral text color when a card has no part of speech. */
+export function partOfSpeechColor(pos: PartOfSpeech | null | undefined): string {
+  return pos ? PART_OF_SPEECH_COLORS[pos] : 'var(--ui-text-muted)';
 }

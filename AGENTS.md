@@ -126,7 +126,7 @@ where you genuinely know more than the compiler, and let inference do its job ra
   `useGroups`, which are the only two places that know. Anything new that persists needs the same shape.
 - **Local storage has no migrations, so the read is the migration.** D1 gets a numbered SQL file whenever a column
   appears; a browser still holds whatever shape an earlier release wrote. Everything read out of local storage goes
-  through `shared/utils/normalise.ts`, which fills in missing fields, coerces wrong types, recomputes derived columns
+  through `shared/utils/normalize.ts`, which fills in missing fields, coerces wrong types, recomputes derived columns
   and drops entries it cannot read. Never cast a parsed blob straight to a record type: adding `groupIds` in migration
   0007 crashed the whole page for anyone with older cards, because seven call sites called `.map` or `.includes` on a
   field that was undefined. Add a field to `CardRecord` and you add a default here in the same change.
@@ -157,9 +157,9 @@ panel class and a page gradient, and putting a border on everything. It read as 
 because a wrong border could have come from the theme, the slot override, or the component itself. That is all gone. Do
 not add it back without a reason that has survived a week of use.
 
-- `app.config.ts` carries **colours only**. No component slot overrides. If one component needs to look different, say
-  so at the call site; promote it only once the pattern has repeated.
-- `app/assets/css/main.css` is deliberately tiny: font stacks, the rating colour, the page background, and a focus ring.
+- `app.config.ts` carries **colors only**. No component slot overrides. If one component needs to look different, say so
+  at the call site; promote it only once the pattern has repeated.
+- `app/assets/css/main.css` is deliberately tiny: font stacks, the rating color, the page background, and a focus ring.
   Add to it only when a component cannot be styled through the theme.
 - A theme sets the accent and nothing else. Surfaces, borders and text come from Nuxt UI. Read them through the semantic
   classes (`bg-default`, `bg-muted`, `bg-elevated`, `text-muted`, `text-highlighted`, `border-default`), never by
@@ -168,7 +168,7 @@ not add it back without a reason that has survived a week of use.
   reading mode.
 - **Icons come from the installed sets** (`i-icon-park-outline-*`, or lucide where IconPark has no equivalent). Never
   hand write SVG path data. The favicon is generated from the same set by `node scripts/build-favicon.ts`.
-- The rating colour is fixed across every theme. Never use a theme accent for a rating, and never use the rating colour
+- The rating color is fixed across every theme. Never use a theme accent for a rating, and never use the rating color
   for a button.
 - Interactive elements need a visible `:focus-visible` ring. The app is used one-handed and keyboard-first.
 

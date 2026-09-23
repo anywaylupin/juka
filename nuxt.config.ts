@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        // A mandarin lifted from icon-park-outline and recoloured, not drawn here.
+        // A mandarin lifted from icon-park-outline and recolored, not drawn here.
         // Regenerate with scripts/build-favicon.ts if the icon changes.
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
       ]

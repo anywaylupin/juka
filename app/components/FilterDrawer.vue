@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PART_OF_SPEECH_LIST, partOfSpeechColour, type PartOfSpeech } from '#shared/constants/pos';
+import { PART_OF_SPEECH_LIST, partOfSpeechColor, type PartOfSpeech } from '#shared/constants/pos';
 import { RATING_ICON, RATING_VALUES, type Rating } from '#shared/constants/rating';
 import type { CardRecord, GroupRecord } from '#shared/types/card';
 import type { CardFilters } from '~/composables/useCardFilters';
@@ -53,7 +53,7 @@ const partCounts = computed(() => {
 const lengthCounts = computed(() => {
   const counts = new Map<number, number>();
   for (const card of props.cards) {
-    const bucket = card.syllables >= 4 ? 4 : card.syllables;
+    const bucket = Math.min(card.syllables, 4);
     counts.set(bucket, (counts.get(bucket) ?? 0) + 1);
   }
   return counts;
@@ -153,10 +153,10 @@ const lengths = [1, 2, 3, 4];
           :aria-pressed="filters.groups.includes(group.id)"
           :style="
             filters.groups.includes(group.id)
-              ? { backgroundColor: group.colour, color: '#fff' }
+              ? { backgroundColor: group.color, color: '#fff' }
               : {
-                  color: group.colour,
-                  backgroundColor: `color-mix(in oklab, ${group.colour} 12%, transparent)`
+                  color: group.color,
+                  backgroundColor: `color-mix(in oklab, ${group.color} 12%, transparent)`
                 }
           "
           @click="emit('toggleGroup', group.id)"
@@ -192,10 +192,10 @@ const lengths = [1, 2, 3, 4];
           :aria-pressed="filters.parts.includes(part)"
           :style="
             filters.parts.includes(part)
-              ? { backgroundColor: partOfSpeechColour(part), color: '#fff' }
+              ? { backgroundColor: partOfSpeechColor(part), color: '#fff' }
               : {
-                  color: partOfSpeechColour(part),
-                  backgroundColor: `color-mix(in oklab, ${partOfSpeechColour(part)} 12%, transparent)`
+                  color: partOfSpeechColor(part),
+                  backgroundColor: `color-mix(in oklab, ${partOfSpeechColor(part)} 12%, transparent)`
                 }
           "
           @click="emit('togglePart', part)"

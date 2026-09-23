@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { GROUP_COLOURS } from '~/composables/useGroups';
+import { GROUP_COLORS } from '~/composables/useGroups';
 
 /**
  * Making and renaming groups.
@@ -13,7 +13,7 @@ const toast = useToast();
 const { groups, add, update, remove } = useGroups();
 
 const name = ref('');
-const colour = ref(GROUP_COLOURS[0] as string);
+const color = ref(GROUP_COLORS[0] as string);
 const busy = ref(false);
 
 const editing = ref<number | null>(null);
@@ -26,11 +26,11 @@ async function create() {
 
   busy.value = true;
   try {
-    await add({ name: name.value, colour: colour.value });
+    await add({ name: name.value, color: color.value });
     name.value = '';
     // Step along the palette so two groups made in a row look different.
-    const next = GROUP_COLOURS.indexOf(colour.value) + 1;
-    colour.value = GROUP_COLOURS[next % GROUP_COLOURS.length] as string;
+    const next = GROUP_COLORS.indexOf(color.value) + 1;
+    color.value = GROUP_COLORS[next % GROUP_COLORS.length] as string;
   } catch (error) {
     toast.add({ title: message(error), icon: 'i-lucide-triangle-alert', color: 'error' });
   } finally {
@@ -58,9 +58,9 @@ async function commitEdit(id: number) {
   }
 }
 
-async function recolour(id: number, value: string) {
+async function recolor(id: number, value: string) {
   try {
-    await update(id, { colour: value });
+    await update(id, { color: value });
   } catch (error) {
     toast.add({ title: message(error), icon: 'i-lucide-triangle-alert', color: 'error' });
   }
@@ -90,19 +90,19 @@ function message(error: unknown): string {
   <div class="space-y-4">
     <form class="flex items-end gap-2" @submit.prevent="create">
       <UPopover>
-        <UButton color="neutral" variant="outline" :aria-label="t('group.colour')">
-          <span class="size-4 rounded-full" :style="{ backgroundColor: colour }" />
+        <UButton color="neutral" variant="outline" :aria-label="t('group.color')">
+          <span class="size-4 rounded-full" :style="{ backgroundColor: color }" />
         </UButton>
         <template #content>
           <div class="grid grid-cols-4 gap-1 p-2">
             <button
-              v-for="option in GROUP_COLOURS"
+              v-for="option in GROUP_COLORS"
               :key="option"
               type="button"
               class="size-7 rounded-full"
               :style="{ backgroundColor: option }"
               :aria-label="option"
-              @click="colour = option"
+              @click="color = option"
             />
           </div>
         </template>
@@ -130,19 +130,19 @@ function message(error: unknown): string {
           <button
             type="button"
             class="size-4 shrink-0 rounded-full"
-            :style="{ backgroundColor: group.colour }"
-            :aria-label="t('group.colour')"
+            :style="{ backgroundColor: group.color }"
+            :aria-label="t('group.color')"
           />
           <template #content>
             <div class="grid grid-cols-4 gap-1 p-2">
               <button
-                v-for="option in GROUP_COLOURS"
+                v-for="option in GROUP_COLORS"
                 :key="option"
                 type="button"
                 class="size-7 rounded-full"
                 :style="{ backgroundColor: option }"
                 :aria-label="option"
-                @click="recolour(group.id, option)"
+                @click="recolor(group.id, option)"
               />
             </div>
           </template>

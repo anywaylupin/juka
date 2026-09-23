@@ -6,7 +6,7 @@ import {
   RATING_VALUES,
   RATING_WEIGHTS,
   clampRating,
-  normaliseRatingLabels
+  normalizeRatingLabels
 } from '../shared/constants/rating';
 
 describe('clampRating', () => {
@@ -41,12 +41,12 @@ describe('rating labels', () => {
   it('always returns six entries, whatever was stored', () => {
     // The column is free text a user can edit, so every shape has to have an answer rather than leaving the interface with a nameless rating.
     for (const stored of [null, undefined, [], ['a'], 'nonsense', 42, {}]) {
-      expect(normaliseRatingLabels(stored)).toHaveLength(6);
+      expect(normalizeRatingLabels(stored)).toHaveLength(6);
     }
   });
 
   it('falls back per level, so clearing one box restores only that default', () => {
-    const labels = normaliseRatingLabels(['', 'brand new', '  ', 'shaky', '', 'solid']);
+    const labels = normalizeRatingLabels(['', 'brand new', '  ', 'shaky', '', 'solid']);
 
     expect(labels[1]).toBe('brand new');
     // Blank falls back rather than rendering an empty chip.
@@ -57,7 +57,7 @@ describe('rating labels', () => {
   });
 
   it('trims and caps a label rather than letting it break the layout', () => {
-    const labels = normaliseRatingLabels(['', '  spaced  ', 'x'.repeat(80), '', '', '']);
+    const labels = normalizeRatingLabels(['', '  spaced  ', 'x'.repeat(80), '', '', '']);
 
     expect(labels[1]).toBe('spaced');
     expect(labels[2]).toHaveLength(24);

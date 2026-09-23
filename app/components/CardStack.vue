@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { partOfSpeechColour } from '#shared/constants/pos';
+import { partOfSpeechColor } from '#shared/constants/pos';
 import type { Rating } from '#shared/constants/rating';
 import type { CardRecord } from '#shared/types/card';
 
 /**
  * One card at a time, as a deck you step through.
  *
- * The cards to come stand behind the top one and peek out above it, each a little narrower and each showing the colour of its own part of speech, so the deck reads as a stack of real cards and you can see there is more to come without counting.
+ * The cards to come stand behind the top one and peek out above it, each a little narrower and each showing the color of its own part of speech, so the deck reads as a stack of real cards and you can see there is more to come without counting.
  * Stepping forward deals the top card away and brings the next one up through the deck.
  *
  * **There is no swipe.** Dragging a card left to delete it was removed: it put the one destructive action in the app on the easiest gesture to perform by accident, and it fought the tap that turns a card over.
@@ -129,9 +129,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
     <!--
       The deck.
-      Cards to come sit behind and above, so the top of each one shows as a coloured edge the way a stack of index cards does on a desk.
+      Cards to come sit behind and above, so the top of each one shows as a colored edge the way a stack of index cards does on a desk.
     -->
-    <div class="mx-auto w-full max-w-[26rem] px-1 pt-7">
+    <div class="mx-auto w-full max-w-104 px-1 pt-7">
       <div class="relative">
         <div
           v-for="(card, depth) in behind"
@@ -139,7 +139,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
           class="juka-deck-edge pointer-events-none absolute inset-x-0 top-0"
           :style="{
             transform: `translateY(${-(depth + 1) * 13}px) scale(${1 - (depth + 1) * 0.055})`,
-            backgroundColor: partOfSpeechColour(card.pos),
+            backgroundColor: partOfSpeechColor(card.pos),
             // Further back reads as further away, so two cards of the same word type still show as two edges rather than one thick band.
             opacity: 1 - depth * 0.35,
             zIndex: 2 - depth
@@ -204,7 +204,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 <style scoped>
 /*
-  A card edge is only ever seen as a band above the card in front of it, so it is drawn as a rounded block the height of the card rather than as a whole card: there is nothing on the part that shows except its colour.
+  A card edge is only ever seen as a band above the card in front of it, so it is drawn as a rounded block the height of the card rather than as a whole card: there is nothing on the part that shows except its color.
 */
 .juka-deck-edge {
   aspect-ratio: 5 / 3.2;

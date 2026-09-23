@@ -25,7 +25,7 @@ export async function seedDefaultGroups(event: H3Event, userId: number): Promise
       DEFAULT_GROUPS.map((group, index) => ({
         userId,
         name: group.name,
-        colour: group.colour,
+        color: group.color,
         orderIndex: index
       }))
     );

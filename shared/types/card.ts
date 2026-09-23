@@ -35,7 +35,7 @@ export interface CardListResponse {
 export interface GroupRecord {
   id: number;
   name: string;
-  colour: string;
+  color: string;
   orderIndex: number;
   /** How many cards are filed under it, for the chart and the filter. */
   count?: number;

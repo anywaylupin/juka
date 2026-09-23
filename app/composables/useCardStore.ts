@@ -28,11 +28,11 @@ function readLocal(): CardRecord[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     /*
-     * Normalised, never cast.
+     * Normalized, never cast.
      * Local storage has no migrations, so whatever an older release wrote is still here: cards from before groups existed have no groupIds, and every caller that reached for it crashed the page.
      * Repairing on read is the only migration this store gets.
      */
-    return normaliseCards(raw ? JSON.parse(raw) : []);
+    return normalizeCards(raw ? JSON.parse(raw) : []);
   } catch {
     // Private mode, cleared storage, or something else wrote nonsense here.
     // An unreadable box is an empty one, never a crash.
