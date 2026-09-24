@@ -253,9 +253,9 @@ white in light themes and plain black in dark ones, and the two reading modes na
 The interface is built around a real box of index cards rather than around a list view.
 
 **Card box** is how you browse. Cards stand on edge in a row with only the spine showing: the word written vertically, a
-colored stripe for the part of speech, and the rating at the foot. The card you are on rises out of the box and opens.
-A grid was built first and thrown away, because a grid of flashcards is a table with rounded corners, and because
-standing them up fits far more of them on a screen while keeping every hanzi readable.
+colored stripe for the part of speech, and the rating at the foot. The card you are on rises out of the box and opens. A
+grid was built first and thrown away, because a grid of flashcards is a table with rounded corners, and because standing
+them up fits far more of them on a screen while keeping every hanzi readable.
 
 **Stack** is how you go through them. The top card follows your finger: drag right to keep it and move on, left to bin
 it with an undo, up or down to turn it over. A tap turns it over too. Two cards are drawn behind for depth.
@@ -267,9 +267,9 @@ Everything that is not a card lives in the top bar, as an icon with a tooltip: t
 button, the theme, the language and the account. Filters are grouped rather than strung along a rail, and each option
 carries a count, so a filter that would empty the box says so before you press it.
 
-Part of speech has its own fixed color, on the card, on the spine and in the filter. The rating is five mandarins in
-one fixed color that no theme changes: a five step ramp would be five things to learn where the count is already the
-whole message.
+Part of speech has its own fixed color, on the card, on the spine and in the filter. The rating is five mandarins in one
+fixed color that no theme changes: a five step ramp would be five things to learn where the count is already the whole
+message.
 
 ## Where this is
 
