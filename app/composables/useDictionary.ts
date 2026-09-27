@@ -19,9 +19,10 @@ interface Manifest {
 }
 
 /**
- * Packed on disk as arrays to halve the bytes: [hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi]
+ * Packed on disk as arrays to halve the bytes: [hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi, senses?]
+ * The ninth field is there only when a word has more than one meaning.
  */
-type PackedEntry = [string, string, string, string, string, string, string, string];
+type PackedEntry = [string, string, string, string, string, string, string, string, Array<[string, string]>?];
 
 /** Module scope, so every field on the page shares one cache. */
 const shardCache = new Map<string, DictionaryEntry[]>();
@@ -29,7 +30,7 @@ const inFlight = new Map<string, Promise<DictionaryEntry[]>>();
 let manifest: Manifest | null = null;
 let manifestRequest: Promise<Manifest | null> | null = null;
 
-function unpack([hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi]: PackedEntry): DictionaryEntry {
+function unpack([hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi, senses]: PackedEntry): DictionaryEntry {
   return {
     hanzi,
     pinyin,
@@ -39,7 +40,8 @@ function unpack([hanzi, pinyin, key, gloss, pos, hanViet, synonyms, vi]: PackedE
     hanViet: hanViet || null,
     vi: vi || null,
     // Space separated on disk, because a JSON array of six short strings costs more in brackets and quotes than it does in content.
-    synonyms: synonyms ? synonyms.split(' ').filter(Boolean) : []
+    synonyms: synonyms ? synonyms.split(' ').filter(Boolean) : [],
+    senses: senses?.map(([sense, pivot]) => ({ gloss: sense, vi: pivot || null })) ?? [{ gloss, vi: vi || null }]
   };
 }
 

@@ -180,7 +180,7 @@ async function remove(card: CardRecord) {
       It is indeterminate on purpose: local storage and a keyset page both finish too fast to measure, and a bar that jumps straight to full is a worse lie than one that simply moves.
     -->
     <div
-      class="sticky top-14 z-30 h-0.5 overflow-hidden"
+      class="fixed inset-x-0 top-0 z-50 h-0.5 overflow-hidden"
       role="status"
       :aria-label="store.loaded.value ? '' : t('cards.loading')"
     >

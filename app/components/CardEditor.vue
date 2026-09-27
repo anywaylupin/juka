@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { partOfSpeechColor } from '#shared/constants/pos';
+import { PART_OF_SPEECH_LIST, partOfSpeechColor } from '#shared/constants/pos';
 import type { Rating } from '#shared/constants/rating';
 import type { CardRecord, DictionaryEntry } from '#shared/types/card';
 
@@ -39,6 +39,9 @@ interface FormState {
   groupIds: number[];
   /** Offered under the hanzi once a word is settled on, never stored. */
   synonyms: string[];
+  /** Every meaning the dictionary has for the word, never stored; what is stored is the ones picked. */
+  senses: DictionaryEntry['senses'];
+  picked: number[];
 }
 
 function initialState(): FormState {
@@ -51,7 +54,9 @@ function initialState(): FormState {
     rating: props.card?.rating ?? 0,
     notes: props.card?.notes ?? '',
     groupIds: props.card?.groupIds ? [...props.card.groupIds] : [],
-    synonyms: []
+    synonyms: [],
+    senses: [],
+    picked: []
   };
 }
 
@@ -86,6 +91,8 @@ function applyEntry(entry: DictionaryEntry | null) {
   state.translation = entry.gloss;
   state.pos = entry.pos;
   state.synonyms = entry.synonyms;
+  state.senses = entry.senses;
+  state.picked = [0];
 
   // Only fills a blank, so a wording the user corrected survives a later lookup that would otherwise overwrite it.
   if (entry.vi && !state.translationVi.trim()) {
@@ -93,10 +100,50 @@ function applyEntry(entry: DictionaryEntry | null) {
   }
 }
 
-// A card written before a dictionary rebuild may be missing a reading.
+/**
+ * A word can mean several things at once, and the card keeps whichever ones the user picks, joined in the order the dictionary gives them.
+ * Picking rewrites the Vietnamese too, since it pivots per meaning; a hand edit to the Vietnamese survives until the next pick.
+ */
+function toggleSense(index: number) {
+  const next = state.picked.includes(index)
+    ? state.picked.filter((entry) => entry !== index)
+    : [...state.picked, index];
+  if (next.length === 0) {
+    return;
+  }
+  state.picked = next.toSorted((a, b) => a - b);
+  const chosen = state.picked.map((entry) => state.senses[entry]!);
+  state.translation = chosen.map((sense) => sense.gloss).join('; ');
+  state.translationVi = chosen
+    .map((sense) => sense.vi)
+    .filter(Boolean)
+    .join('; ');
+}
+
+const posItems = computed(() => PART_OF_SPEECH_LIST.map((value) => ({ label: t(`pos.${value}`), value })));
+
+/** Looks the word up again and overwrites everything, the Vietnamese wording included. */
+async function refreshLookup() {
+  state.translationVi = '';
+  applyEntry(await define(state.hanzi));
+}
+
+/**
+ * A card written before a dictionary rebuild may be missing a reading, and one being edited still needs its meanings on offer.
+ * An existing card keeps its wording: only the choices are loaded, with the ones already on the card marked as picked.
+ */
 onMounted(async () => {
-  if (state.hanzi && (!state.pinyin || !state.pos)) {
-    applyEntry(await define(state.hanzi));
+  if (!state.hanzi) {
+    return;
+  }
+  const entry = await define(state.hanzi);
+  if (!state.pinyin || !state.pos) {
+    applyEntry(entry);
+    return;
+  }
+  if (entry) {
+    state.senses = entry.senses;
+    state.picked = entry.senses.flatMap((sense, index) => (state.translation.includes(sense.gloss) ? [index] : []));
   }
 });
 
@@ -177,6 +224,16 @@ async function submit() {
                 @click="speak(state.hanzi)"
               />
             </UTooltip>
+            <UTooltip :text="t('card.refreshLookup')">
+              <UButton
+                icon="i-lucide-refresh-cw"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                :aria-label="t('card.refreshLookup')"
+                @click="refreshLookup"
+              />
+            </UTooltip>
           </div>
 
           <!--
@@ -191,15 +248,20 @@ async function submit() {
             {{ state.translation || t('card.noTranslation') }}
           </p>
 
-          <span
-            v-if="state.pos"
-            class="rounded-full px-2 py-0.5 text-xs font-semibold"
-            :style="{
-              color: posColor,
-              backgroundColor: `color-mix(in oklab, ${posColor} 14%, transparent)`
-            }"
-            >{{ t(`pos.${state.pos}`) }}</span
-          >
+          <!-- Each meaning the dictionary knows, to pick one or several. Only shown when there is a choice. -->
+          <div v-if="state.senses.length > 1" class="flex flex-wrap justify-center gap-1">
+            <UButton
+              v-for="(sense, index) in state.senses"
+              :key="index"
+              size="xs"
+              :color="state.picked.includes(index) ? 'primary' : 'neutral'"
+              :variant="state.picked.includes(index) ? 'soft' : 'outline'"
+              :aria-pressed="state.picked.includes(index)"
+              @click="toggleSense(index)"
+            >
+              {{ showVietnamese && sense.vi ? sense.vi : sense.gloss }}
+            </UButton>
+          </div>
 
           <!--
             The Vietnamese meaning, filled from the dictionary and editable.
@@ -233,6 +295,15 @@ async function submit() {
         <CardRating v-model="state.rating" />
 
         <div class="flex items-center gap-0.5">
+          <USelect
+            :model-value="state.pos ?? undefined"
+            :items="posItems"
+            size="xs"
+            variant="soft"
+            class="w-36"
+            :style="state.pos ? { color: posColor } : undefined"
+            @update:model-value="state.pos = $event"
+          />
           <UPopover v-if="groups.length">
             <UTooltip :text="t('group.title')">
               <UButton
