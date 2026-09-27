@@ -72,4 +72,6 @@ export interface DictionaryEntry {
    * Empty for about 39% of the dictionary.
    */
   synonyms: string[];
+  /** Every meaning on offer, first one first, each with its own Vietnamese pivot. At least one. */
+  senses: Array<{ gloss: string; vi: string | null }>;
 }

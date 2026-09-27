@@ -56,8 +56,8 @@ recording of a card turning over, once the stroke animation lands with it.
 
 ## Live demo
 
-Not deployed yet. The build targets Cloudflare Workers and the deploy path is wired and tested locally, so this becomes
-a link as soon as there is something worth looking at.
+[juka.anywaylupin.workers.dev](https://juka.anywaylupin.workers.dev). It works signed out: cards stay in your browser
+until you make an account.
 
 ## Architecture
 
