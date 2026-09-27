@@ -131,13 +131,12 @@ function onSaved() {
  * Hand edits are overwritten, which is the point and why it asks first.
  */
 const refreshing = ref(false);
+const refreshConfirmOpen = ref(false);
 const { define } = useDictionary();
 
 async function refreshAll() {
+  refreshConfirmOpen.value = false;
   const list = [...results.value];
-  if (!window.confirm(t('card.refreshAllConfirm', { count: list.length }))) {
-    return;
-  }
 
   refreshing.value = true;
   let updated = 0;
@@ -335,7 +334,7 @@ async function remove(card: CardRecord) {
           @clear-group="clearGroup"
           @clear-all="clearAll"
           @manage-groups="groupsOpen = true"
-          @refresh-all="refreshAll"
+          @refresh-all="refreshConfirmOpen = true"
         />
       </template>
     </USlideover>
@@ -353,6 +352,21 @@ async function remove(card: CardRecord) {
     >
       <template #body>
         <CardEditor :card="editing" @saved="onSaved" @cancel="editorOpen = false" />
+      </template>
+    </UModal>
+    <UModal v-model:open="refreshConfirmOpen" :title="t('card.refreshAll', { count: results.length })">
+      <template #body>
+        <p class="text-sm text-muted">{{ t('card.refreshAllConfirm', { count: results.length }) }}</p>
+      </template>
+      <template #footer>
+        <div class="flex w-full justify-end gap-2">
+          <UButton color="neutral" variant="ghost" @click="refreshConfirmOpen = false">{{
+            t('common.cancel')
+          }}</UButton>
+          <UButton color="primary" icon="i-lucide-refresh-cw" :loading="refreshing" @click="refreshAll">
+            {{ t('card.refreshAll', { count: results.length }) }}
+          </UButton>
+        </div>
       </template>
     </UModal>
   </div>
