@@ -1,8 +1,20 @@
+<div align="center">
+
+<img src="public/favicon.svg" alt="" width="96" height="96" />
+
 # Juka 橘卡
 
-[![CI](https://github.com/anywaylupin/juka/actions/workflows/ci.yml/badge.svg)](https://github.com/anywaylupin/juka/actions/workflows/ci.yml)
-
 Flashcard storage for HSK learners. A box of cards, not a tutor.
+
+[![CI](https://github.com/anywaylupin/juka/actions/workflows/ci.yml/badge.svg)](https://github.com/anywaylupin/juka/actions/workflows/ci.yml)
+[![Nuxt 4](https://img.shields.io/badge/Nuxt-4-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
+[![Dictionary: CC BY-SA 4.0](https://img.shields.io/badge/dictionary-CC%20BY--SA%204.0-lightgrey)](public/dict/LICENCE.txt)
+
+[Live demo](https://juka.anywaylupin.workers.dev) · [Architecture](#architecture) · [Where this is](#where-this-is) ·
+[Licences](docs/licences.md)
+
+</div>
 
 Juka stores the cards you write, finds them fast, and reads them aloud in Mandarin. It does not decide what to show you
 or when. There is no spaced repetition, no review queue, no cards due today. That constraint is the point: it makes the
