@@ -107,7 +107,8 @@
     "copy": "Copy hanzi",
     "copied": "Copied {hanzi}",
     "notCopied": "Could not copy that",
-    "translationViPlaceholder": "Meaning in Vietnamese"
+    "translationViPlaceholder": "Meaning in Vietnamese",
+    "refreshLookup": "Look it up again"
   },
   "auth": {
     "title": "Keep your cards",

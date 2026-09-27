@@ -107,7 +107,8 @@
     "copy": "Chép chữ Hán",
     "copied": "Đã chép {hanzi}",
     "notCopied": "Chưa chép được",
-    "translationViPlaceholder": "Nghĩa tiếng Việt"
+    "translationViPlaceholder": "Nghĩa tiếng Việt",
+    "refreshLookup": "Tra lại từ điển"
   },
   "auth": {
     "title": "Giữ lại thẻ của bạn",
