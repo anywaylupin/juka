@@ -53,6 +53,9 @@ const KEEP_UNRANKED_SINGLE_CHARACTERS = true;
 /** One sense is what fits on a card. The rest is dictionary browsing. */
 const MAX_GLOSS = 72;
 
+/** Meanings kept per word. Past five the list is a dictionary page, not a card. */
+const MAX_SENSES = 5;
+
 /** More than this on a card face is a thesaurus, not a hint. */
 const MAX_SYNONYMS = 6;
 
@@ -154,6 +157,8 @@ interface Entry {
   pos: string;
   /** The meaning in Vietnamese, pivoted through the English gloss, or empty. */
   vi: string;
+  /** Every meaning worth offering, first one first, each with its own Vietnamese pivot. */
+  senses: Array<{ gloss: string; vi: string }>;
   /**
    * The Sino-Vietnamese reading, or empty.
    *
@@ -493,14 +498,16 @@ async function buildVietnamese(entries: Entry[]) {
   console.log(`Vietnamese Wiktionary: ${byWord.size} English headwords`);
 
   for (const entry of entries) {
-    const head = headWord(entry.gloss);
+    for (const sense of entry.senses) {
+      const head = headWord(sense.gloss);
 
-    // Two letters is not a word worth pivoting on; it is "I", "an" or "up".
-    if (head.length < 3) {
-      continue;
+      // Two letters is not a word worth pivoting on; it is "I", "an" or "up".
+      if (head.length >= 3) {
+        sense.vi = byWordAndPos.get(`${head}|${entry.pos}`) ?? byWord.get(head) ?? '';
+      }
     }
 
-    entry.vi = byWordAndPos.get(`${head}|${entry.pos}`) ?? byWord.get(head) ?? '';
+    entry.vi = entry.senses[0]?.vi ?? '';
   }
 }
 
@@ -591,10 +598,12 @@ async function main() {
       syllables.add(toneless(part));
     }
 
-    let gloss = senses[0] as string;
-    if (gloss.length > MAX_GLOSS) {
-      gloss = `${gloss.slice(0, MAX_GLOSS - 1).trimEnd()}…`;
-    }
+    const clip = (text: string) => (text.length > MAX_GLOSS ? `${text.slice(0, MAX_GLOSS - 1).trimEnd()}…` : text);
+    const gloss = clip(senses[0] as string);
+    const offered = senses
+      .filter((sense) => !CROSS_REFERENCE.test(sense))
+      .slice(0, MAX_SENSES)
+      .map((sense) => ({ gloss: clip(sense), vi: '' }));
 
     /*
      * Every sense, not just the one shown, and split on semicolons as well as slashes.
@@ -615,6 +624,7 @@ async function main() {
       gloss,
       pos: rank?.[1] ?? '',
       vi: '',
+      senses: offered.length > 0 ? offered : [{ gloss, vi: '' }],
       hanViet: readHanViet(simplified),
       frequency
     });
@@ -659,7 +669,9 @@ async function main() {
       entry.pos,
       entry.hanViet,
       entry.synonyms.join(' '),
-      entry.vi
+      entry.vi,
+      // Only when there is a choice to make: a one sense word pays nothing for the feature.
+      ...(entry.senses.length > 1 ? [entry.senses.map((sense) => [sense.gloss, sense.vi])] : [])
     ]);
 
     await writeFile(join(OUT_DIR, `${shard}.json`), JSON.stringify(packed), 'utf8');
