@@ -60,6 +60,17 @@ async function loadManifest(): Promise<Manifest | null> {
   return manifestRequest;
 }
 
+let characterIndex: Promise<Record<string, string[]>> | null = null;
+
+/** First character to the shards its words live in, fetched once, the first time a hanzi is looked up. */
+function loadCharacterIndex(): Promise<Record<string, string[]>> {
+  characterIndex ??= $fetch<Record<string, string[]>>('/dict/chars.json').catch(() => {
+    characterIndex = null;
+    return {};
+  });
+  return characterIndex;
+}
+
 async function loadShard(shard: string): Promise<DictionaryEntry[]> {
   const cached = shardCache.get(shard);
   if (cached) {
@@ -99,12 +110,9 @@ export function useDictionary() {
    * Splits the leading syllable off a toneless pinyin string, greedily and longest first, using the same table the build script sharded with.
    * Both sides therefore agree on where a syllable ends, so `shuang` is never looked for in the `shu` shard.
    */
-  function firstSyllable(key: string): string {
-    const syllables = manifest?.syllables;
-    if (!syllables) {
-      return key.slice(0, 2);
-    }
-    return syllables.find((syllable) => key.startsWith(syllable)) ?? key.slice(0, 2);
+  function firstSyllable(key: string): string | null {
+    // Null for a half typed syllable like `sh`, or for English: guessing a shard name there fetched files that do not exist, one 404 per keystroke.
+    return manifest?.syllables.find((syllable) => key.startsWith(syllable)) ?? null;
   }
 
   /**
@@ -131,8 +139,12 @@ export function useDictionary() {
       return [];
     }
 
-    const entries = await loadShard(firstSyllable(input.replaceAll('ü', 'v')));
     const key = input.replaceAll('ü', 'v');
+    const shard = firstSyllable(key);
+    if (!shard) {
+      return [];
+    }
+    const entries = await loadShard(shard);
 
     // Shards arrive sorted by frequency, so the first matches are already the ones a learner is most likely to have meant.
     const exact: DictionaryEntry[] = [];
@@ -154,14 +166,14 @@ export function useDictionary() {
 
   /**
    * Looks a word up by its characters.
-   * Needs the shard the word's reading lives in, which is not known from the hanzi alone, so this scans the shards already in memory and falls back to nothing rather than fetching all 432.
-   *
-   * That is enough in practice: by the time a card exists, its shard was loaded to create it.
+   * The shard a word lives in is keyed by its reading, which pasted hanzi do not carry, so `chars.json` maps the first character to its shards.
+   * Scanning only the shards already in memory, as this used to, meant a pasted word or a freshly opened card found nothing until its pinyin had been typed once.
    */
   async function lookupByHanzi(hanzi: string, limit = 8): Promise<DictionaryEntry[]> {
     const found: DictionaryEntry[] = [];
+    const shards = (await loadCharacterIndex())[[...hanzi][0] ?? ''] ?? [];
 
-    for (const entries of shardCache.values()) {
+    for (const entries of await Promise.all(shards.map(loadShard))) {
       for (const entry of entries) {
         if (entry.hanzi === hanzi) {
           found.push(entry);

@@ -125,6 +125,53 @@ function onSaved() {
   editing.value = null;
 }
 
+/**
+ * Looks every card the filters leave up in the dictionary again and rewrites its reading, meaning, Vietnamese and word type.
+ * One request per card, in order, because the box is small and a batch route would be a second write path to keep correct.
+ * Hand edits are overwritten, which is the point and why it asks first.
+ */
+const refreshing = ref(false);
+const { define } = useDictionary();
+
+async function refreshAll() {
+  const list = [...results.value];
+  if (!window.confirm(t('card.refreshAllConfirm', { count: list.length }))) {
+    return;
+  }
+
+  refreshing.value = true;
+  let updated = 0;
+  try {
+    for (const card of list) {
+      const entry = await define(card.hanzi);
+      if (!entry) {
+        continue;
+      }
+      await store.update(card.id, {
+        pinyin: entry.pinyin,
+        translation: entry.gloss,
+        translationVi: entry.vi,
+        pos: entry.pos
+      });
+      updated += 1;
+    }
+    toast.add({
+      title: t('card.refreshedAll', { updated, total: list.length }),
+      icon: 'i-lucide-check',
+      color: 'success'
+    });
+  } catch {
+    toast.add({
+      title: t('card.notSaved'),
+      description: t('card.refreshedAll', { updated, total: list.length }),
+      icon: 'i-lucide-triangle-alert',
+      color: 'error'
+    });
+  } finally {
+    refreshing.value = false;
+  }
+}
+
 async function rate(card: CardRecord, rating: Rating) {
   try {
     await store.update(card.id, { rating });
@@ -279,6 +326,8 @@ async function remove(card: CardRecord) {
           :filters="filters"
           :cards="store.cards.value"
           :groups="groupStore.groups.value"
+          :matching="results.length"
+          :refreshing="refreshing"
           @toggle-rating="toggle('ratings', $event)"
           @toggle-part="toggle('parts', $event)"
           @toggle-length="toggle('lengths', $event)"
@@ -286,6 +335,7 @@ async function remove(card: CardRecord) {
           @clear-group="clearGroup"
           @clear-all="clearAll"
           @manage-groups="groupsOpen = true"
+          @refresh-all="refreshAll"
         />
       </template>
     </USlideover>

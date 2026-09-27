@@ -38,7 +38,13 @@ export const cardCreateSchema = z.object({
   groupIds: z.array(z.coerce.number().int().positive()).max(50).optional()
 });
 
-export const cardUpdateSchema = cardCreateSchema.partial();
+/**
+ * Every field optional, and no defaults.
+ * zod 4 still applies a `.default()` inside `.partial()`, so the plain partial turned a rating change into `{ rating, translation: '' }` and wiped the meaning of every card anyone rated.
+ */
+export const cardUpdateSchema = cardCreateSchema
+  .extend({ translation: z.string().trim().max(500), rating: ratingSchema })
+  .partial();
 
 export const cardIdSchema = z.object({
   id: z.coerce.number().int().positive()

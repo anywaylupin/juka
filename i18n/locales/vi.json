@@ -108,7 +108,11 @@
     "copied": "Đã chép {hanzi}",
     "notCopied": "Chưa chép được",
     "translationViPlaceholder": "Nghĩa tiếng Việt",
-    "refreshLookup": "Tra lại từ điển"
+    "refreshLookup": "Tra lại từ điển",
+    "notFound": "Không có trong từ điển",
+    "refreshAll": "Tra lại {count} thẻ",
+    "refreshAllConfirm": "Tra lại {count} thẻ? Cách đọc, nghĩa và từ loại sẽ bị thay, kể cả phần bạn đã sửa.",
+    "refreshedAll": "Đã cập nhật {updated} trên {total} thẻ"
   },
   "auth": {
     "title": "Giữ lại thẻ của bạn",

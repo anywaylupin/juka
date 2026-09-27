@@ -69,3 +69,10 @@ describe('buildSearchMatch', () => {
     expect(buildSearchMatch('***')).toBeNull();
   });
 });
+
+describe('cardUpdateSchema', () => {
+  it('leaves out every field that was not sent, so a rating change cannot wipe the meaning', async () => {
+    const { cardUpdateSchema } = await import('../shared/schemas/card');
+    expect(cardUpdateSchema.parse({ rating: 3 })).toEqual({ rating: 3 });
+  });
+});

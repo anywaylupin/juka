@@ -17,6 +17,9 @@ const props = defineProps<{
   /** Everything in the box, for the per-option counts. */
   cards: CardRecord[];
   groups: GroupRecord[];
+  /** Cards the current filters leave, which is what a refresh would touch. */
+  matching: number;
+  refreshing: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -27,6 +30,7 @@ const emit = defineEmits<{
   clearGroup: [group: 'ratings' | 'parts' | 'lengths' | 'groups'];
   clearAll: [];
   manageGroups: [];
+  refreshAll: [];
 }>();
 
 const { t } = useI18n();
@@ -241,6 +245,18 @@ const lengths = [1, 2, 3, 4];
 
     <UButton color="neutral" variant="soft" block icon="i-lucide-filter-x" @click="emit('clearAll')">
       {{ t('filter.clearAll') }}
+    </UButton>
+
+    <UButton
+      color="neutral"
+      variant="outline"
+      block
+      icon="i-lucide-refresh-cw"
+      :loading="refreshing"
+      :disabled="matching === 0"
+      @click="emit('refreshAll')"
+    >
+      {{ t('card.refreshAll', { count: matching }) }}
     </UButton>
   </div>
 </template>

@@ -678,6 +678,22 @@ async function main() {
     manifest[shard] = bucket.length;
   }
 
+  /*
+   * First character to the shards its words live in.
+   * Shards are keyed by reading, and pasted hanzi carry no reading, so without this a pasted word could only be found in shards that happened to be loaded already.
+   */
+  const byCharacter: Record<string, string[]> = {};
+  for (const [shard, bucket] of shards) {
+    for (const entry of bucket) {
+      const first = [...entry.hanzi][0] as string;
+      const list = (byCharacter[first] ??= []);
+      if (!list.includes(shard)) {
+        list.push(shard);
+      }
+    }
+  }
+  await writeFile(join(OUT_DIR, 'chars.json'), JSON.stringify(byCharacter), 'utf8');
+
   await writeFile(
     join(OUT_DIR, 'manifest.json'),
     JSON.stringify({

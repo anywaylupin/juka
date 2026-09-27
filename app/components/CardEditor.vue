@@ -124,8 +124,14 @@ const posItems = computed(() => PART_OF_SPEECH_LIST.map((value) => ({ label: t(`
 
 /** Looks the word up again and overwrites everything, the Vietnamese wording included. */
 async function refreshLookup() {
+  const entry = await define(state.hanzi);
+  if (!entry) {
+    toast.add({ title: t('card.notFound'), icon: 'i-lucide-search-x', color: 'neutral' });
+    return;
+  }
+  // Cleared only once there is something to replace it with, so a miss never erases the wording.
   state.translationVi = '';
-  applyEntry(await define(state.hanzi));
+  applyEntry(entry);
 }
 
 /**

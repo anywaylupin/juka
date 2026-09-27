@@ -108,7 +108,11 @@
     "copied": "Copied {hanzi}",
     "notCopied": "Could not copy that",
     "translationViPlaceholder": "Meaning in Vietnamese",
-    "refreshLookup": "Look it up again"
+    "refreshLookup": "Look it up again",
+    "notFound": "Not in the dictionary",
+    "refreshAll": "Look up {count} cards again",
+    "refreshAllConfirm": "Look up {count} cards again? Their reading, meaning and word type are replaced, including any you edited.",
+    "refreshedAll": "Updated {updated} of {total} cards"
   },
   "auth": {
     "title": "Keep your cards",
