@@ -29,6 +29,16 @@ export function useJukaTheme() {
     { immediate: true }
   );
 
+  /*
+   * The color mode module restores its own last value from local storage after hydration, and that value can be stale: a dark theme in the cookie rendered as light because storage still said "light" from an earlier theme.
+   * The theme is the source of truth, so it is applied once more when the app is ready.
+   */
+  if (import.meta.client) {
+    onNuxtReady(() => {
+      colorMode.preference = definition.value.mode === 'dark' ? 'dark' : 'light';
+    });
+  }
+
   // data-theme drives the color variables, so it has to be on the html tag during SSR as well or the first paint uses the wrong palette.
   useHead({
     htmlAttrs: {

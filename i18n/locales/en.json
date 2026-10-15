@@ -7,6 +7,9 @@
     "retry": "Try again",
     "undo": "Undo"
   },
+  "dock": {
+    "title": "Filters and settings"
+  },
   "nav": {
     "cards": "Cards",
     "language": "Language",
@@ -14,6 +17,7 @@
     "practice": "Practice",
     "progress": "Progress",
     "settings": "Settings",
+    "profile": "Profile",
     "skip": "Skip to content",
     "main": "Main",
     "home": "Juka, back to the box"

@@ -88,7 +88,7 @@ function setFlipped(card: CardRecord, value: boolean) {
 
 <template>
   <div class="space-y-6 lg:pb-20">
-    <TransitionGroup tag="div" name="juka-card" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <TransitionGroup tag="div" name="juka-card" class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
       <CardFace
         v-for="(card, position) in visible"
         :key="card.id"
@@ -105,11 +105,12 @@ function setFlipped(card: CardRecord, value: boolean) {
 
     <!--
       UPagination carries its own previous and next arrows, so there are no extra ones around it.
-      Pinned to the bottom of the screen on desktop, where a long page would otherwise push it out of reach.
+      It sticks to the foot of the table as the cards scroll, above the tab bar on a phone.
+      Pages are ink chops and the current one is the red seal, with the page written the way a Chinese book numbers it beside them.
     -->
     <nav
       v-if="pageCount > 1"
-      class="flex justify-center lg:fixed lg:inset-x-0 lg:bottom-0 lg:z-30 lg:border-t lg:border-default lg:bg-default/85 lg:py-3 lg:backdrop-blur"
+      class="juka-pages sticky bottom-20 z-20 mx-auto flex w-fit items-center gap-3 lg:bottom-2"
       :aria-label="t('cards.pagination')"
     >
       <UPagination
@@ -117,8 +118,13 @@ function setFlipped(card: CardRecord, value: boolean) {
         :total="cards.length"
         :items-per-page="pageSize"
         :sibling-count="1"
+        color="neutral"
+        variant="outline"
+        active-color="neutral"
+        active-variant="solid"
         @update:page="emit('update:page', $event)"
       />
+      <span class="font-hanzi text-sm text-muted" lang="zh" aria-hidden="true">第{{ page }}页</span>
     </nav>
   </div>
 </template>

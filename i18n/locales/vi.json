@@ -7,6 +7,9 @@
     "retry": "Thử lại",
     "undo": "Hoàn tác"
   },
+  "dock": {
+    "title": "Bộ lọc và cài đặt"
+  },
   "nav": {
     "cards": "Thẻ",
     "language": "Ngôn ngữ",
@@ -14,6 +17,7 @@
     "practice": "Luyện tập",
     "progress": "Tiến độ",
     "settings": "Cài đặt",
+    "profile": "Hồ sơ",
     "skip": "Bỏ qua tới nội dung",
     "main": "Chính",
     "home": "Juka, về hộp thẻ"

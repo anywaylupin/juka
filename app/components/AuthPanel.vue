@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { loginSchema, registerSchema, passwordResetRequestSchema } from '#shared/schemas/auth';
+import { loginSchema, registerSchema } from '#shared/schemas/auth';
 import type { AuthProvider } from '#shared/types/auth';
 
 /**
- * Signing in, signing up, getting back in, and the one decision that matters either way: what to do with the cards already in this browser.
+ * Signing in, signing up, and the one decision that matters either way: what to do with the cards already in this browser.
  *
  * An account is optional.
  * The offer is storage that survives a cleared browser and reaches a second device, not a gate, and the copy says so rather than implying the app needs one.
  *
- * Three modes rather than three panels, because they are the same form with different fields and moving between them should not feel like navigating.
+ * Two modes rather than two panels, because they are the same form with different fields and moving between them should not feel like navigating.
+ * The forgotten password link is off for now at the author's request; `/reset` and the routes behind it still work for a link already sent.
+ * The submit and the provider buttons stand in one column at the foot, so every way in is in the same place.
  */
 const emit = defineEmits<{ done: [] }>();
 
@@ -17,7 +19,7 @@ const toast = useToast();
 const session = useSession();
 const store = useCardStore();
 
-type Mode = 'login' | 'register' | 'forgot';
+type Mode = 'login' | 'register';
 
 const mode = ref<Mode>('login');
 const identifier = ref('');
@@ -25,7 +27,6 @@ const password = ref('');
 const confirmPassword = ref('');
 const email = ref('');
 const busy = ref(false);
-const sent = ref(false);
 
 /** Cards sitting in local storage right now, which signing in can copy up. */
 const pending = computed(() => store.localCards().length);
@@ -59,36 +60,7 @@ function useProvider(provider: AuthProvider) {
   window.location.href = `/auth/${provider}`;
 }
 
-async function requestReset() {
-  const parsed = passwordResetRequestSchema.safeParse({ identifier: identifier.value });
-
-  if (!parsed.success) {
-    toast.add({
-      title: parsed.error.issues[0]?.message ?? t('auth.checkDetails'),
-      icon: 'i-lucide-triangle-alert',
-      color: 'error'
-    });
-    return;
-  }
-
-  busy.value = true;
-  try {
-    await session.requestReset(identifier.value);
-    // Said the same way whether or not the account exists, because the answer must not say.
-    sent.value = true;
-  } catch (error) {
-    fail(error);
-  } finally {
-    busy.value = false;
-  }
-}
-
 async function submit() {
-  if (mode.value === 'forgot') {
-    await requestReset();
-    return;
-  }
-
   const schema = mode.value === 'login' ? loginSchema : registerSchema;
   const parsed = schema.safeParse(
     mode.value === 'login'
@@ -165,36 +137,10 @@ async function submit() {
 </script>
 
 <template>
-  <form class="space-y-4" @submit.prevent="submit">
-    <UTabs v-if="mode !== 'forgot'" v-model="mode" :items="tabs" :content="false" size="sm" />
+  <form class="flex flex-col gap-4" @submit.prevent="submit">
+    <UTabs v-model="mode" :items="tabs" :content="false" color="neutral" variant="link" size="md" class="juka-tabs" />
 
-    <!--
-      Providers first, because for most people it is one click against a password they would otherwise have to invent.
-      Only the ones this deployment has keys for are here: a button that 500s is worse than no button.
-    -->
-    <template v-if="mode !== 'forgot' && session.providers.value.length > 0">
-      <div class="grid gap-2" :class="session.providers.value.length > 1 && 'sm:grid-cols-2'">
-        <UButton
-          v-for="provider in session.providers.value"
-          :key="provider"
-          :icon="providerLabels[provider].icon"
-          color="neutral"
-          variant="outline"
-          size="lg"
-          block
-          @click="useProvider(provider)"
-        >
-          {{ t('auth.continueWith', { provider: providerLabels[provider].label }) }}
-        </UButton>
-      </div>
-
-      <USeparator :label="t('auth.or')" />
-    </template>
-
-    <UFormField
-      :label="mode === 'register' ? t('auth.username') : t('auth.identifier')"
-      :help="mode === 'forgot' ? t('auth.forgotHelp') : undefined"
-    >
+    <UFormField :label="mode === 'register' ? t('auth.username') : t('auth.identifier')">
       <UInput
         v-model="identifier"
         autocomplete="username"
@@ -205,82 +151,74 @@ async function submit() {
       />
     </UFormField>
 
-    <template v-if="mode !== 'forgot'">
-      <UFormField :label="t('auth.password')">
-        <UInput
-          v-model="password"
-          type="password"
-          :autocomplete="mode === 'login' ? 'current-password' : 'new-password'"
-          class="w-full"
-          icon="i-lucide-lock"
-        />
-      </UFormField>
+    <UFormField :label="t('auth.password')">
+      <UInput
+        v-model="password"
+        type="password"
+        :autocomplete="mode === 'login' ? 'current-password' : 'new-password'"
+        class="w-full"
+        icon="i-lucide-lock"
+      />
+    </UFormField>
 
-      <!-- Typed twice, because it is the one field nobody can read back to check. -->
-      <UFormField v-if="mode === 'register'" :label="t('auth.confirmPassword')">
-        <UInput
-          v-model="confirmPassword"
-          type="password"
-          autocomplete="new-password"
-          class="w-full"
-          icon="i-lucide-lock"
-        />
-      </UFormField>
+    <!--
+      Typed twice, because it is the one field nobody can read back to check.
+      The sign-up fields stay in the layout on the sign-in tab, hidden and moved to the end, so the form keeps one size while the spare room falls below the buttons rather than above them.
+    -->
+    <UFormField
+      :label="t('auth.confirmPassword')"
+      :class="mode !== 'register' && 'invisible order-last'"
+      :aria-hidden="mode !== 'register'"
+    >
+      <UInput
+        v-model="confirmPassword"
+        type="password"
+        autocomplete="new-password"
+        class="w-full"
+        icon="i-lucide-lock"
+      />
+    </UFormField>
 
-      <UFormField v-if="mode === 'register'" :label="t('auth.email')" :help="t('auth.emailHelp')">
-        <UInput v-model="email" type="email" autocomplete="email" class="w-full" icon="i-lucide-mail" />
-      </UFormField>
-    </template>
-
-    <UAlert
-      v-if="mode === 'forgot' && sent"
-      color="success"
-      variant="subtle"
-      icon="i-lucide-mail-check"
-      :title="t('auth.resetSentTitle')"
-      :description="t('auth.resetSentHint')"
-    />
+    <UFormField
+      :label="t('auth.email')"
+      :help="t('auth.emailHelp')"
+      :class="mode !== 'register' && 'invisible order-last'"
+      :aria-hidden="mode !== 'register'"
+    >
+      <UInput v-model="email" type="email" autocomplete="email" class="w-full" icon="i-lucide-mail" />
+    </UFormField>
 
     <!--
       Offered, not assumed, and worded so it is clear nothing is moved.
       The local copy stays exactly where it is either way, which is what makes signing out safe.
     -->
-    <UAlert
-      v-if="mode !== 'forgot' && pending > 0"
-      color="neutral"
-      variant="subtle"
-      icon="i-lucide-copy"
-      :title="t('auth.bringTitle', { count: pending })"
-      :description="t('auth.bringHint')"
-    >
-      <template #actions>
-        <USwitch v-model="bringLocal" :label="t('auth.bringSwitch')" />
-      </template>
-    </UAlert>
-
-    <UButton type="submit" :loading="busy" color="primary" size="lg" block>
-      {{
-        mode === 'login' ? t('auth.signIn') : mode === 'register' ? t('auth.createAccount') : t('auth.sendResetLink')
-      }}
-    </UButton>
-
-    <div class="flex items-center justify-between gap-2">
-      <UButton
-        color="neutral"
-        variant="link"
-        size="xs"
-        :padded="false"
-        @click="
-          mode = mode === 'forgot' ? 'login' : 'forgot';
-          sent = false;
-        "
-      >
-        {{ mode === 'forgot' ? t('auth.backToSignIn') : t('auth.forgot') }}
-      </UButton>
-
-      <p class="text-right text-xs text-dimmed">
-        {{ t('auth.optional') }}
-      </p>
+    <div v-if="pending > 0" class="flex items-start justify-between gap-4 rounded-md bg-muted px-4 py-3">
+      <div>
+        <p class="text-sm font-semibold text-highlighted">{{ t('auth.bringTitle', { count: pending }) }}</p>
+        <p class="text-xs text-muted">{{ t('auth.bringHint') }}</p>
+      </div>
+      <USwitch v-model="bringLocal" :aria-label="t('auth.bringSwitch')" />
     </div>
+
+    <div class="grid gap-2 pt-1">
+      <UButton type="submit" :loading="busy" size="lg" block class="juka-seal-button">
+        {{ mode === 'login' ? t('auth.signIn') : t('auth.createAccount') }}
+      </UButton>
+      <!-- Only the providers this deployment has keys for: a button that 500s is worse than no button. -->
+      <UButton
+        v-for="provider in session.providers.value"
+        :key="provider"
+        :icon="providerLabels[provider].icon"
+        color="neutral"
+        variant="outline"
+        size="lg"
+        block
+        @click="useProvider(provider)"
+      >
+        {{ t('auth.continueWith', { provider: providerLabels[provider].label }) }}
+      </UButton>
+    </div>
+
+    <p class="text-center text-xs text-dimmed">{{ t('auth.optional') }}</p>
   </form>
 </template>

@@ -1,7 +1,7 @@
 export default defineAppConfig({
   ui: {
     colors: {
-      primary: 'ponkan',
+      primary: 'tangerine',
       neutral: 'taupe'
     },
 
@@ -12,6 +12,16 @@ export default defineAppConfig({
      * The ring itself stays, because a field with no focus indicator is unusable from a keyboard.
      * Nothing else about the components is overridden: this is a color correction, not a bespoke effect.
      */
+    /*
+     * Neutral buttons are drawn as ink chops to match the red seal of the add button: outline is a framed outline, solid is pressed in ink.
+     * Behaviour is Nuxt UI's; only the look changes.
+     */
+    button: {
+      compoundVariants: [
+        { color: 'neutral', variant: 'outline', class: 'juka-ink-button ring-0' },
+        { color: 'neutral', variant: 'solid', class: 'juka-ink-solid' }
+      ]
+    },
     input: {
       slots: { base: 'focus-visible:ring-accented focus-visible:outline-none' }
     },

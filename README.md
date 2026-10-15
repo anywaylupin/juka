@@ -251,37 +251,37 @@ yet.
 
 Themes are named after citrus, but the color is the **vibe the name carries**, not the literal color of the fruit.
 Clementine is the blue of the character's hair. Bergamot is Earl Grey, so it is tea-flower violet. Tarocco is blood.
-Seville, the default, is clay on warm paper.
+Tangerine is the default; Seville is clay on warm paper.
 
 That is a correction, not a flourish. The first version used the real color of each fruit and ended up with twelve
 themes spread across sixty degrees of hue: Ponkan, Kumquat, Honeybell and Meyer were four oranges, and naming them after
 different cultivars did not make them look different.
 
-A theme sets the accent and nothing else. Surfaces, borders and text come from Nuxt UI's own defaults, the page is plain
-white in light themes and plain black in dark ones, and the two reading modes name their own paper color.
+A theme sets the accent and nothing else. Surfaces, borders and text come from Nuxt UI's own defaults, the page is a
+pale ink wash tinted by the accent, and the two reading modes name their own paper color. The look borrows from
+calligraphy: a red seal for the logo and the add button, brush strokes under headings, and every character on a card
+standing in its own 田 practice square.
 
 ### The box, not a dashboard
 
 The interface is built around a real box of index cards rather than around a list view.
 
-**Card box** is how you browse. Cards stand on edge in a row with only the spine showing: the word written vertically, a
-colored stripe for the part of speech, and the rating at the foot. The card you are on rises out of the box and opens. A
-grid was built first and thrown away, because a grid of flashcards is a table with rounded corners, and because standing
-them up fits far more of them on a screen while keeping every hanzi readable.
-
-**Stack** is how you go through them. The top card follows your finger: drag right to keep it and move on, left to bin
-it with an undo, up or down to turn it over. A tap turns it over too. Two cards are drawn behind for depth.
+**Box** is how you browse: every card laid out and paged, with a switch for whether turning one card turns the last one
+back (for testing yourself) or cards stay turned (for reading back). **Practice** is one card at a time, drawn as a deck
+with the next two peeking out above it; arrows step through, a click or the space bar turns it over, and the order deals
+weakly known cards more often. **Progress** is the box from above: how ripe it is, what was added when, and the split by
+word type and group. **Settings** holds the account, theme, language, rating names and groups.
 
 A card shows **only the hanzi on the front**, because that is the entire point of a flashcard. The back carries the
 reading, the meaning and the part of speech. There is no flip button; you click the card.
 
-Everything that is not a card lives in the top bar, as an icon with a tooltip: the view, the filters, the one add
-button, the theme, the language and the account. Filters are grouped rather than strung along a rail, and each option
-carries a count, so a filter that would empty the box says so before you press it.
+The top bar holds the four pages, search and the one add button; on a phone the pages move to a tab bar at the bottom.
+Filters are grouped rather than strung along a rail, and each option carries a count, so a filter that would empty the
+box says so before you press it.
 
-Part of speech has its own fixed color, on the card, on the spine and in the filter. The rating is five mandarins in one
-fixed color that no theme changes: a five step ramp would be five things to learn where the count is already the whole
-message.
+Part of speech has its own fixed color, on the card, on the deck edges and in the filter. The rating is five mandarins
+in one fixed color that no theme changes: a five step ramp would be five things to learn where the count is already the
+whole message.
 
 ## Where this is
 

@@ -67,9 +67,9 @@ const lengths = [1, 2, 3, 4];
 
 <template>
   <div class="space-y-6">
-    <section class="space-y-2">
+    <section class="space-y-2.5">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-sm font-semibold text-highlighted">
+        <h3 class="juka-subheading text-base">
           {{ t('filter.rating') }}
         </h3>
         <UButton
@@ -84,39 +84,43 @@ const lengths = [1, 2, 3, 4];
       </header>
 
       <!-- Named, not numbered. "hesitant" is the word you would actually use. -->
-      <div class="flex flex-wrap gap-1.5">
+      <div class="grid grid-cols-2 gap-1.5">
         <UButton
           v-for="value in RATING_VALUES"
           :key="`rating-${value}`"
           :icon="RATING_ICON"
           size="sm"
-          :color="filters.ratings.includes(value) ? 'primary' : 'neutral'"
+          block
+          class="justify-start"
+          color="neutral"
           :variant="filters.ratings.includes(value) ? 'solid' : 'outline'"
           :disabled="!(ratingCounts.get(value) ?? 0)"
           :aria-pressed="filters.ratings.includes(value)"
           @click="emit('toggleRating', value)"
         >
           {{ labelFor(value) }}
-          <span class="text-xs opacity-60">{{ ratingCounts.get(value) ?? 0 }}</span>
+          <span class="ms-auto text-xs tabular-nums opacity-60">{{ ratingCounts.get(value) ?? 0 }}</span>
         </UButton>
 
         <UButton
           size="sm"
-          :color="filters.ratings.includes(0) ? 'primary' : 'neutral'"
+          block
+          class="justify-start"
+          color="neutral"
           :variant="filters.ratings.includes(0) ? 'solid' : 'outline'"
           :disabled="!(ratingCounts.get(0) ?? 0)"
           :aria-pressed="filters.ratings.includes(0)"
           @click="emit('toggleRating', 0)"
         >
           {{ t('filter.unrated') }}
-          <span class="text-xs opacity-60">{{ ratingCounts.get(0) ?? 0 }}</span>
+          <span class="ms-auto text-xs tabular-nums opacity-60">{{ ratingCounts.get(0) ?? 0 }}</span>
         </UButton>
       </div>
     </section>
 
-    <section class="space-y-2">
+    <section class="space-y-2.5">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-sm font-semibold text-highlighted">
+        <h3 class="juka-subheading text-base">
           {{ t('filter.group') }}
         </h3>
         <div class="flex items-center gap-1">
@@ -144,32 +148,32 @@ const lengths = [1, 2, 3, 4];
         {{ t('group.none') }}
       </p>
 
-      <div v-else class="flex flex-wrap gap-1.5">
+      <div v-else class="grid grid-cols-3 gap-1.5">
         <button
           v-for="group in groups"
           :key="group.id"
           type="button"
-          class="rounded-full px-2.5 py-1 text-xs font-semibold transition-colors duration-150"
+          class="juka-chip"
           :aria-pressed="filters.groups.includes(group.id)"
           :style="
             filters.groups.includes(group.id)
               ? { backgroundColor: group.color, color: '#fff' }
               : {
-                  color: group.color,
+                  color: `color-mix(in oklab, ${group.color} 55%, var(--ui-text-highlighted))`,
                   backgroundColor: `color-mix(in oklab, ${group.color} 12%, transparent)`
                 }
           "
           @click="emit('toggleGroup', group.id)"
         >
           {{ group.name }}
-          <span class="ml-1 opacity-60">{{ group.count ?? 0 }}</span>
+          <span class="ms-auto tabular-nums opacity-60">{{ group.count ?? 0 }}</span>
         </button>
       </div>
     </section>
 
-    <section v-if="availableParts.length" class="space-y-2">
+    <section v-if="availableParts.length" class="space-y-2.5">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-sm font-semibold text-highlighted">
+        <h3 class="juka-subheading text-base">
           {{ t('filter.type') }}
         </h3>
         <UButton
@@ -183,32 +187,32 @@ const lengths = [1, 2, 3, 4];
         </UButton>
       </header>
 
-      <div class="flex flex-wrap gap-1.5">
+      <div class="grid grid-cols-3 gap-1.5">
         <button
           v-for="part in availableParts"
           :key="part"
           type="button"
-          class="rounded-full px-2.5 py-1 text-xs font-semibold transition-colors duration-150"
+          class="juka-chip"
           :aria-pressed="filters.parts.includes(part)"
           :style="
             filters.parts.includes(part)
               ? { backgroundColor: partOfSpeechColor(part), color: '#fff' }
               : {
-                  color: partOfSpeechColor(part),
+                  color: `color-mix(in oklab, ${partOfSpeechColor(part)} 55%, var(--ui-text-highlighted))`,
                   backgroundColor: `color-mix(in oklab, ${partOfSpeechColor(part)} 12%, transparent)`
                 }
           "
           @click="emit('togglePart', part)"
         >
           {{ t(`pos.${part}`) }}
-          <span class="ml-1 opacity-60">{{ partCounts.get(part) ?? 0 }}</span>
+          <span class="ms-auto tabular-nums opacity-60">{{ partCounts.get(part) ?? 0 }}</span>
         </button>
       </div>
     </section>
 
-    <section class="space-y-2">
+    <section class="space-y-2.5">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-sm font-semibold text-highlighted">
+        <h3 class="juka-subheading text-base">
           {{ t('filter.length') }}
         </h3>
         <UButton
@@ -222,24 +226,27 @@ const lengths = [1, 2, 3, 4];
         </UButton>
       </header>
 
-      <div class="flex flex-wrap gap-1.5">
+      <div class="grid grid-cols-4 gap-1.5">
         <UButton
           v-for="length in lengths"
           :key="`length-${length}`"
           size="sm"
-          :color="filters.lengths.includes(length) ? 'primary' : 'neutral'"
+          block
+          class="justify-start"
+          color="neutral"
           :variant="filters.lengths.includes(length) ? 'solid' : 'outline'"
           :disabled="!(lengthCounts.get(length) ?? 0)"
           :aria-pressed="filters.lengths.includes(length)"
+          :aria-label="t('filter.characters', length, { named: { n: length === 4 ? '4+' : length } })"
           @click="emit('toggleLength', length)"
         >
-          {{ t('filter.characters', length === 4 ? 4 : length, { named: { n: length === 4 ? '4+' : length } }) }}
-          <span class="text-xs opacity-60">{{ lengthCounts.get(length) ?? 0 }}</span>
+          {{ length === 4 ? '4+' : length }}
+          <span class="ms-auto text-xs tabular-nums opacity-60">{{ lengthCounts.get(length) ?? 0 }}</span>
         </UButton>
       </div>
     </section>
 
-    <UButton color="neutral" variant="soft" block icon="i-lucide-filter-x" @click="emit('clearAll')">
+    <UButton color="neutral" variant="outline" block icon="i-lucide-filter-x" @click="emit('clearAll')">
       {{ t('filter.clearAll') }}
     </UButton>
   </div>

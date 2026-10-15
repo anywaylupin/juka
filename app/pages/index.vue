@@ -39,26 +39,6 @@ function startUpdate() {
       </h1>
 
       <div class="flex flex-wrap items-center gap-2">
-        <!-- Testing yourself wants one card face up at a time; reading back wants many. -->
-        <UFieldGroup :aria-label="t('view.turning')">
-          <UButton
-            :color="flipMode === 'single' ? 'primary' : 'neutral'"
-            :variant="flipMode === 'single' ? 'solid' : 'outline'"
-            :aria-pressed="flipMode === 'single'"
-            @click="flipMode = 'single'"
-          >
-            {{ t('view.turnOne') }}
-          </UButton>
-          <UButton
-            :color="flipMode === 'all' ? 'primary' : 'neutral'"
-            :variant="flipMode === 'all' ? 'solid' : 'outline'"
-            :aria-pressed="flipMode === 'all'"
-            @click="flipMode = 'all'"
-          >
-            {{ t('view.turnMany') }}
-          </UButton>
-        </UFieldGroup>
-
         <UButton color="neutral" variant="outline" icon="i-lucide-sliders-horizontal" @click="filtersOpen = true">
           {{ t('filter.title') }}
           <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
@@ -86,7 +66,7 @@ function startUpdate() {
       :actions="[{ label: t('common.retry'), color: 'error', variant: 'soft', onClick: () => store.load() }]"
     />
 
-    <div v-else-if="!store.loaded.value" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div v-else-if="!store.loaded.value" class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
       <div
         v-for="placeholder in 8"
         :key="placeholder"

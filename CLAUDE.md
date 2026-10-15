@@ -256,28 +256,31 @@ Ponkan, Kumquat, Honeybell and Meyer were four oranges, and naming them after di
 different. So Clementine is the blue of the character's hair, Bergamot is Earl Grey rather than rind, and Tarocco is
 blood.
 
-| Theme      | Mode  | Primary   | Where the color comes from                   |
-| ---------- | ----- | --------- | -------------------------------------------- |
-| Seville    | sepia | `#D97757` | **The default.** Claude's clay on warm paper |
-| Ponkan     | light | `#E35205` | 椪柑. Deep mandarin orange                   |
-| Tangerine  | light | `#F5821F` | Straight tangerine orange                    |
-| Clementine | light | `#2F6FD0` | The blue of Clementine's hair, not the peel  |
-| Meyer      | light | `#D99E00` | Meyer lemon, softened toward honey           |
-| Yuzu       | light | `#8A9B1F` | Sharp yellow-green, high acid                |
-| Calamansi  | light | `#2E9153` | Southeast Asian green, cut with lime         |
-| Bergamot   | light | `#6B5BD2` | Earl Grey. The flower, not the rind          |
-| Cara Cara  | light | `#E0596B` | Pink navel, coral flesh                      |
-| Pomelo     | light | `#0E8F9E` | Cool and pale, the quiet one                 |
-| Chenpi     | sepia | `#9C5A2B` | 陈皮, dried aged peel. Darker paper          |
-| Marmalade  | dark  | `#E08236` | Amber preserve held up to the light          |
-| Tarocco    | dark  | `#E0344E` | Blood orange. The default dark theme         |
+| Theme      | Mode  | Primary   | Where the color comes from                  |
+| ---------- | ----- | --------- | ------------------------------------------- |
+| Seville    | sepia | `#D97757` | Claude's clay on warm paper                 |
+| Ponkan     | light | `#E35205` | 椪柑. Deep mandarin orange                  |
+| Tangerine  | light | `#F5821F` | **The default.** Straight tangerine orange  |
+| Clementine | light | `#2F6FD0` | The blue of Clementine's hair, not the peel |
+| Meyer      | light | `#D99E00` | Meyer lemon, softened toward honey          |
+| Yuzu       | light | `#8A9B1F` | Sharp yellow-green, high acid               |
+| Calamansi  | light | `#2E9153` | Southeast Asian green, cut with lime        |
+| Bergamot   | light | `#6B5BD2` | Earl Grey. The flower, not the rind         |
+| Cara Cara  | light | `#E0596B` | Pink navel, coral flesh                     |
+| Pomelo     | light | `#0E8F9E` | Cool and pale, the quiet one                |
+| Chenpi     | sepia | `#9C5A2B` | 陈皮, dried aged peel. Darker paper         |
+| Marmalade  | dark  | `#E08236` | Amber preserve held up to the light         |
+| Tarocco    | dark  | `#E0344E` | Blood orange. The default dark theme        |
 
 Implementation:
 
 - **A theme sets the accent and nothing else.** Surfaces, borders and text come from Nuxt UI's defaults. An earlier
   version generated fifteen semantic tokens per theme, which meant twelve hand tuned palettes to keep in balance.
-- **The page is plain white in light modes and plain black in dark ones.** A reading mode is the exception and names its
-  own paper color, which is the only reason `ThemeDefinition.page` exists.
+- **The page is ink wash, not plain white.** `--juka-page` in `main.css` tints a cool paper grey (light) or ink grey
+  (dark) with a few percent of the accent, and cards sit on it in `--ui-bg`. A reading mode still names its own paper
+  color through `ThemeDefinition.page`.
+- **Color mode follows the theme.** The color mode module restores its own value from local storage after hydration,
+  which could leave a dark theme rendering light, so `useJukaTheme` applies the theme's mode again on `onNuxtReady`.
 - Generated into `app/assets/css/themes.css`. Edit `shared/constants/themes.ts` and run
   `node scripts/generate-theme-css.ts`.
 - Neutral is one warm taupe shared by every theme. Never stock grey.
@@ -292,33 +295,55 @@ button. The user has to be able to tell a button from a state.
 
 **Nuxt UI's defaults, used as they come.** Rings, focus states and surfaces are Nuxt UI's own. The one override is the
 color of the focus ring on a text field, which Nuxt UI paints in the accent and which reads as an orange glow on a warm
-palette; it is swapped to neutral and the extra translucent outline is dropped. That is a color correction, not a
-bespoke effect, and it is the only entry in `app.config.ts` besides the palette.
+palette; it is swapped to neutral and the extra translucent outline is dropped. The other entries are two button
+compound variants that map neutral buttons to the ink chop classes below.
+
+**Calligraphy, in a few named classes.** The look is brush and seal on paper, kept to classes in `main.css` rather than
+slot overrides: `juka-heading` (a page title with a brush stroke under it), `juka-navlink` (the current page underlined
+in ink), `juka-seal` and `juka-seal-button` (the 橘 logo and the add button as a red seal), `juka-paper` and
+`juka-ink-shadow` (a soft diffuse shadow, never a hard offset). Buttons speak the seal's language: `juka-seal-button` in
+red for the one add action, `juka-ink-button` (neutral outline) and `juka-ink-solid` (neutral solid, a toggle's chosen
+side) in ink, wired through `app.config.ts` so call sites keep plain `color` and `variant`. Headings use
+`--font-display` (Noto Serif SC, a Song face) and the seal uses `--font-brush` (Ma Shan Zheng); body text is Zen Kaku
+Gothic New, a heavy East Asian gothic. Every UModal and USlideover takes `:ui="JUKA_PANEL"` from `app/utils/panel.ts`:
+paper, the ink shadow and a Song title. Pagination is a row of ink chops with the current page as the red seal
+and 第N页 beside it. Filter chips in a group or word type color use `juka-chip`, framed like a chop when on. The search
+field has no focus ring: its underline turning tangerine is the indicator. Each hanzi on a card front stands in its
+own 田 practice square, `juka-cell`, sized by container query so four still fit the card above the rating.
 
 Do not add a 3D press, a raised panel class, or a page gradient back. That was tried and removed: it read as heavy and
 made problems hard to place, because a wrong border could have come from the theme, a slot override, or the component.
 
 The metaphor is a real box of index cards, and the layout is built around that rather than around a dashboard:
 
-- **The top bar does the work.** View, filters, add, theme, language and account all live on one line, so the page below
-  is nothing but cards. Icons with tooltips, never labels.
-- **Gallery** is the browse view: the whole box laid out, paged. A toggle in the top bar decides whether turning one
-  card turns the last one back (for testing yourself) or cards turn independently (for reading back through them). An
-  edge-on deck was tried in between and removed: it looked like a card box and was miserable to read, because a vertical
-  word in a 44px spine tells you almost nothing.
-- **Stack** is the one-at-a-time view, drawn as a deck: the two cards to come stand behind the top one and peek out
-  above it as colored edges, one for each part of speech, so you can see there is more without counting. Forward and
-  back are arrows under the deck, with the position between them; a click or the space bar turns the top card over.
-  Stepping deals the old card up and away and brings the next one out of the deck. Its order comes from
-  `usePracticeOrder` unless practice mode is switched off.
+- **A rail, a table and a drawer.** On a wide screen `AppSidebar` is a 4.5rem rail of icons (logo, add card, search, Box
+  `/`, Practice `/practice`, Progress `/progress`, filters and settings, Profile `/settings`, Sign in `/login`) that
+  widens to 15rem on hover or focus **over** the table, so the cards never reflow. The table keeps an 11rem gutter on
+  both sides, so the open sidebar never covers a card and the content stays centred, and the card grid fills columns of
+  at least 17rem rather than following viewport breakpoints. `AppDock` is a drawer from the right, closed until asked
+  for, with centred Filters and Settings tabs (how cards turn, language, theme, as rows of segmented choices). The cards
+  lie between on `juka-table`, the ink wash sunk like the inside of a card box. On a phone the rail becomes `AppHeader`
+  plus a tab bar at the bottom. The profile holds the account, rating names and groups. Signing in is the `/login` page,
+  not a dialog, with the submit and provider buttons in one column; the forgotten password link is off for now, though
+  `/reset` still works. `/status` redirects to the profile. The box loads once in the default layout, and
+  `useCardActions` holds the editor, the drawer and the bulk dictionary update so any page can open them.
+- **Box** is the browse view: the whole box laid out, paged. A toggle in the dock's settings tab decides whether turning
+  one card turns the last one back (for testing yourself) or cards turn independently (for reading back through them).
+  An edge-on deck was tried in between and removed: it looked like a card box and was miserable to read, because a
+  vertical word in a 44px spine tells you almost nothing.
+- **Practice** is the one-at-a-time view, drawn as a deck: the two cards to come stand behind the top one and peek out
+  above it as ink edges, so you can see there is more without counting. Forward and back are arrows under the deck, with
+  the position between them; a click or the space bar turns the top card over. Stepping deals the old card up and away
+  and brings the next one out of the deck. Its order comes from `usePracticeOrder` unless practice mode is switched off.
 - **There is no swipe, and adding one back needs a better argument than the first one had.** Dragging left to delete put
   the only destructive action in the app on the gesture most easily made by accident, on top of a card whose other
   gesture is a tap. It also cost a release to a silent binding bug. Every action on a card is a button now.
-- **Chart** is the box from above: a ripeness bar across the five named levels, a calendar heatmap of cards added per
+- **Progress** is the box from above: a ripeness bar across the five named levels, a calendar heatmap of cards added per
   day, and a split by word type and by group. Built from divs, not SVG and not a charting library, because everything on
   it is a proportion or a count.
-- **A card shows only the hanzi on the front.** The back carries the reading, the meaning and the part of speech, and
-  nothing else. There is no flip button: clicking the card turns it.
+- **A card shows only the hanzi on the front.** The back carries the reading above, the meaning large in the display
+  face, and the part of speech as a small tag at the top, and nothing else. The meaning is the payoff of a turn, so it
+  is sized like the word on the front. There is no flip button: clicking the card turns it.
 - **A card is shaped like a card**, 5 by 3.2, the proportions of the index card everyone already owns, rather than
   whatever height the content needed.
 - **The chrome is pinned over the card, not inside it.** Copy top left, edit and delete top right, audio bottom right
@@ -328,7 +353,7 @@ The metaphor is a real box of index cards, and the layout is built around that r
   and the audio are always there.
 - **The hanzi is not selectable.** Selecting the word by accident while reaching for the card is the common case; the
   copy button is the deliberate way to take the text.
-- **Turning one card in the gallery turns only that card**, unless the top bar is set to one at a time, which is the
+- **Turning one card in the gallery turns only that card**, unless the dock is set to turn one at a time, which is the
   mode for testing yourself. Nothing else may turn a card back: rating, editing or deleting any card used to turn every
   face-up card over, because the flip set was cleared whenever the card array was rebuilt.
 - **Motion says what happened, and never gates what is shown.** Views slide along the row their icons sit in, cards in
@@ -340,13 +365,16 @@ The metaphor is a real box of index cards, and the layout is built around that r
 - **Anything that acts when clicked has a pointer cursor.** Tailwind's reset gives buttons `cursor: default`, which
   leaves an interface where nothing looks pressable; `main.css` puts it back for buttons, summaries, and the menu,
   option and tab roles.
-- **Part of speech has its own color**, fixed across every theme, on the card, on the spine, and in the filter.
-  `PART_OF_SPEECH_COLORS` in `shared/constants/pos.ts`.
+- **Part of speech has its own color**, fixed across every theme, as a folded corner on the card and in the filter.
+  Color is otherwise kept to two meanings: the red seal is an action, the tangerine mandarin is a rating; everything
+  else is ink. `PART_OF_SPEECH_COLORS` in `shared/constants/pos.ts`.
 - **Filters are grouped**, not one long rail: how well you know it, word type, and length. Each group is multi-select
   with per-option counts, so a filter that would empty the box says so before it is pressed.
-- **One add button in the app**, in the top bar.
-- Icons come from the installed sets. Never hand write path data. The favicon is lifted from the same set by
-  `scripts/build-favicon.ts`, and the language picker uses `circle-flags`.
+- **One add button in the app**, at the top of the sidebar (the top bar on a phone).
+- Icons come from the installed sets. Never hand write path data. The logo is 橘 written on a mandarin:
+  `scripts/build-favicon.ts` fills icon-park's `orange` and writes `public/mandarin.svg` (the fruit, under `AppLogo`'s
+  brush-font character) and `public/favicon.svg` (the same with the character baked in as text). The language picker
+  uses `circle-flags`.
 
 ## Build order
 

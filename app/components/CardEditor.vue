@@ -307,7 +307,9 @@ async function submit() {
             size="xs"
             variant="soft"
             class="w-36"
-            :style="state.pos ? { color: posColor } : undefined"
+            :style="
+              state.pos ? { color: `color-mix(in oklab, ${posColor} 55%, var(--ui-text-highlighted))` } : undefined
+            "
             @update:model-value="state.pos = $event"
           />
           <UPopover v-if="groups.length">

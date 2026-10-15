@@ -10,12 +10,18 @@
 */
 @theme static {
   /*
-    A rounded geometric sans for Latin text and LXGW WenKai for hanzi.
+    Zen Kaku Gothic New for interface text, a heavy East Asian gothic whose Latin is drawn to sit beside CJK, and LXGW WenKai for hanzi.
     Both are fetched and self hosted by @nuxt/fonts, which ships with Nuxt UI and scans these declarations.
     The fallbacks are listed in full because a CJK face is large enough that the first paint often lands before it arrives.
   */
-  --font-sans: 'Nunito', ui-rounded, 'Segoe UI Variable', system-ui, sans-serif;
+  --font-sans: 'Zen Kaku Gothic New', 'Noto Sans SC', 'Segoe UI Variable', system-ui, sans-serif;
   --font-hanzi: 'LXGW WenKai TC', 'LXGW WenKai', 'Songti SC', 'SimSun', serif;
+  /*
+    Noto Serif SC is a Song face, the printed style of a Chinese book, and its Latin is cut to sit beside it, so a page title reads like the heading of a dictionary rather than an app.
+    Ma Shan Zheng is a brush script, kept to the seal where a single character carries it.
+  */
+  --font-display: 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+  --font-brush: 'Ma Shan Zheng', 'LXGW WenKai', 'STKaiti', 'KaiTi', serif;
 
   /*
     The rating mandarin.
@@ -261,7 +267,7 @@ button:disabled,
 
 /*
   Ink and tangerine.
-  Calligraphy shows in the shapes rather than the fonts: a tapered brush stroke under headings and the current page, seals for the main action, ink bleed for edges.
+  Calligraphy shows in the shapes rather than the fonts: a plain line under headings and the current page, seals for the main action, ink bleed for edges.
   The accent still comes from the theme picker, and the neutrals lean toward it.
 */
 :root {
@@ -269,13 +275,14 @@ button:disabled,
   --juka-page: color-mix(in oklab, var(--ui-primary) 5%, #eceef0);
   --juka-seal: #c8392b;
   --juka-grid: color-mix(in oklab, var(--ui-primary) 60%, var(--ui-bg));
-  --juka-stroke: polygon(0 45%, 3% 8%, 22% 0, 70% 14%, 97% 22%, 100% 55%, 93% 88%, 60% 80%, 18% 100%, 2% 82%);
 }
 .dark {
   --juka-page: color-mix(in oklab, var(--ui-primary) 4%, #15171a);
 }
+/* Zen Kaku's regular is light beside the brush and seal, so body text sits one step heavier. */
 body {
   background-color: var(--juka-page);
+  font-weight: 500;
 }
 :focus-visible {
   outline: 2px solid var(--ui-primary);
@@ -307,7 +314,8 @@ body {
   position: relative;
   padding-bottom: 0.5rem;
   font-size: 1.75rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-weight: 700;
   color: var(--ui-text-highlighted);
 }
 .juka-heading::after {
@@ -316,11 +324,11 @@ body {
   left: 0;
   bottom: 0;
   width: 4.5rem;
-  height: 0.4rem;
+  height: 2px;
   background: var(--ui-text-highlighted);
-  clip-path: var(--juka-stroke);
 }
 .juka-subheading {
+  font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--ui-text-highlighted);
@@ -331,10 +339,11 @@ body {
   align-items: center;
   min-height: 44px;
   padding: 0 0.875rem;
+  font-weight: 700;
   color: var(--ui-text);
 }
+/* One weight for every link, so the current page is marked by ink and the underline rather than by a bolder word that pushes its neighbours. */
 .juka-navlink-active {
-  font-weight: 800;
   color: var(--ui-text-highlighted);
 }
 .juka-navlink-active::after {
@@ -343,9 +352,8 @@ body {
   left: 0.5rem;
   right: 0.4rem;
   bottom: 0.4rem;
-  height: 0.45rem;
+  height: 2px;
   background: var(--ui-primary);
-  clip-path: var(--juka-stroke);
 }
 .juka-tab-active {
   color: var(--ui-text-highlighted);
@@ -354,23 +362,77 @@ body {
 .juka-seal {
   display: grid;
   place-items: center;
-  background: var(--juka-seal);
-  color: #fff;
-  font-family: var(--font-hanzi);
-  border-radius: 0.25rem;
+  padding-top: 0.1em;
+  background: radial-gradient(
+    120% 90% at 30% 20%,
+    color-mix(in oklab, var(--juka-seal) 88%, white),
+    var(--juka-seal) 60%
+  );
+  color: #fff8f0;
+  font-family: var(--font-brush);
+  border-radius: 0.3rem;
   box-shadow:
-    inset 0 0 0 3px var(--juka-seal),
-    inset 0 0 0 4.5px rgb(255 255 255 / 0.55);
+    inset 0 0 0 2.5px var(--juka-seal),
+    inset 0 0 0 3.5px rgb(255 248 240 / 0.6),
+    0 2px 6px -2px color-mix(in oklab, var(--juka-seal) 50%, transparent);
+}
+
+/*
+  Buttons share one vocabulary with the seal: a block with a thin inner frame, like a carved chop pressed into paper.
+  Red for the one primary action, ink for everything else, and a toggle's chosen side is pressed in solid ink.
+  Applied through compound variants in app.config.ts, so call sites keep using Nuxt UI's color and variant props.
+*/
+.juka-seal-button,
+.juka-ink-button,
+.juka-ink-solid {
+  border-radius: 0.3rem;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 120ms ease;
+}
+.juka-seal-button:active,
+.juka-ink-button:active,
+.juka-ink-solid:active {
+  transform: translateY(1px);
 }
 .juka-seal-button {
-  background: var(--juka-seal);
-  color: #fff;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--juka-seal) 92%, white), var(--juka-seal));
+  color: #fff8f0;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   box-shadow:
-    inset 0 0 0 3px var(--juka-seal),
-    inset 0 0 0 4.5px rgb(255 255 255 / 0.55);
+    inset 0 0 0 2.5px var(--juka-seal),
+    inset 0 0 0 3.5px rgb(255 248 240 / 0.55),
+    0 3px 8px -3px color-mix(in oklab, var(--juka-seal) 60%, transparent);
 }
 .juka-seal-button:hover {
-  background: color-mix(in oklab, var(--juka-seal) 88%, black);
+  background: linear-gradient(180deg, var(--juka-seal), color-mix(in oklab, var(--juka-seal) 85%, black));
+  box-shadow:
+    inset 0 0 0 2.5px color-mix(in oklab, var(--juka-seal) 85%, black),
+    inset 0 0 0 3.5px rgb(255 248 240 / 0.6),
+    0 6px 14px -5px color-mix(in oklab, var(--juka-seal) 65%, transparent);
+}
+.juka-ink-button {
+  background: transparent;
+  color: var(--ui-text-highlighted);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--ui-text-highlighted) 55%, transparent),
+    inset 0 0 0 3px var(--juka-page),
+    inset 0 0 0 3.5px color-mix(in oklab, var(--ui-text-highlighted) 18%, transparent);
+}
+.juka-ink-button:hover {
+  background: color-mix(in oklab, var(--ui-text-highlighted) 6%, transparent);
+}
+.juka-ink-solid {
+  background: var(--ui-text-highlighted);
+  color: var(--ui-bg);
+  box-shadow:
+    inset 0 0 0 2.5px var(--ui-text-highlighted),
+    inset 0 0 0 3.5px color-mix(in oklab, var(--ui-bg) 55%, transparent);
+}
+.juka-ink-solid:hover {
+  background: color-mix(in oklab, var(--ui-text-highlighted) 88%, var(--ui-bg));
 }
 .juka-paper {
   background: var(--ui-bg);
@@ -386,12 +448,25 @@ body {
 }
 .juka-search {
   border-bottom: 2px solid var(--ui-text-highlighted);
+  transition: border-color 160ms ease;
+}
+/* The underline is the focus indicator here, so the global ring would only draw a second, orange box around it. */
+.juka-search:focus-within {
+  border-bottom-color: var(--ui-primary);
+}
+.juka-search :focus-visible {
+  outline: none;
 }
 
 /* One 田 square per character: solid edge, dashed centre cross, the character centred in it. */
+/* The front face is a size container, so a square never outgrows the card: capped by the card's height and, for long words, its width. */
+.juka-front {
+  container-type: size;
+}
 .juka-cell {
-  width: var(--cell);
-  height: var(--cell);
+  --fit: min(var(--cell), 58cqh, calc((100cqw - 3rem) / var(--n, 1)));
+  width: var(--fit);
+  height: var(--fit);
   box-sizing: border-box;
   display: grid;
   place-items: center;
@@ -400,10 +475,217 @@ body {
     repeating-linear-gradient(90deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 100% 1px no-repeat,
     repeating-linear-gradient(180deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 1px 100% no-repeat;
   font-family: var(--font-hanzi);
-  font-size: calc(var(--cell) * 0.8);
+  font-size: calc(var(--fit) * 0.8);
   line-height: 1;
   color: var(--ui-text-highlighted);
 }
 .juka-cell + .juka-cell {
   border-left: 0;
+}
+
+/*
+  A dialog or drawer is a sheet of paper laid on the page: paper background, the soft ink shadow, and a Song title.
+  Passed to UModal and USlideover through JUKA_PANEL, so the look is one constant rather than a slot override per call site.
+*/
+.juka-panel {
+  background: var(--ui-bg);
+  border-radius: 0.375rem;
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--ui-text) 10%, transparent),
+    0 24px 60px -20px color-mix(in oklab, var(--ui-text) 40%, transparent);
+}
+.juka-panel-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* A filter chip in a word type or group color: a tinted slip when off, the solid color with the chop frame when on. */
+.juka-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+.juka-chip[aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 2.5px transparent,
+    inset 0 0 0 3.5px rgb(255 255 255 / 0.55);
+}
+
+/* Tabs underlined in ink with a plain line, the same mark as the current page in the top bar. */
+.juka-tabs [role='tab'][data-state='active'] {
+  color: var(--ui-text-highlighted);
+  font-weight: 700;
+}
+
+/*
+  The table the cards lie on: the ink wash page, sunk a little below the sidebar and the dock with an inner shadow, the way the inside of a card box sits below its rim.
+  Only on wide screens, where there are edges for it to sink between.
+*/
+@media (min-width: 64rem) {
+  .juka-table {
+    border-radius: 0.75rem;
+    background: var(--juka-page);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--ui-text) 8%, transparent),
+      inset 0 2px 14px -4px color-mix(in oklab, var(--ui-text) 16%, transparent);
+  }
+}
+
+/* Sidebar links: an ink slip behind the current page, like a tab pulled up in a card index. Ink, not accent, so color stays with the seal and the rating. */
+.juka-side-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border-radius: 0.4rem;
+  color: var(--ui-text);
+  font-weight: 600;
+  transition: background-color 150ms ease;
+}
+.juka-side-link:hover {
+  background: var(--ui-bg-elevated);
+}
+.juka-side-link-active {
+  background: color-mix(in oklab, var(--ui-text-highlighted) 8%, transparent);
+  color: var(--ui-text-highlighted);
+  font-weight: 700;
+}
+
+/* A row of choices in a sunken tray, the chosen one raised out of it: one press, no menu. */
+.juka-segment {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.5rem;
+  background: var(--ui-bg-elevated);
+}
+.juka-segment > button {
+  min-height: 2.25rem;
+  border-radius: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--ui-text-muted);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.juka-segment > button[aria-pressed='true'] {
+  background: var(--ui-bg);
+  color: var(--ui-text-highlighted);
+  font-weight: 700;
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--ui-text) 18%, transparent);
+}
+.juka-swatch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  padding: 0 0.6rem;
+  border-radius: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--ui-text);
+}
+.juka-swatch:hover {
+  background: var(--ui-bg-elevated);
+}
+.juka-swatch[aria-pressed='true'] {
+  background: var(--ui-bg-elevated);
+  color: var(--ui-text-highlighted);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--ui-border-accented);
+}
+
+/* The current page is the red seal; the rest stay ink chops from the button variants. */
+.juka-pages [aria-current='page'] {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--juka-seal) 92%, white), var(--juka-seal));
+  color: #fff8f0;
+  box-shadow:
+    inset 0 0 0 2.5px var(--juka-seal),
+    inset 0 0 0 3.5px rgb(255 248 240 / 0.55);
+}
+.juka-pages {
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.6rem;
+  background: color-mix(in oklab, var(--ui-bg) 90%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--ui-text) 8%, transparent),
+    0 10px 24px -12px color-mix(in oklab, var(--ui-text) 30%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+/*
+  The sidebar at rest is a 4.5rem rail of icons; on hover or keyboard focus it widens to 15rem over the table, with a shadow so it reads as lying on top.
+  Labels fade rather than unmount, so nothing reflows inside it as it opens, and the search field shows only its icon at rest.
+*/
+.juka-rail {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 4.5rem;
+  padding: 1.25rem 0.75rem;
+  overflow: hidden;
+  background: var(--ui-bg);
+  white-space: nowrap;
+  transition:
+    width 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 200ms ease;
+}
+.juka-rail:hover,
+.juka-rail:focus-within {
+  width: 15rem;
+  box-shadow: 12px 0 32px -16px color-mix(in oklab, var(--ui-text) 35%, transparent);
+}
+.juka-rail .juka-search {
+  min-width: 13.5rem;
+}
+.juka-rail-label,
+.juka-rail .juka-search input {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.juka-rail:hover .juka-rail-label,
+.juka-rail:focus-within .juka-rail-label,
+.juka-rail:hover .juka-search input,
+.juka-rail:focus-within .juka-search input {
+  opacity: 1;
+}
+.juka-rail:not(:hover, :focus-within) .juka-search {
+  border-bottom-color: transparent;
+}
+.juka-rail .iconify {
+  flex-shrink: 0;
+}
+
+/* A folded corner in the word type's color: enough to sort by eye, quiet enough not to compete with the seal or the rating. */
+.juka-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* 橘 on its own mandarin. The character sits low, in the body of the fruit below the leaf; the logo never shrinks, so the rail cannot squeeze it. */
+.juka-logo {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  padding-top: 0.35em;
+  background: url('/mandarin.svg') center / contain no-repeat;
+  color: #fff8f0;
+  font-family: var(--font-brush);
+  line-height: 1;
 }

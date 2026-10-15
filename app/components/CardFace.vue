@@ -43,13 +43,16 @@ const { t, locale } = useI18n();
 const toast = useToast();
 const { speak, speaking } = useSpeech();
 const { byId } = useGroups();
+const { labelFor } = useRatingLabels();
 
 /** 3 by 5, the index card everyone already owns. */
-const widths = { sm: 'max-w-60', md: 'max-w-[20rem]', lg: 'max-w-104' };
+const widths = { sm: 'max-w-60', md: 'max-w-[20rem]', lg: 'max-w-[36rem]' };
 /** One 田 square per character, smaller as the word gets longer so four still fit the card. */
-const cellSizes = { sm: [64, 56, 46, 38], md: [96, 88, 72, 58], lg: [128, 120, 96, 76] };
+const cellSizes = { sm: [64, 56, 46, 38], md: [96, 88, 72, 58], lg: [168, 150, 120, 96] };
 const cellSize = computed(() => `${cellSizes[props.size][Math.min([...props.card.hanzi].length, 4) - 1]}px`);
-const meaningSizes = { sm: 'text-base', md: 'text-xl', lg: 'text-2xl' };
+/** The answer is the payoff of every turn, so it is sized like the word on the front rather than like a caption. */
+const meaningSizes = { sm: 'text-xl', md: 'text-3xl', lg: 'text-5xl' };
+const pinyinSizes = { sm: 'text-sm', md: 'text-lg', lg: 'text-2xl' };
 
 /**
  * The meaning in the interface's language.
@@ -156,13 +159,20 @@ async function copy() {
     >
       <!-- Front -->
       <div
-        class="juka-card absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden px-6 backface-hidden"
+        class="juka-card juka-front absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden px-6 pb-8 backface-hidden"
         :class="inert && 'opacity-60'"
       >
-        <!-- Clipped by the card's own overflow, so it follows the corner. -->
-        <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColor }" />
+        <!--
+          The word type as a folded corner rather than a stripe across the top: a stripe in five hues across a grid of cards was the loudest color on the page, louder than the seal and the rating.
+          Clipped by the card's own overflow, so it follows the corner.
+        -->
+        <span class="juka-corner" :style="{ backgroundColor: posColor }" aria-hidden="true" />
 
-        <p class="juka-hanzi flex" lang="zh" :style="{ '--cell': cellSize }">
+        <p
+          class="juka-hanzi flex"
+          lang="zh"
+          :style="{ '--cell': cellSize, '--n': Math.min([...card.hanzi].length, 4) }"
+        >
           <span v-for="(character, index) in [...card.hanzi]" :key="index" class="juka-cell">{{ character }}</span>
         </p>
 
@@ -172,7 +182,7 @@ async function copy() {
             :key="group.id"
             class="rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
             :style="{
-              color: group.color,
+              color: `color-mix(in oklab, ${group.color} 55%, var(--ui-text-highlighted))`,
               backgroundColor: `color-mix(in oklab, ${group.color} 14%, transparent)`
             }"
             >{{ group.name }}</span
@@ -180,28 +190,22 @@ async function copy() {
         </div>
       </div>
 
-      <!-- Back -->
+      <!-- Back: the reading above, the meaning large, the word type as a quiet tag in the corner. -->
       <div
-        class="juka-card absolute inset-0 flex transform-[rotateY(180deg)] flex-col items-center justify-center gap-2 overflow-hidden px-6 text-center backface-hidden"
+        class="juka-card absolute inset-0 flex transform-[rotateY(180deg)] flex-col items-center justify-center gap-1 overflow-hidden px-6 pb-6 text-center backface-hidden"
       >
-        <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColor }" />
+        <span class="juka-corner" :style="{ backgroundColor: posColor }" aria-hidden="true" />
+        <span
+          v-if="card.pos && size !== 'sm'"
+          class="absolute top-3 left-1/2 -translate-x-1/2 text-xs font-semibold tracking-wide text-muted"
+          >{{ t(`pos.${card.pos}`) }}</span
+        >
 
-        <div class="flex items-center gap-2">
-          <p class="font-medium text-muted" :class="size === 'sm' ? 'text-base' : 'text-xl'">
-            {{ card.pinyin }}
-          </p>
-          <span
-            v-if="card.pos"
-            class="rounded-full px-2 py-0.5 text-xs font-semibold"
-            :style="{
-              color: posColor,
-              backgroundColor: `color-mix(in oklab, ${posColor} 14%, transparent)`
-            }"
-            >{{ t(`pos.${card.pos}`) }}</span
-          >
-        </div>
-
-        <p class="font-semibold text-highlighted" :class="meaningSizes[size]">
+        <p class="text-muted" :class="pinyinSizes[size]">{{ card.pinyin }}</p>
+        <p
+          class="font-[family-name:var(--font-display)] leading-tight font-bold text-highlighted"
+          :class="meaningSizes[size]"
+        >
           {{ meaning || t('card.noTranslation') }}
         </p>
       </div>
@@ -271,6 +275,11 @@ async function copy() {
           />
         </UTooltip>
       </div>
+
+      <!-- The level in words, so the mandarins are never the only way to read it. -->
+      <span v-if="size !== 'sm'" class="absolute bottom-3 left-3 text-xs text-muted first-letter:uppercase">
+        {{ card.rating ? labelFor(card.rating) : t('filter.unrated') }}
+      </span>
 
       <div class="pointer-events-auto absolute inset-x-0 bottom-2 flex justify-center">
         <CardRating :model-value="card.rating" :size="ratingSizes[size]" @update:model-value="emit('rate', $event)" />

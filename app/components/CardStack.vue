@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { partOfSpeechColor } from '#shared/constants/pos';
 import type { Rating } from '#shared/constants/rating';
 import type { CardRecord } from '#shared/types/card';
 
 /**
  * One card at a time, as a deck you step through.
  *
- * The cards to come stand behind the top one and peek out above it, each a little narrower and each showing the color of its own part of speech, so the deck reads as a stack of real cards and you can see there is more to come without counting.
+ * The cards to come stand behind the top one and peek out above it, each a little narrower and a shade of ink deeper, so the deck reads as a stack of real cards and you can see there is more to come without counting.
+ * They were colored by word type once; that put a third hue above every card, and color is kept for the seal and the rating now.
  * Stepping forward deals the top card away and brings the next one up through the deck.
  *
  * **There is no swipe.** Dragging a card left to delete it was removed: it put the one destructive action in the app on the easiest gesture to perform by accident, and it fought the tap that turns a card over.
@@ -50,7 +50,15 @@ const behind = computed(() =>
  * Forward deals the card away upward and the next one rises into its place; back reverses it.
  * Without this both directions look identical and the deck stops feeling like a physical thing.
  */
-const direction = ref<'forward' | 'back'>('forward');
+const direction = ref<'forward' | 'back' | null>(null);
+
+/**
+ * The deal plays only for a step the user took.
+ * The order changes on its own while the box loads and the practice shuffle runs, and animating each of those dealt through half the deck on page load.
+ */
+const dealName = computed(() =>
+  direction.value === 'forward' ? 'juka-deal' : direction.value === 'back' ? 'juka-deal-back' : 'juka-none'
+);
 
 watch(
   () => props.modelValue,
@@ -105,8 +113,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
       <UTooltip :text="practice ? t('stack.practiceOn') : t('stack.practiceOff')">
         <UButton
           icon="i-lucide-shuffle"
-          :color="practice ? 'primary' : 'neutral'"
-          :variant="practice ? 'soft' : 'ghost'"
+          color="neutral"
+          :variant="practice ? 'solid' : 'outline'"
           size="sm"
           :aria-pressed="practice"
           @click="emit('update:practice', !practice)"
@@ -131,7 +139,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
       The deck.
       Cards to come sit behind and above, so the top of each one shows as a colored edge the way a stack of index cards does on a desk.
     -->
-    <div class="mx-auto w-full max-w-104 px-1 pt-7">
+    <div class="mx-auto w-full max-w-[36rem] px-1 pt-7">
       <div class="relative">
         <div
           v-for="(card, depth) in behind"
@@ -139,15 +147,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
           class="juka-deck-edge pointer-events-none absolute inset-x-0 top-0"
           :style="{
             transform: `translateY(${-(depth + 1) * 13}px) scale(${1 - (depth + 1) * 0.055})`,
-            backgroundColor: partOfSpeechColor(card.pos),
-            // Further back reads as further away, so two cards of the same word type still show as two edges rather than one thick band.
-            opacity: 1 - depth * 0.35,
+            // Further back reads as further away, so the two edges show as two cards rather than one thick band.
+            backgroundColor: `color-mix(in oklab, var(--ui-text) ${depth === 0 ? 14 : 8}%, var(--ui-bg))`,
             zIndex: 2 - depth
           }"
           aria-hidden="true"
         />
 
-        <Transition :name="direction === 'forward' ? 'juka-deal' : 'juka-deal-back'">
+        <Transition :name="dealName" :css="direction !== null" @after-enter="direction = null">
           <CardFace
             :key="current.id"
             v-model:flipped="flipped"
@@ -171,15 +178,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <UButton
           icon="i-lucide-arrow-left"
           color="neutral"
-          variant="soft"
+          variant="outline"
           size="xl"
-          class="rounded-full transition-transform duration-150 active:scale-90"
           :aria-label="t('cards.previous')"
           @click="back"
         />
       </UTooltip>
 
-      <p class="min-w-16 text-center text-xs text-dimmed tabular-nums">
+      <p class="min-w-16 text-center text-sm text-muted tabular-nums">
         {{ t('cards.position', { index: modelValue + 1, total: cards.length }) }}
       </p>
 
@@ -187,16 +193,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <UButton
           icon="i-lucide-arrow-right"
           color="neutral"
-          variant="soft"
+          variant="outline"
           size="xl"
-          class="rounded-full transition-transform duration-150 active:scale-90"
           :aria-label="t('cards.next')"
           @click="advance"
         />
       </UTooltip>
     </div>
 
-    <p class="text-center text-xs text-dimmed">
+    <p class="text-center text-xs text-muted">
       {{ t('stack.hint') }}
     </p>
   </div>
@@ -208,7 +213,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 */
 .juka-deck-edge {
   aspect-ratio: 5 / 3.2;
-  border-radius: 1rem;
+  /* The card's own radius, so the deck reads as a stack of the same cards rather than tabs sticking out behind one. */
+  border-radius: 0.25rem;
   transform-origin: top center;
   transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }

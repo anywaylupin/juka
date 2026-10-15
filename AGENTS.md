@@ -157,15 +157,17 @@ panel class and a page gradient, and putting a border on everything. It read as 
 because a wrong border could have come from the theme, the slot override, or the component itself. That is all gone. Do
 not add it back without a reason that has survived a week of use.
 
-- `app.config.ts` carries **colors only**. No component slot overrides. If one component needs to look different, say so
-  at the call site; promote it only once the pattern has repeated.
-- `app/assets/css/main.css` is deliberately tiny: font stacks, the rating color, the page background, and a focus ring.
-  Add to it only when a component cannot be styled through the theme.
+- `app.config.ts` carries **colors and two button compound variants** (neutral outline and solid to the ink chop
+  classes). No component slot overrides. If one component needs to look different, say so at the call site; promote it
+  only once the pattern has repeated.
+- `app/assets/css/main.css` is small: font stacks, the rating color, the ink wash page, a focus ring, and the named
+  calligraphy classes (`juka-heading`, `juka-seal`, `juka-cell` and friends) listed in CLAUDE.md. Add to it only when a
+  component cannot be styled through the theme.
 - A theme sets the accent and nothing else. Surfaces, borders and text come from Nuxt UI. Read them through the semantic
   classes (`bg-default`, `bg-muted`, `bg-elevated`, `text-muted`, `text-highlighted`, `border-default`), never by
   writing `var(--ui-bg)` inline.
-- The page is plain white in light themes and plain black in dark ones. Chenpi is the one exception, because it is a
-  reading mode.
+- The page is an ink wash tinted by the accent, `--juka-page`, with cards in `--ui-bg` on it. Shadows are soft and
+  diffuse, never a hard offset.
 - **Icons come from the installed sets** (`i-icon-park-outline-*`, or lucide where IconPark has no equivalent). Never
   hand write SVG path data. The favicon is generated from the same set by `node scripts/build-favicon.ts`.
 - The rating color is fixed across every theme. Never use a theme accent for a rating, and never use the rating color

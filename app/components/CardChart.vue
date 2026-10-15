@@ -47,11 +47,20 @@ const known = computed(() => props.cards.filter((card) => card.rating >= 4).leng
 
 const WEEKS = 15;
 
+/**
+ * A calendar day in the reader's own timezone.
+ * `toISOString()` gives the UTC day, so east of Greenwich every square was a day off: today's cards landed in tomorrow's square, which is hidden as future, under a "14 this week" that the grid did not show.
+ */
+function dayKey(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 const calendar = computed(() => {
   const counts = new Map<string, number>();
 
   for (const card of props.cards) {
-    const key = card.createdAt.slice(0, 10);
+    const key = dayKey(new Date(card.createdAt));
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
 
@@ -69,7 +78,7 @@ const calendar = computed(() => {
     for (let day = 0; day < 7; day += 1) {
       const date = new Date(end);
       date.setDate(end.getDate() - week * 7 - (6 - day));
-      const key = date.toISOString().slice(0, 10);
+      const key = dayKey(date);
       column.push({ key, count: counts.get(key) ?? 0, future: date > today });
     }
 
@@ -191,7 +200,7 @@ const dayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { date
           <UTooltip
             v-for="day in week"
             :key="day.key"
-            :text="`${dayFormatter.format(new Date(day.key))}: ${day.count}`"
+            :text="`${dayFormatter.format(new Date(`${day.key}T00:00`))}: ${day.count}`"
           >
             <div
               class="size-3.5 rounded-sm"
