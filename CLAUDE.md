@@ -305,11 +305,13 @@ in ink), `juka-seal` and `juka-seal-button` (the 橘 logo and the add button as 
 red for the one add action, `juka-ink-button` (neutral outline) and `juka-ink-solid` (neutral solid, a toggle's chosen
 side) in ink, wired through `app.config.ts` so call sites keep plain `color` and `variant`. Headings use
 `--font-display` (Noto Serif SC, a Song face) and the seal uses `--font-brush` (Ma Shan Zheng); body text is Zen Kaku
-Gothic New, a heavy East Asian gothic. Every UModal and USlideover takes `:ui="JUKA_PANEL"` from `app/utils/panel.ts`:
-paper, the ink shadow and a Song title. Pagination is a row of ink chops with the current page as the red seal
-and 第N页 beside it. Filter chips in a group or word type color use `juka-chip`, framed like a chop when on. The search
-field has no focus ring: its underline turning tangerine is the indicator. Each hanzi on a card front stands in its
-own 田 practice square, `juka-cell`, sized by container query so four still fit the card above the rating.
+Gothic New, a heavy East Asian gothic, and M PLUS 1p under the `vi` locale, because Zen Kaku has no Vietnamese and ơ, ư
+and the tone marks fell back to another face mid-word. Ma Shan Zheng has none either, so it stays on the 卡 seal and
+never sets Vietnamese text. Every UModal and USlideover takes `:ui="JUKA_PANEL"` from `app/utils/panel.ts`: paper, the
+ink shadow and a Song title. Pagination is a row of ink chops with the current page as the red seal and 第N页 beside it.
+Filter chips in a group or word type color use `juka-chip`, framed like a chop when on. The search field has no focus
+ring: its underline turning tangerine is the indicator. Each hanzi on a card front stands in its own 田 practice square,
+`juka-cell`, sized by container query so four still fit the card above the rating.
 
 Do not add a 3D press, a raised panel class, or a page gradient back. That was tried and removed: it read as heavy and
 made problems hard to place, because a wrong border could have come from the theme, a slot override, or the component.

@@ -281,6 +281,14 @@ button:disabled,
 .dark {
   --juka-page: color-mix(in oklab, var(--ui-primary) 4%, #15171a);
 }
+/*
+  Zen Kaku Gothic New has no Vietnamese: ơ, ư and the stacked tone marks fell back letter by letter to a system face, so a word changed font halfway through.
+  M PLUS 1p is the nearest gothic that has the Vietnamese subset, Japanese made like Zen Kaku with the same heavy weights, so the interface keeps its voice in both languages.
+  The html lang follows the locale, set in app.vue.
+*/
+:root:lang(vi) {
+  --font-sans: 'M PLUS 1p', 'Noto Sans SC', 'Segoe UI Variable', system-ui, sans-serif;
+}
 /* Zen Kaku's regular is light beside the brush and seal, so body text sits one step heavier. */
 body {
   background-color: var(--juka-page);

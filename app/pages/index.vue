@@ -66,7 +66,10 @@ function startUpdate() {
       :actions="[{ label: t('common.retry'), color: 'error', variant: 'soft', onClick: () => store.load() }]"
     />
 
-    <div v-else-if="!store.loaded.value" class="grid grid-cols-[repeat(auto-fill,minmax(max(15rem,calc((100%-3rem)/4)),1fr))] gap-4">
+    <div
+      v-else-if="!store.loaded.value"
+      class="grid grid-cols-[repeat(auto-fill,minmax(max(15rem,calc((100%-3rem)/4)),1fr))] gap-4"
+    >
       <div
         v-for="placeholder in 8"
         :key="placeholder"
