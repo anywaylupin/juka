@@ -128,4 +128,4 @@ export type ThemeName = (typeof THEMES)[number]['name'];
 
 export const THEME_NAMES = THEMES.map((theme) => theme.name) as unknown as [ThemeName, ...ThemeName[]];
 
-export const DEFAULT_THEME: ThemeName = 'seville';
+export const DEFAULT_THEME: ThemeName = 'tangerine';

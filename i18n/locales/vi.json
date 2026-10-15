@@ -9,14 +9,19 @@
   },
   "nav": {
     "cards": "Thẻ",
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "box": "Hộp thẻ",
+    "practice": "Luyện tập",
+    "progress": "Tiến độ",
+    "settings": "Cài đặt",
+    "skip": "Bỏ qua tới nội dung",
+    "main": "Chính",
+    "home": "Juka, về hộp thẻ"
   },
   "view": {
-    "stack": "Chồng thẻ",
-    "gallery": "Thư viện",
-    "chart": "Biểu đồ",
-    "flipSingle": "Lật từng thẻ một",
-    "flipAll": "Lật nhiều thẻ cùng lúc"
+    "turning": "Lật thẻ",
+    "turnOne": "Lật từng thẻ",
+    "turnMany": "Lật nhiều thẻ"
   },
   "filter": {
     "title": "Bộ lọc",
@@ -26,7 +31,8 @@
     "unrated": "Chưa đánh giá",
     "clear": "Bỏ",
     "clearAll": "Bỏ hết bộ lọc",
-    "group": "Nhóm"
+    "group": "Nhóm",
+    "characters": "{n} chữ | {n} chữ"
   },
   "rating": {
     "label": "Mức độ thuộc",
@@ -46,7 +52,7 @@
     }
   },
   "stack": {
-    "hint": "Phím mũi tên để chuyển thẻ, phím cách để lật.",
+    "hint": "Chạm vào thẻ để lật. Với bàn phím, phím mũi tên để chuyển, phím cách để lật.",
     "practice": "Thứ tự ôn tập",
     "practiceOn": "Ưu tiên thẻ chưa thuộc",
     "practiceOff": "Theo thứ tự trong hộp",
@@ -70,7 +76,7 @@
   },
   "cards": {
     "searchPlaceholder": "Tìm chữ Hán, pinyin hoặc nghĩa",
-    "count": "{count} thẻ",
+    "count": "không có thẻ | 1 thẻ | {count} thẻ",
     "position": "{index} trên {total}",
     "previous": "Trước",
     "next": "Sau",
@@ -109,10 +115,7 @@
     "notCopied": "Chưa chép được",
     "translationViPlaceholder": "Nghĩa tiếng Việt",
     "refreshLookup": "Tra lại từ điển",
-    "notFound": "Không có trong từ điển",
-    "refreshAll": "Tra lại {count} thẻ",
-    "refreshAllConfirm": "Tra lại {count} thẻ? Cách đọc, nghĩa và từ loại sẽ bị thay, kể cả phần bạn đã sửa.",
-    "refreshedAll": "Đã cập nhật {updated} trên {total} thẻ"
+    "notFound": "Không có trong từ điển"
   },
   "auth": {
     "title": "Giữ lại thẻ của bạn",
@@ -171,7 +174,9 @@
     "connections": "Tài khoản đã liên kết",
     "connect": "Liên kết",
     "disconnect": "Ngắt liên kết",
-    "disconnected": "Đã ngắt {provider}"
+    "disconnected": "Đã ngắt {provider}",
+    "saveChanges": "Lưu thay đổi",
+    "settingsFor": "Cài đặt của {username}"
   },
   "theme": {
     "title": "Giao diện",
@@ -221,5 +226,22 @@
     "body": "{count} thẻ chỉ đang lưu trong trình duyệt này. Tài khoản giúp giữ lại nếu bị xóa.",
     "later": "Nhắc lại sau",
     "never": "Đừng nhắc nữa"
+  },
+  "bulk": {
+    "button": "Tra lại | Tra lại 1 thẻ | Tra lại {count} thẻ",
+    "confirm": "Không có thẻ để tra. | Cách đọc, nghĩa và từ loại của 1 thẻ sẽ được thay bằng từ điển, kể cả phần bạn đã sửa. | Cách đọc, nghĩa và từ loại của {count} thẻ sẽ được thay bằng từ điển, kể cả phần bạn đã sửa. Mỗi thẻ mất khoảng một giây.",
+    "progress": "Đang tra {done} trên {total}",
+    "stop": "Dừng",
+    "finished": "Đã cập nhật {updated} trên {total} thẻ"
+  },
+  "practice": {
+    "empty": "Bỏ bộ lọc ở hộp thẻ để luyện mọi thẻ."
+  },
+  "settings": {
+    "account": "Tài khoản",
+    "signedOut": "Thẻ của bạn đang lưu trong trình duyệt này. Đăng nhập để lưu cả vào tài khoản.",
+    "appearance": "Giao diện",
+    "theme": "Màu",
+    "language": "Ngôn ngữ"
   }
 }

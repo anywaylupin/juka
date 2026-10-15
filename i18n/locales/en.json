@@ -9,14 +9,19 @@
   },
   "nav": {
     "cards": "Cards",
-    "language": "Language"
+    "language": "Language",
+    "box": "Box",
+    "practice": "Practice",
+    "progress": "Progress",
+    "settings": "Settings",
+    "skip": "Skip to content",
+    "main": "Main",
+    "home": "Juka, back to the box"
   },
   "view": {
-    "stack": "Stack",
-    "gallery": "Gallery",
-    "chart": "Chart",
-    "flipSingle": "Turning one card at a time",
-    "flipAll": "Turning cards independently"
+    "turning": "Turning cards",
+    "turnOne": "Turn one",
+    "turnMany": "Turn many"
   },
   "filter": {
     "title": "Filters",
@@ -26,7 +31,8 @@
     "unrated": "Unrated",
     "clear": "Clear",
     "clearAll": "Clear all filters",
-    "group": "Group"
+    "group": "Group",
+    "characters": "{n} character | {n} characters"
   },
   "rating": {
     "label": "How well you know it",
@@ -46,7 +52,7 @@
     }
   },
   "stack": {
-    "hint": "Arrow keys step through the deck, space turns a card over.",
+    "hint": "Tap the card to turn it over. On a keyboard, arrow keys move and space turns.",
     "practice": "Practice order",
     "practiceOn": "Dealing weaker cards more often",
     "practiceOff": "Dealing in box order",
@@ -70,7 +76,7 @@
   },
   "cards": {
     "searchPlaceholder": "Search hanzi, pinyin, or meaning",
-    "count": "{count} cards",
+    "count": "no cards | 1 card | {count} cards",
     "position": "{index} of {total}",
     "previous": "Back",
     "next": "Next",
@@ -109,10 +115,7 @@
     "notCopied": "Could not copy that",
     "translationViPlaceholder": "Meaning in Vietnamese",
     "refreshLookup": "Look it up again",
-    "notFound": "Not in the dictionary",
-    "refreshAll": "Look up {count} cards again",
-    "refreshAllConfirm": "Look up {count} cards again? Their reading, meaning and word type are replaced, including any you edited.",
-    "refreshedAll": "Updated {updated} of {total} cards"
+    "notFound": "Not in the dictionary"
   },
   "auth": {
     "title": "Keep your cards",
@@ -171,7 +174,9 @@
     "connections": "Connected accounts",
     "connect": "Connect",
     "disconnect": "Disconnect",
-    "disconnected": "{provider} disconnected"
+    "disconnected": "{provider} disconnected",
+    "saveChanges": "Save changes",
+    "settingsFor": "Settings for {username}"
   },
   "theme": {
     "title": "Theme",
@@ -221,5 +226,22 @@
     "body": "{count} cards are saved in this browser only. An account keeps them if it is cleared.",
     "later": "Remind me later",
     "never": "Do not remind me"
+  },
+  "bulk": {
+    "button": "Look up again | Look up 1 card again | Look up {count} cards again",
+    "confirm": "Nothing to look up. | This replaces the reading, meaning and word type of 1 card with the dictionary's, including any wording you edited. | This replaces the reading, meaning and word type of {count} cards with the dictionary's, including any wording you edited. It takes about a second per card.",
+    "progress": "Looking up {done} of {total}",
+    "stop": "Stop",
+    "finished": "Updated {updated} of {total} cards"
+  },
+  "practice": {
+    "empty": "Clear the filters on the box to practise every card."
+  },
+  "settings": {
+    "account": "Account",
+    "signedOut": "Your cards are kept in this browser. Sign in to keep them on an account too.",
+    "appearance": "Appearance",
+    "theme": "Colour",
+    "language": "Language"
   }
 }

@@ -46,16 +46,9 @@ const { byId } = useGroups();
 
 /** 3 by 5, the index card everyone already owns. */
 const widths = { sm: 'max-w-60', md: 'max-w-[20rem]', lg: 'max-w-104' };
-/**
- * Hanzi size by card size and word length.
- * One size for every word wrapped 面条儿 onto two lines on the stack card, so longer words step down instead.
- */
-const hanziSizes = {
-  sm: ['text-5xl', 'text-5xl', 'text-4xl', 'text-3xl'],
-  md: ['text-7xl', 'text-7xl', 'text-6xl', 'text-5xl'],
-  lg: ['text-8xl sm:text-9xl', 'text-8xl sm:text-9xl', 'text-7xl sm:text-8xl', 'text-6xl sm:text-7xl']
-};
-const hanziSize = computed(() => hanziSizes[props.size][Math.min([...props.card.hanzi].length, 4) - 1]);
+/** One 田 square per character, smaller as the word gets longer so four still fit the card. */
+const cellSizes = { sm: [64, 56, 46, 38], md: [96, 88, 72, 58], lg: [128, 120, 96, 76] };
+const cellSize = computed(() => `${cellSizes[props.size][Math.min([...props.card.hanzi].length, 4) - 1]}px`);
 const meaningSizes = { sm: 'text-base', md: 'text-xl', lg: 'text-2xl' };
 
 /**
@@ -169,8 +162,8 @@ async function copy() {
         <!-- Clipped by the card's own overflow, so it follows the corner. -->
         <span class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: posColor }" />
 
-        <p class="juka-hanzi font-hanzi leading-none whitespace-nowrap text-highlighted" :class="hanziSize">
-          {{ card.hanzi }}
+        <p class="juka-hanzi flex" lang="zh" :style="{ '--cell': cellSize }">
+          <span v-for="(character, index) in [...card.hanzi]" :key="index" class="juka-cell">{{ character }}</span>
         </p>
 
         <div v-if="cardGroups.length" class="inset-x-0 bottom-10 flex flex-wrap justify-center gap-1 px-4">
@@ -308,19 +301,20 @@ async function copy() {
 */
 .juka-card {
   background-color: var(--ui-bg);
-  border-radius: 1rem;
+  border-radius: 0.25rem;
+  /* Soft ink bleeding into the paper rather than a drawn edge. */
   box-shadow:
-    0 1px 2px color-mix(in oklab, var(--ui-text) 6%, transparent),
-    0 4px 10px -6px color-mix(in oklab, var(--ui-text) 18%, transparent),
-    inset 0 0 0 1px var(--ui-border);
+    0 0 0 1px color-mix(in oklab, var(--ui-text) 8%, transparent),
+    0 2px 6px -2px color-mix(in oklab, var(--ui-text) 10%, transparent),
+    0 12px 28px -14px color-mix(in oklab, var(--ui-text) 22%, transparent);
   transition: box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .group:hover .juka-card {
   box-shadow:
-    0 2px 4px color-mix(in oklab, var(--ui-text) 8%, transparent),
-    0 18px 36px -14px color-mix(in oklab, var(--ui-text) 28%, transparent),
-    inset 0 0 0 1px var(--ui-border-accented);
+    0 0 0 1px color-mix(in oklab, var(--ui-text) 10%, transparent),
+    0 4px 10px -4px color-mix(in oklab, var(--ui-text) 12%, transparent),
+    0 20px 40px -18px color-mix(in oklab, var(--ui-text) 28%, transparent);
 }
 
 /*

@@ -258,3 +258,152 @@ button:disabled,
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+  Ink and tangerine.
+  Calligraphy shows in the shapes rather than the fonts: a tapered brush stroke under headings and the current page, seals for the main action, ink bleed for edges.
+  The accent still comes from the theme picker, and the neutrals lean toward it.
+*/
+:root {
+  --ui-radius: 0.25rem;
+  --juka-page: color-mix(in oklab, var(--ui-primary) 5%, #eceef0);
+  --juka-seal: #c8392b;
+  --juka-grid: color-mix(in oklab, var(--ui-primary) 60%, var(--ui-bg));
+  --juka-stroke: polygon(0 45%, 3% 8%, 22% 0, 70% 14%, 97% 22%, 100% 55%, 93% 88%, 60% 80%, 18% 100%, 2% 82%);
+}
+.dark {
+  --juka-page: color-mix(in oklab, var(--ui-primary) 4%, #15171a);
+}
+body {
+  background-color: var(--juka-page);
+}
+:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  button,
+  [role='button'],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+.juka-skip {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 60;
+  padding: 0.5rem 1rem;
+  background: var(--ui-bg);
+  color: var(--ui-text-highlighted);
+  border-radius: var(--ui-radius);
+}
+.juka-skip:focus {
+  top: 1rem;
+}
+.juka-heading {
+  position: relative;
+  padding-bottom: 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--ui-text-highlighted);
+}
+.juka-heading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 4.5rem;
+  height: 0.4rem;
+  background: var(--ui-text-highlighted);
+  clip-path: var(--juka-stroke);
+}
+.juka-subheading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ui-text-highlighted);
+}
+.juka-navlink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.875rem;
+  color: var(--ui-text);
+}
+.juka-navlink-active {
+  font-weight: 800;
+  color: var(--ui-text-highlighted);
+}
+.juka-navlink-active::after {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  right: 0.4rem;
+  bottom: 0.4rem;
+  height: 0.45rem;
+  background: var(--ui-primary);
+  clip-path: var(--juka-stroke);
+}
+.juka-tab-active {
+  color: var(--ui-text-highlighted);
+  font-weight: 700;
+}
+.juka-seal {
+  display: grid;
+  place-items: center;
+  background: var(--juka-seal);
+  color: #fff;
+  font-family: var(--font-hanzi);
+  border-radius: 0.25rem;
+  box-shadow:
+    inset 0 0 0 3px var(--juka-seal),
+    inset 0 0 0 4.5px rgb(255 255 255 / 0.55);
+}
+.juka-seal-button {
+  background: var(--juka-seal);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 3px var(--juka-seal),
+    inset 0 0 0 4.5px rgb(255 255 255 / 0.55);
+}
+.juka-seal-button:hover {
+  background: color-mix(in oklab, var(--juka-seal) 88%, black);
+}
+.juka-paper {
+  background: var(--ui-bg);
+  border-radius: var(--ui-radius);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--ui-text) 8%, transparent),
+    0 12px 28px -16px color-mix(in oklab, var(--ui-text) 22%, transparent);
+}
+.juka-ink-shadow {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--ui-text) 10%, transparent),
+    0 16px 32px -14px color-mix(in oklab, var(--ui-text) 30%, transparent);
+}
+.juka-search {
+  border-bottom: 2px solid var(--ui-text-highlighted);
+}
+
+/* One 田 square per character: solid edge, dashed centre cross, the character centred in it. */
+.juka-cell {
+  width: var(--cell);
+  height: var(--cell);
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--juka-grid);
+  background:
+    repeating-linear-gradient(90deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 100% 1px no-repeat,
+    repeating-linear-gradient(180deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 1px 100% no-repeat;
+  font-family: var(--font-hanzi);
+  font-size: calc(var(--cell) * 0.8);
+  line-height: 1;
+  color: var(--ui-text-highlighted);
+}
+.juka-cell + .juka-cell {
+  border-left: 0;
+}

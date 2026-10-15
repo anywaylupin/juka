@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Rating } from '#shared/constants/rating';
 import type { CardRecord } from '#shared/types/card';
-import type { FlipMode } from '~/composables/useBoxView';
+import type { FlipMode } from '~/composables/useFlipMode';
 
 /**
  * The whole box, laid out on the table.

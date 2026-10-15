@@ -17,9 +17,6 @@ const props = defineProps<{
   /** Everything in the box, for the per-option counts. */
   cards: CardRecord[];
   groups: GroupRecord[];
-  /** Cards the current filters leave, which is what a refresh would touch. */
-  matching: number;
-  refreshing: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -30,7 +27,6 @@ const emit = defineEmits<{
   clearGroup: [group: 'ratings' | 'parts' | 'lengths' | 'groups'];
   clearAll: [];
   manageGroups: [];
-  refreshAll: [];
 }>();
 
 const { t } = useI18n();
@@ -73,7 +69,7 @@ const lengths = [1, 2, 3, 4];
   <div class="space-y-6">
     <section class="space-y-2">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
+        <h3 class="text-sm font-semibold text-highlighted">
           {{ t('filter.rating') }}
         </h3>
         <UButton
@@ -120,7 +116,7 @@ const lengths = [1, 2, 3, 4];
 
     <section class="space-y-2">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
+        <h3 class="text-sm font-semibold text-highlighted">
           {{ t('filter.group') }}
         </h3>
         <div class="flex items-center gap-1">
@@ -173,7 +169,7 @@ const lengths = [1, 2, 3, 4];
 
     <section v-if="availableParts.length" class="space-y-2">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
+        <h3 class="text-sm font-semibold text-highlighted">
           {{ t('filter.type') }}
         </h3>
         <UButton
@@ -212,7 +208,7 @@ const lengths = [1, 2, 3, 4];
 
     <section class="space-y-2">
       <header class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
+        <h3 class="text-sm font-semibold text-highlighted">
           {{ t('filter.length') }}
         </h3>
         <UButton
@@ -237,7 +233,7 @@ const lengths = [1, 2, 3, 4];
           :aria-pressed="filters.lengths.includes(length)"
           @click="emit('toggleLength', length)"
         >
-          {{ length === 4 ? '4+' : length }}字
+          {{ t('filter.characters', length === 4 ? 4 : length, { named: { n: length === 4 ? '4+' : length } }) }}
           <span class="text-xs opacity-60">{{ lengthCounts.get(length) ?? 0 }}</span>
         </UButton>
       </div>
@@ -245,18 +241,6 @@ const lengths = [1, 2, 3, 4];
 
     <UButton color="neutral" variant="soft" block icon="i-lucide-filter-x" @click="emit('clearAll')">
       {{ t('filter.clearAll') }}
-    </UButton>
-
-    <UButton
-      color="neutral"
-      variant="outline"
-      block
-      icon="i-lucide-refresh-cw"
-      :loading="refreshing"
-      :disabled="matching === 0"
-      @click="emit('refreshAll')"
-    >
-      {{ t('card.refreshAll', { count: matching }) }}
     </UButton>
   </div>
 </template>

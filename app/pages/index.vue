@@ -1,371 +1,142 @@
 <script setup lang="ts">
-import type { Rating } from '#shared/constants/rating';
-import type { CardRecord } from '#shared/types/card';
-import type { BoxView } from '~/composables/useBoxView';
-
+/**
+ * The box: every card, laid out and paged.
+ *
+ * Practice and Progress were views on this page behind three unlabelled icons; they are their own pages now, and this one does one job.
+ */
 definePageMeta({ name: 'cards' });
 
 const { t } = useI18n();
-const toast = useToast();
+useSeoMeta({ title: () => `${t('nav.box')} · Juka`, description: () => t('tagline') });
 
-useSeoMeta({
-  title: 'Juka',
-  description: () => t('tagline')
-});
-
-const route = useRoute();
-const router = useRouter();
-const session = useSession();
 const store = useCardStore();
-const groupStore = useGroups();
-const view = useBoxView();
 const flipMode = useFlipMode();
+const { results, activeCount, clearAll } = useCardFilters(store.cards);
+const { filtersOpen, bulk, openEditor, rate, remove, updateFromDictionary } = useCardActions();
 
-const { filters, results, activeCount, toggle, clearGroup, clearAll } = useCardFilters(store.cards);
-
-/*
- * The views sit in a row in the top bar, so switching between them moves along that row rather than cross fading in place.
- * The direction comes from the order of the icons: picking one further right slides the new view in from the right.
- */
-const VIEW_ORDER: BoxView[] = ['gallery', 'stack', 'chart'];
-const viewTransition = ref('juka-view-left');
-
-watch(view, (next, previous) => {
-  viewTransition.value = VIEW_ORDER.indexOf(next) > VIEW_ORDER.indexOf(previous) ? 'juka-view-left' : 'juka-view-right';
-});
-
-/*
- * Everything loads on the client.
- * Local storage is not readable on the server, and an account's cards would only have to be re-read once the session cookie resolves, so there is one load path rather than two.
- */
-const reminder = useSignInReminder();
-
-/**
- * A provider sign-in leaves the app and comes back here with a flag on the query, because a redirect cannot resolve a promise.
- * The flag is read once and then removed from the URL, so a reload does not say hello twice.
- */
-async function greetProviderReturn() {
-  const signedInWith = route.query.signedin;
-  const failedWith = route.query.autherror;
-
-  if (!signedInWith && !failedWith) {
-    return;
-  }
-
-  const provider = String(signedInWith ?? failedWith);
-  const name = provider === 'github' ? 'GitHub' : 'Google';
-
-  toast.add(
-    signedInWith
-      ? { title: t('auth.welcomeProvider', { provider: name }), icon: 'i-lucide-check', color: 'success' }
-      : { title: t('auth.providerFailed'), icon: 'i-lucide-triangle-alert', color: 'error' }
-  );
-
-  await router.replace({ query: {} });
-}
-
-onMounted(async () => {
-  await session.refresh();
-  await Promise.all([store.load(), groupStore.load()]);
-  await greetProviderReturn();
-  // Scheduled after the box is known, so the wording can count the cards at risk rather than guessing.
-  reminder.schedule();
-});
-
-/* The gallery pages; the stack walks. Both reset when the list changes. */
 const page = ref(1);
-const index = ref(0);
 const PAGE_SIZE = 12;
 
-/**
- * Practice order, weighted toward the cards you know least.
- *
- * Only the stack reads it.
- * The gallery stays in the order the box is in, because a page you can come back to has to be the same page next time.
- */
-const practice = useCookie<boolean>('juka_practice', { default: () => true, sameSite: 'lax' });
-const { ordered, reshuffle } = usePracticeOrder(
-  results,
-  computed(() => view.value === 'stack' && practice.value)
-);
-
-watch(results, (list) => {
+watch(results, () => {
   page.value = 1;
-  if (index.value >= list.length) {
-    index.value = Math.max(0, list.length - 1);
-  }
 });
 
-/* Search, debounced so filtering does not run on every keystroke. */
-const search = ref(filters.value.q);
-let timer: ReturnType<typeof setTimeout> | undefined;
+/** Overwrites wording the user edited, so it asks first and says how many cards it will touch. */
+const confirmOpen = ref(false);
 
-watch(search, (value) => {
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    filters.value = { ...filters.value, q: value };
-  }, 180);
-});
-
-onBeforeUnmount(() => clearTimeout(timer));
-
-/* Panels */
-const filtersOpen = ref(false);
-const editorOpen = ref(false);
-const groupsOpen = ref(false);
-const editing = ref<CardRecord | null>(null);
-
-function openEditor(card: CardRecord | null = null) {
-  editing.value = card;
-  editorOpen.value = true;
-}
-
-function onSaved() {
-  editorOpen.value = false;
-  editing.value = null;
-}
-
-/**
- * Looks every card the filters leave up in the dictionary again and rewrites its reading, meaning, Vietnamese and word type.
- * One request per card, in order, because the box is small and a batch route would be a second write path to keep correct.
- * Hand edits are overwritten, which is the point and why it asks first.
- */
-const refreshing = ref(false);
-const refreshConfirmOpen = ref(false);
-const { define } = useDictionary();
-
-async function refreshAll() {
-  refreshConfirmOpen.value = false;
-  const list = [...results.value];
-
-  refreshing.value = true;
-  let updated = 0;
-  try {
-    for (const card of list) {
-      const entry = await define(card.hanzi);
-      if (!entry) {
-        continue;
-      }
-      await store.update(card.id, {
-        pinyin: entry.pinyin,
-        translation: entry.gloss,
-        translationVi: entry.vi,
-        pos: entry.pos
-      });
-      updated += 1;
-    }
-    toast.add({
-      title: t('card.refreshedAll', { updated, total: list.length }),
-      icon: 'i-lucide-check',
-      color: 'success'
-    });
-  } catch {
-    toast.add({
-      title: t('card.notSaved'),
-      description: t('card.refreshedAll', { updated, total: list.length }),
-      icon: 'i-lucide-triangle-alert',
-      color: 'error'
-    });
-  } finally {
-    refreshing.value = false;
-  }
-}
-
-async function rate(card: CardRecord, rating: Rating) {
-  try {
-    await store.update(card.id, { rating });
-  } catch {
-    toast.add({ title: t('card.notSaved'), icon: 'i-lucide-triangle-alert', color: 'error' });
-  }
-}
-
-/**
- * Deleting a card offers it straight back, because this is the only destructive action in the app and a misplaced click should cost nothing.
- */
-async function remove(card: CardRecord) {
-  try {
-    await store.remove(card.id);
-    toast.add({
-      title: t('card.deleted'),
-      icon: 'i-lucide-trash-2',
-      actions: [
-        {
-          label: t('common.undo'),
-          color: 'neutral',
-          variant: 'outline',
-          onClick: async () => {
-            try {
-              await store.restore(card);
-            } catch {
-              toast.add({ title: t('card.notRestored'), icon: 'i-lucide-triangle-alert', color: 'error' });
-            }
-          }
-        }
-      ]
-    });
-  } catch {
-    toast.add({ title: t('card.notDeleted'), icon: 'i-lucide-triangle-alert', color: 'error' });
-  }
+function startUpdate() {
+  confirmOpen.value = false;
+  updateFromDictionary([...results.value]);
 }
 </script>
 
 <template>
-  <div>
-    <AppHeader
-      v-model:view="view"
-      v-model:search="search"
-      v-model:flip-mode="flipMode"
-      :filter-count="activeCount"
-      :matches="results.length"
-      @open-filters="filtersOpen = true"
-      @add="openEditor()"
-    />
+  <div class="space-y-5">
+    <div class="flex flex-wrap items-end gap-x-4 gap-y-3">
+      <h1 class="juka-heading mr-auto">
+        {{ t('nav.box') }}
+        <span class="ml-1 text-base font-normal text-muted tabular-nums">{{ t('cards.count', results.length) }}</span>
+      </h1>
 
-    <!--
-      The loading bar sits under the top bar rather than in the page, so nothing moves when it goes.
-      It is indeterminate on purpose: local storage and a keyset page both finish too fast to measure, and a bar that jumps straight to full is a worse lie than one that simply moves.
-    -->
-    <div
-      class="fixed inset-x-0 top-0 z-50 h-0.5 overflow-hidden"
-      role="status"
-      :aria-label="store.loaded.value ? '' : t('cards.loading')"
-    >
-      <div v-if="!store.loaded.value && !store.failed.value" class="juka-loading-bar h-full" />
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Testing yourself wants one card face up at a time; reading back wants many. -->
+        <UFieldGroup :aria-label="t('view.turning')">
+          <UButton
+            :color="flipMode === 'single' ? 'primary' : 'neutral'"
+            :variant="flipMode === 'single' ? 'solid' : 'outline'"
+            :aria-pressed="flipMode === 'single'"
+            @click="flipMode = 'single'"
+          >
+            {{ t('view.turnOne') }}
+          </UButton>
+          <UButton
+            :color="flipMode === 'all' ? 'primary' : 'neutral'"
+            :variant="flipMode === 'all' ? 'solid' : 'outline'"
+            :aria-pressed="flipMode === 'all'"
+            @click="flipMode = 'all'"
+          >
+            {{ t('view.turnMany') }}
+          </UButton>
+        </UFieldGroup>
+
+        <UButton color="neutral" variant="outline" icon="i-lucide-sliders-horizontal" @click="filtersOpen = true">
+          {{ t('filter.title') }}
+          <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
+        </UButton>
+
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-refresh-cw"
+          :disabled="results.length === 0 || bulk.running"
+          @click="confirmOpen = true"
+        >
+          {{ t('bulk.button', results.length) }}
+        </UButton>
+      </div>
     </div>
 
-    <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
-      <!--
-        Failure, waiting and an empty box sit outside the view transition on purpose.
-        They are not views, sliding a skeleton grid sideways says nothing, and putting them inside meant the cards could not appear until an animation had finished: `out-in` holds the incoming content back until the outgoing leave ends, and a tab that is not being painted never ends one.
-      -->
-      <UAlert
-        v-if="store.failed.value"
-        color="error"
-        variant="subtle"
-        icon="i-lucide-triangle-alert"
-        :title="t('cards.failed')"
-        :description="t('cards.failedHint')"
-        :actions="[{ label: t('common.retry'), color: 'error', variant: 'soft', onClick: () => store.load() }]"
-      />
+    <UAlert
+      v-if="store.failed.value"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="t('cards.failed')"
+      :description="t('cards.failedHint')"
+      :actions="[{ label: t('common.retry'), color: 'error', variant: 'soft', onClick: () => store.load() }]"
+    />
 
-      <!--
-        Skeletons in the shape of the thing that is coming, not grey boxes of some other size, so the page does not jump when the cards land.
-      -->
-      <div v-else-if="!store.loaded.value" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <div
-          v-for="placeholder in 8"
-          :key="placeholder"
-          class="juka-skeleton-card rounded-2xl"
-          :style="{ '--juka-stagger': `${placeholder * 90}ms` }"
-        />
-      </div>
-
+    <div v-else-if="!store.loaded.value" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <div
-        v-else-if="results.length === 0"
-        class="mx-auto max-w-md rounded-2xl bg-default p-10 text-center ring ring-default"
+        v-for="placeholder in 8"
+        :key="placeholder"
+        class="juka-skeleton-card rounded-sm"
+        :style="{ '--juka-stagger': `${placeholder * 90}ms` }"
+      />
+    </div>
+
+    <div v-else-if="results.length === 0" class="juka-paper mx-auto max-w-md p-10 text-center">
+      <p class="font-hanzi text-5xl text-muted" lang="zh">空</p>
+      <h2 class="mt-3 font-semibold text-highlighted">
+        {{ activeCount > 0 ? t('cards.noMatches') : t('cards.empty') }}
+      </h2>
+      <p class="mt-1 text-sm text-muted">
+        {{ activeCount > 0 ? t('cards.noMatchesHint') : t('cards.emptyHint') }}
+      </p>
+      <UButton
+        v-if="activeCount > 0"
+        class="mt-5"
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-filter-x"
+        @click="clearAll"
       >
-        <p class="font-hanzi text-5xl text-muted"> 空 </p>
-        <p class="mt-3 font-semibold text-highlighted">
-          {{ activeCount > 0 ? t('cards.noMatches') : t('cards.empty') }}
-        </p>
-        <p class="mt-1 text-sm text-muted">
-          {{ activeCount > 0 ? t('cards.noMatchesHint') : t('cards.emptyHint') }}
-        </p>
-        <UButton
-          v-if="activeCount > 0"
-          class="mt-5"
-          color="neutral"
-          variant="soft"
-          icon="i-lucide-filter-x"
-          @click="clearAll"
-        >
-          {{ t('filter.clearAll') }}
-        </UButton>
-        <UButton v-else class="mt-5" color="primary" size="lg" icon="i-lucide-plus" @click="openEditor()">
-          {{ t('card.add') }}
-        </UButton>
-      </div>
+        {{ t('filter.clearAll') }}
+      </UButton>
+      <UButton v-else class="juka-seal-button mt-5" size="lg" icon="i-lucide-plus" @click="openEditor()">
+        {{ t('card.add') }}
+      </UButton>
+    </div>
 
-      <!--
-        The three views, and only the three views.
-        They sit in a row in the top bar, so moving between them slides along that row.
-      -->
-      <Transition v-else :name="viewTransition" mode="out-in">
-        <CardGallery
-          v-if="view === 'gallery'"
-          key="gallery"
-          v-model:page="page"
-          :cards="results"
-          :page-size="PAGE_SIZE"
-          :flip-mode="flipMode"
-          @edit="openEditor"
-          @remove="remove"
-          @rate="rate"
-        />
+    <CardGallery
+      v-else
+      v-model:page="page"
+      :cards="results"
+      :page-size="PAGE_SIZE"
+      :flip-mode="flipMode"
+      @edit="openEditor"
+      @remove="remove"
+      @rate="rate"
+    />
 
-        <CardStack
-          v-else-if="view === 'stack'"
-          key="stack"
-          v-model="index"
-          v-model:practice="practice"
-          :cards="ordered"
-          @reshuffle="reshuffle"
-          @edit="openEditor"
-          @remove="remove"
-          @rate="rate"
-        />
-
-        <CardChart v-else key="chart" :cards="results" :groups="groupStore.groups.value" />
-      </Transition>
-    </main>
-
-    <USlideover v-model:open="filtersOpen" :title="t('filter.title')" side="right">
+    <UModal v-model:open="confirmOpen" :title="t('bulk.button', results.length)">
       <template #body>
-        <FilterDrawer
-          :filters="filters"
-          :cards="store.cards.value"
-          :groups="groupStore.groups.value"
-          :matching="results.length"
-          :refreshing="refreshing"
-          @toggle-rating="toggle('ratings', $event)"
-          @toggle-part="toggle('parts', $event)"
-          @toggle-length="toggle('lengths', $event)"
-          @toggle-group="toggle('groups', $event)"
-          @clear-group="clearGroup"
-          @clear-all="clearAll"
-          @manage-groups="groupsOpen = true"
-          @refresh-all="refreshConfirmOpen = true"
-        />
-      </template>
-    </USlideover>
-
-    <UModal v-model:open="groupsOpen" :title="t('group.manage')" :description="t('group.manageHint')">
-      <template #body>
-        <GroupManager />
-      </template>
-    </UModal>
-
-    <UModal
-      v-model:open="editorOpen"
-      :title="editing ? t('card.edit') : t('card.add')"
-      :description="editing ? undefined : t('card.addHint')"
-    >
-      <template #body>
-        <CardEditor :card="editing" @saved="onSaved" @cancel="editorOpen = false" />
-      </template>
-    </UModal>
-    <UModal v-model:open="refreshConfirmOpen" :title="t('card.refreshAll', { count: results.length })">
-      <template #body>
-        <p class="text-sm text-muted">{{ t('card.refreshAllConfirm', { count: results.length }) }}</p>
+        <p class="text-sm text-muted">{{ t('bulk.confirm', results.length) }}</p>
       </template>
       <template #footer>
         <div class="flex w-full justify-end gap-2">
-          <UButton color="neutral" variant="ghost" @click="refreshConfirmOpen = false">{{
-            t('common.cancel')
-          }}</UButton>
-          <UButton color="primary" icon="i-lucide-refresh-cw" :loading="refreshing" @click="refreshAll">
-            {{ t('card.refreshAll', { count: results.length }) }}
-          </UButton>
+          <UButton color="neutral" variant="ghost" @click="confirmOpen = false">{{ t('common.cancel') }}</UButton>
+          <UButton icon="i-lucide-refresh-cw" @click="startUpdate">{{ t('bulk.button', results.length) }}</UButton>
         </div>
       </template>
     </UModal>
