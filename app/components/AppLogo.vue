@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
- * The mark: 橘 written on a mandarin.
+ * The mark: 卡, card, the second half of 橘卡, cut as a red seal.
  *
- * The fruit is `public/mandarin.svg`, generated from the icon set by `scripts/build-favicon.ts`, and the character is text in the brush font, so it stays crisp at any size.
- * The favicon is the same picture with the character baked in, because a favicon cannot load a font.
+ * The block is a little wider than tall, close to square without being one.
+ * `public/favicon.svg` is the same seal, written by `scripts/build-favicon.ts`.
  */
 </script>
 
 <template>
-  <span class="juka-logo" aria-hidden="true">橘</span>
+  <span class="juka-logo" aria-hidden="true">卡</span>
 </template>

@@ -4,7 +4,7 @@
  *
  * A rail of icons at rest, widening to show the words on hover or keyboard focus.
  * It widens over the table rather than beside it, so the cards never reflow under the pointer on the way to a link.
- * The add button and search stay at the top of it, because they are what you reach for most.
+ * The add button stays at the top of it; search lives on the table, with the cards it narrows.
  */
 defineProps<{
   tabs: Array<{ to: string; label: string; icon: string }>;
@@ -19,14 +19,14 @@ const { openEditor, filtersOpen } = useCardActions();
 <template>
   <nav class="juka-rail" :aria-label="t('nav.main')">
     <NuxtLink :to="localePath('/')" class="flex items-center gap-2 rounded-sm px-1" :aria-label="t('nav.home')">
-      <AppLogo class="size-10 text-xl" />
+      <AppLogo class="h-9 text-2xl" />
       <span class="juka-rail-label font-[family-name:var(--font-display)] text-xl font-bold text-highlighted"
         >Juka</span
       >
     </NuxtLink>
 
     <UButton
-      class="juka-seal-button justify-start px-3 whitespace-nowrap"
+      class="juka-seal-button justify-start px-3.5 whitespace-nowrap"
       icon="i-lucide-plus"
       size="lg"
       block
@@ -34,8 +34,6 @@ const { openEditor, filtersOpen } = useCardActions();
     >
       <span class="juka-rail-label">{{ t('card.add') }}</span>
     </UButton>
-
-    <SearchField class="w-full" />
 
     <div class="flex flex-col gap-1">
       <NuxtLink

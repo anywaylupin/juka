@@ -9,7 +9,7 @@
  *
  * - **Never while signed in.** There is nothing to remind anyone of.
  * - **Never twice in a week**, unless the user asked to be reminded later.
- * - **Never again once they say so.** A choice that is not honoured is not a choice, and this is the kind of prompt people learn to resent.
+ * - **Never again once they say so.** A choice that is not honored is not a choice, and this is the kind of prompt people learn to resent.
  *
  * First visit is the exception to the second rule: it fires with no cards, because that is the moment to explain where cards are about to be kept.
  */

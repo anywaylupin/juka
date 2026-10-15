@@ -28,7 +28,7 @@ watch(
   <div class="flex justify-center lg:h-full lg:items-center">
     <div class="juka-paper w-full max-w-md p-6">
       <div class="mb-4 flex items-center gap-3">
-        <AppLogo class="size-14 text-3xl" />
+        <AppLogo class="h-12 text-3xl" />
         <div>
           <h1 class="font-[family-name:var(--font-display)] text-2xl font-bold text-highlighted">{{
             t('auth.title')

@@ -2,6 +2,7 @@
 import { partOfSpeechColor } from '#shared/constants/pos';
 import type { Rating } from '#shared/constants/rating';
 import type { CardRecord, GroupRecord } from '#shared/types/card';
+import { tonesOf } from '#shared/utils/pinyin';
 
 /**
  * One card, front and back.
@@ -44,14 +45,35 @@ const toast = useToast();
 const { speak, speaking } = useSpeech();
 const { byId } = useGroups();
 const { labelFor } = useRatingLabels();
+const { style: cardStyle } = useCardStyle();
 
 /** 3 by 5, the index card everyone already owns. */
-const widths = { sm: 'max-w-60', md: 'max-w-[20rem]', lg: 'max-w-[36rem]' };
+/** The gallery card fills its grid column, so it grows with the screen; the grid caps it at four across. */
+const widths = { sm: 'max-w-60', md: '', lg: 'max-w-[36rem]' };
 /** One 田 square per character, smaller as the word gets longer so four still fit the card. */
-const cellSizes = { sm: [64, 56, 46, 38], md: [96, 88, 72, 58], lg: [168, 150, 120, 96] };
-const cellSize = computed(() => `${cellSizes[props.size][Math.min([...props.card.hanzi].length, 4) - 1]}px`);
+const cellSizes = { sm: [64, 56, 46, 38], md: [120, 108, 88, 70], lg: [168, 150, 120, 96] };
+const cellSize = computed(
+  () => `${(cellSizes[props.size][Math.min([...props.card.hanzi].length, 4) - 1] ?? 0) * cardStyle.value.size}px`
+);
+
+/**
+ * The usual teaching colors for the four tones and the neutral one, applied per character when the setting is on.
+ * Off by default: color on the card is otherwise kept for the rating, and tones are a study aid someone chooses.
+ */
+const TONE_COLORS = { 1: '#d6322b', 2: '#e08a00', 3: '#2e9153', 4: '#2f6fd0', 5: 'var(--ui-text-muted)' } as const;
+
+/** One entry per character: the character and, with tones on, its color. A reading that does not line up colors nothing. */
+const characters = computed(() => {
+  const chars = [...props.card.hanzi];
+  const tones = cardStyle.value.tones ? tonesOf(props.card.pinyin) : [];
+  const aligned = tones.length === chars.length;
+  return chars.map((character, index) => ({
+    character,
+    color: aligned ? TONE_COLORS[tones[index] ?? 5] : undefined
+  }));
+});
 /** The answer is the payoff of every turn, so it is sized like the word on the front rather than like a caption. */
-const meaningSizes = { sm: 'text-xl', md: 'text-3xl', lg: 'text-5xl' };
+const meaningSizes = { sm: 'text-lg', md: 'text-2xl', lg: 'text-4xl' };
 const pinyinSizes = { sm: 'text-sm', md: 'text-lg', lg: 'text-2xl' };
 
 /**
@@ -171,9 +193,17 @@ async function copy() {
         <p
           class="juka-hanzi flex"
           lang="zh"
+          :data-grid="cardStyle.grid"
+          :data-font="cardStyle.font"
           :style="{ '--cell': cellSize, '--n': Math.min([...card.hanzi].length, 4) }"
         >
-          <span v-for="(character, index) in [...card.hanzi]" :key="index" class="juka-cell">{{ character }}</span>
+          <span
+            v-for="(entry, index) in characters"
+            :key="index"
+            class="juka-cell"
+            :style="entry.color ? { color: entry.color } : undefined"
+            >{{ entry.character }}</span
+          >
         </p>
 
         <div v-if="cardGroups.length" class="inset-x-0 bottom-10 flex flex-wrap justify-center gap-1 px-4">

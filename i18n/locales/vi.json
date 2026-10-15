@@ -247,5 +247,20 @@
     "appearance": "Giao diện",
     "theme": "Màu",
     "language": "Ngôn ngữ"
+  },
+  "style": {
+    "title": "Mặt thẻ",
+    "font": "Kiểu chữ",
+    "kai": "Khải",
+    "song": "Tống",
+    "hei": "Hắc",
+    "grid": "Ô luyện chữ",
+    "gridTian": "Điền",
+    "gridMi": "Mễ",
+    "gridBox": "Ô vuông",
+    "gridNone": "Không",
+    "size": "Cỡ chữ",
+    "tones": "Màu thanh điệu",
+    "tonesHint": "Tô màu mỗi chữ theo thanh điệu"
   }
 }

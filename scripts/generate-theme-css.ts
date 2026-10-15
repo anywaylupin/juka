@@ -128,7 +128,7 @@ function buildScale(hex: string): Record<number, string> {
 const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
 /**
- * A warm neutral rather than stock grey, which reads cold next to every accent in this set.
+ * A warm neutral rather than stock gray, which reads cold next to every accent in this set.
  * One ramp, shared by every theme, light and dark.
  */
 const NEUTRAL = buildScale('#8c7f76');
@@ -159,7 +159,7 @@ async function main() {
       ''
     );
   }
-  lines.push('  /* Shared neutral. Warm, never stock grey. */', scaleBlock('--color-taupe', NEUTRAL), '}', '');
+  lines.push('  /* Shared neutral. Warm, never stock gray. */', scaleBlock('--color-taupe', NEUTRAL), '}', '');
 
   /*
    * Nuxt UI reads --ui-color-primary-* and --ui-color-neutral-*, so switching a theme is a matter of re-pointing the accent.

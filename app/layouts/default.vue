@@ -19,6 +19,9 @@ const groupStore = useGroups();
 const reminder = useSignInReminder();
 const { editing, editorOpen, filtersOpen, groupsOpen, bulk, stopUpdate } = useCardActions();
 
+/** Search narrows cards, so it is offered only on the pages that show them. */
+const showSearch = computed(() => !/\/(settings|reset|login)$/.test(route.path));
+
 const tabs = computed(() => [
   { to: localePath('/'), label: t('nav.box'), icon: 'i-lucide-layout-grid' },
   { to: localePath('/practice'), label: t('nav.practice'), icon: 'i-lucide-layers' },
@@ -59,7 +62,7 @@ function onSaved() {
 </script>
 
 <template>
-  <div class="min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:bg-default">
+  <div class="juka-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:bg-default">
     <a href="#main" class="juka-skip">{{ t('nav.skip') }}</a>
 
     <!-- The rail holds its 4.5rem column; the sidebar inside it widens over the table rather than pushing it. -->
@@ -67,17 +70,26 @@ function onSaved() {
       <AppSidebar :tabs="tabs" />
     </div>
 
-    <div class="flex min-h-dvh flex-col lg:min-h-0 lg:py-3 lg:pr-3">
+    <div class="relative flex min-h-dvh flex-col lg:min-h-0 lg:py-3 lg:pr-3">
       <AppHeader :tabs="tabs" class="lg:hidden" />
+
+      <!--
+        The table is drawn as its own layer under the content, so when the sidebar opens the table's rounded edge slides right with it and the sidebar reads as part of the frame rather than a sheet over it.
+        The content does not move: its gutter is wider than the slide.
+      -->
+      <div class="juka-table-surface hidden lg:block" aria-hidden="true" />
 
       <main
         id="main"
         tabindex="-1"
-        class="juka-table w-full flex-1 px-4 pt-6 pb-28 outline-none sm:px-6 lg:overflow-y-auto lg:px-[11rem] lg:pb-8"
+        class="juka-table relative flex w-full flex-1 flex-col px-4 pt-6 pb-28 outline-none sm:px-6 lg:overflow-y-auto lg:px-[12rem] lg:pb-8"
       >
         <!--
-          The open sidebar reaches 10.5rem into the table, so the content keeps an 11rem gutter on both sides: clear of it, and still centred.
+          The open sidebar reaches 10.5rem into the table, so the content keeps a 12rem gutter on both sides: clear of it with room to spare, and still centered.
+          A flex column, so a page can fill it and push its pager to the foot.
+          Search sits on the table above the cards it narrows; on a phone the top bar carries it.
         -->
+        <SearchField v-if="showSearch" class="mb-6 hidden w-full shrink-0 lg:flex" />
         <slot />
       </main>
     </div>
@@ -131,7 +143,12 @@ function onSaved() {
       </NuxtLink>
     </nav>
 
-    <USlideover v-model:open="filtersOpen" side="right" :title="t('dock.title')" :ui="JUKA_PANEL">
+    <USlideover
+      v-model:open="filtersOpen"
+      side="right"
+      :title="t('dock.title')"
+      :ui="{ ...JUKA_PANEL, body: 'flex min-h-0 flex-1 flex-col overflow-hidden p-0 sm:p-0' }"
+    >
       <template #body>
         <AppDock />
       </template>

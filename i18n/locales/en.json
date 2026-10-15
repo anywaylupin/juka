@@ -239,13 +239,28 @@
     "finished": "Updated {updated} of {total} cards"
   },
   "practice": {
-    "empty": "Clear the filters on the box to practise every card."
+    "empty": "Clear the filters on the box to practice every card."
   },
   "settings": {
     "account": "Account",
     "signedOut": "Your cards are kept in this browser. Sign in to keep them on an account too.",
     "appearance": "Appearance",
-    "theme": "Colour",
+    "theme": "Color",
     "language": "Language"
+  },
+  "style": {
+    "title": "Card face",
+    "font": "Hand",
+    "kai": "Kai",
+    "song": "Song",
+    "hei": "Hei",
+    "grid": "Practice grid",
+    "gridTian": "Tian",
+    "gridMi": "Mi",
+    "gridBox": "Box",
+    "gridNone": "None",
+    "size": "Character size",
+    "tones": "Tone colors",
+    "tonesHint": "Color each character by its tone"
   }
 }

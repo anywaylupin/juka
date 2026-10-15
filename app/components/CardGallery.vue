@@ -87,8 +87,12 @@ function setFlipped(card: CardRecord, value: boolean) {
 </script>
 
 <template>
-  <div class="space-y-6 lg:pb-20">
-    <TransitionGroup tag="div" name="juka-card" class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
+  <div class="flex flex-1 flex-col gap-6">
+    <TransitionGroup
+      tag="div"
+      name="juka-card"
+      class="grid grid-cols-[repeat(auto-fill,minmax(max(15rem,calc((100%-3rem)/4)),1fr))] gap-4"
+    >
       <CardFace
         v-for="(card, position) in visible"
         :key="card.id"
@@ -105,12 +109,12 @@ function setFlipped(card: CardRecord, value: boolean) {
 
     <!--
       UPagination carries its own previous and next arrows, so there are no extra ones around it.
-      It sticks to the foot of the table as the cards scroll, above the tab bar on a phone.
+      It sits at the foot of the table even when a page has fewer than three rows, and sticks there as the cards scroll, above the tab bar on a phone.
       Pages are ink chops and the current one is the red seal, with the page written the way a Chinese book numbers it beside them.
     -->
     <nav
       v-if="pageCount > 1"
-      class="juka-pages sticky bottom-20 z-20 mx-auto flex w-fit items-center gap-3 lg:bottom-2"
+      class="juka-pages sticky bottom-20 z-20 mx-auto mt-auto flex w-fit items-center gap-3 lg:bottom-2"
       :aria-label="t('cards.pagination')"
     >
       <UPagination

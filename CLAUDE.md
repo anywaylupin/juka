@@ -137,21 +137,21 @@ words), and a gloss shared by more than 120 words is a grammatical note rather t
 against real output: caps of 12 and 40 each threw away "happy" and "beautiful" for being too popular, which is the
 opposite of the intent.
 
-**The licences differ from the app's.** CC-CEDICT is CC BY-SA 4.0, which is ShareAlike, so everything in `public/dict`
-is CC BY-SA and not MIT. The notice in `public/dict/LICENCE.txt` must not be dropped.
+**The licenses differ from the app's.** CC-CEDICT is CC BY-SA 4.0, which is ShareAlike, so everything in `public/dict`
+is CC BY-SA and not MIT. The notice in `public/dict/LICENSE.txt` must not be dropped.
 
 ### Vietnamese meanings
 
 **Looked up, not translated.** 教师 is giáo viên on the card, and nothing asks a model at any point.
 
 There is no Chinese to Vietnamese dictionary that can be licensed and is any good, which is written up in
-`docs/licences.md` and was true when a model was doing this job instead. What there is, is a Vietnamese dictionary of
+`docs/licenses.md` and was true when a model was doing this job instead. What there is, is a Vietnamese dictionary of
 English: Vietnamese Wiktionary's English section, 101,470 head words. CC-CEDICT gives every card an English gloss, so
 the gloss is the pivot. teacher is defined as giáo viên, and 教师 gets giáo viên.
 
 It reaches **41% of the dictionary and 64.3% of common words**, which is the half that matters, because a learner's box
 is made of common words. Three guards keep it honest, each added against real output, and they are documented with their
-counterexamples in `docs/licences.md`.
+counterexamples in `docs/licenses.md`.
 
 Both languages are written into the card when it is saved, so switching the interface to Vietnamese changes what a card
 says with no request and no wait. Where the pivot found nothing the English stands, which is worse than a Vietnamese
@@ -222,7 +222,7 @@ The audio language is hardcoded `zh-CN`. It is not a user setting and it is not 
 ## Han-Viet
 
 The differentiating feature. Every hanzi has a Sino-Vietnamese reading (就 is tựu, 学 is học, 时间 is thời gian). A
-Vietnamese learner already knows thousands of these without realising they map to Chinese characters.
+Vietnamese learner already knows thousands of these without realizing they map to Chinese characters.
 
 **Nothing shows it at the moment, at the author's request.** A card in Vietnamese should read like a dictionary entry:
 the word, how to say it, what it means. The Sino-Vietnamese reading is a third thing on a card that has room for two,
@@ -234,7 +234,7 @@ does, it belongs on the back of the card beside the pinyin and **only when the l
 existed in the header and was removed, because for an English reader it revealed a column with no data in it.
 
 The mapping comes from **Unihan's `kVietnamese`** field, built into the dictionary so a card gets its reading at the
-same moment it gets its meaning. The licence is recorded in `docs/licences.md`.
+same moment it gets its meaning. The license is recorded in `docs/licenses.md`.
 
 **It covers 52% of the dictionary, and the gap is not the rare words.** Unicode marks `kVietnamese` provisional, and it
 has no entry for characters as common as 时, 就, 很, 咖 and 啡. So 学习 resolves to học tập and 时间 resolves to
@@ -244,7 +244,7 @@ A word gets a reading only when **every** character resolves. A partial reading 
 which half to trust. Where there is no reading the field is left blank and stays editable, which is the only field on
 the card a Vietnamese reader may still have to write by hand.
 
-Two other sources were measured and rejected, and the numbers are in `docs/licences.md` so nobody re-runs that search.
+Two other sources were measured and rejected, and the numbers are in `docs/licenses.md` so nobody re-runs that search.
 Do not scrape.
 
 ## Themes
@@ -276,14 +276,14 @@ Implementation:
 
 - **A theme sets the accent and nothing else.** Surfaces, borders and text come from Nuxt UI's defaults. An earlier
   version generated fifteen semantic tokens per theme, which meant twelve hand tuned palettes to keep in balance.
-- **The page is ink wash, not plain white.** `--juka-page` in `main.css` tints a cool paper grey (light) or ink grey
+- **The page is ink wash, not plain white.** `--juka-page` in `main.css` tints a cool paper gray (light) or ink gray
   (dark) with a few percent of the accent, and cards sit on it in `--ui-bg`. A reading mode still names its own paper
   color through `ThemeDefinition.page`.
 - **Color mode follows the theme.** The color mode module restores its own value from local storage after hydration,
   which could leave a dark theme rendering light, so `useJukaTheme` applies the theme's mode again on `onNuxtReady`.
 - Generated into `app/assets/css/themes.css`. Edit `shared/constants/themes.ts` and run
   `node scripts/generate-theme-css.ts`.
-- Neutral is one warm taupe shared by every theme. Never stock grey.
+- Neutral is one warm taupe shared by every theme. Never stock gray.
 - The cookie is the source of truth for rendering, because it is the only thing readable during SSR. A signed in account
   mirrors it so the choice follows you to another browser.
 
@@ -316,12 +316,17 @@ made problems hard to place, because a wrong border could have come from the the
 
 The metaphor is a real box of index cards, and the layout is built around that rather than around a dashboard:
 
-- **A rail, a table and a drawer.** On a wide screen `AppSidebar` is a 4.5rem rail of icons (logo, add card, search, Box
-  `/`, Practice `/practice`, Progress `/progress`, filters and settings, Profile `/settings`, Sign in `/login`) that
-  widens to 15rem on hover or focus **over** the table, so the cards never reflow. The table keeps an 11rem gutter on
-  both sides, so the open sidebar never covers a card and the content stays centred, and the card grid fills columns of
-  at least 17rem rather than following viewport breakpoints. `AppDock` is a drawer from the right, closed until asked
-  for, with centred Filters and Settings tabs (how cards turn, language, theme, as rows of segmented choices). The cards
+- **A rail, a table and a drawer.** On a wide screen `AppSidebar` is a 4.5rem rail of icons (logo, add card, Box `/`,
+  Practice `/practice`, Progress `/progress`, filters and settings, Profile `/settings`, Sign in `/login`) that widens
+  to 15rem on hover or focus while the table's rounded edge (`juka-table-surface`, a layer under the content) slides
+  right with it, so the sidebar grows out of the frame rather than lying over it as a sheet, and the cards never reflow.
+  The table keeps an 11rem gutter on both sides, so the open sidebar never covers a card and the content stays centered,
+  the card grid fills at most four columns of at least 15rem, so a page is four by three on a wide screen and each card
+  grows with the room, and the pager sits at the foot of the table even on a short page. Search sits at the top of the
+  table, not in the sidebar, which is for navigation. `AppDock` is a drawer from the right, closed until asked for, with
+  centered Filters and Settings tabs (the card face: hand kai, song or hei, practice grid 田, 米, box or none, character
+  size, opt-in tone colors; then how cards turn, language and theme, as icon-led rows of segmented choices; the card
+  face lives in `useCardStyle`, a cookie like the flip mode, so the server renders cards as they will look). The cards
   lie between on `juka-table`, the ink wash sunk like the inside of a card box. On a phone the rail becomes `AppHeader`
   plus a tab bar at the bottom. The profile holds the account, rating names and groups. Signing in is the `/login` page,
   not a dialog, with the submit and provider buttons in one column; the forgotten password link is off for now, though
@@ -371,10 +376,10 @@ The metaphor is a real box of index cards, and the layout is built around that r
 - **Filters are grouped**, not one long rail: how well you know it, word type, and length. Each group is multi-select
   with per-option counts, so a filter that would empty the box says so before it is pressed.
 - **One add button in the app**, at the top of the sidebar (the top bar on a phone).
-- Icons come from the installed sets. Never hand write path data. The logo is 橘 written on a mandarin:
-  `scripts/build-favicon.ts` fills icon-park's `orange` and writes `public/mandarin.svg` (the fruit, under `AppLogo`'s
-  brush-font character) and `public/favicon.svg` (the same with the character baked in as text). The language picker
-  uses `circle-flags`.
+- Icons come from the installed sets. Never hand write path data. The logo is 卡, card, the second half of 橘卡, cut as
+  a red seal a little wider than tall: `AppLogo` draws it in CSS with the brush font, and `scripts/build-favicon.ts`
+  writes the same seal to `public/favicon.svg` with the character as text in the system's kai face, because a favicon
+  cannot load a web font. The language buttons use `circle-flags`, the US flag for English.
 
 ## Build order
 
@@ -395,7 +400,7 @@ The metaphor is a real box of index cards, and the layout is built around that r
 12. ~~Rating as five mandarins, replacing the four named statuses.~~ Done.
 13. ~~Card box and stack views, drag gestures, grouped filters.~~ Done.
 14. ~~Accounts, and local storage for signed out use with a merge on sign-in.~~ Done, migration 0006.
-15. ~~Groups, customisable rating names, gallery and chart views, synonyms, Vietnamese meanings.~~ Done, migration 0007.
+15. ~~Groups, customizable rating names, gallery and chart views, synonyms, Vietnamese meanings.~~ Done, migration 0007.
 16. hanzi-writer stroke animation on the card face. **Not started, and it needs a decision first:** `hanzi-writer-data`
     ships about 9,000 JSON files. Bundling them all through Vite is not viable, and the brief forbids a CDN, so the data
     has to be vendored into `public/` by a build step or narrowed to the characters actually in use.
@@ -429,7 +434,7 @@ Keep Notion running in parallel until the app has been used daily for two weeks.
   signing out safe.
 - **The dictionary is generated and vendored.** `public/dict` is written by `node scripts/build-dictionary.ts` and
   committed, so a fresh clone works with no build step and no network. It is CC BY-SA, not MIT: see
-  `public/dict/LICENCE.txt`.
+  `public/dict/LICENSE.txt`.
 - **Cards carry both meanings.** English from CC-CEDICT, Vietnamese pivoted through the English gloss into Vietnamese
   Wiktionary's English section, both written at save time. The card face reads `translationVi` under the `vi` locale and
   falls back to the English.

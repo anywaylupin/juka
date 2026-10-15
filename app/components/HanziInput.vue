@@ -61,7 +61,7 @@ watch(draft, (value) => {
   }
 
   // Anything else is pinyin in progress.
-  // The bound value stays empty rather than holding half a romanisation, so a half typed card can never be saved.
+  // The bound value stays empty rather than holding half a romanization, so a half typed card can never be saved.
   emit('update:modelValue', '');
 
   if (!trimmed) {

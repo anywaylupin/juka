@@ -1,4 +1,4 @@
-# Licences
+# Licenses
 
 Third party data and assets used by Juka, and what each one requires of us. Verified against the installed packages on
 2026-09-16.
@@ -21,7 +21,7 @@ The data traces back through two works:
 
 The Arphic Public License expects an attribution notice to travel with the work, so **the README carries this notice and
 it must not be dropped**. The data is vendored through the npm package and bundled, never loaded from a CDN, which is
-also what the brief requires for reasons of offline behaviour.
+also what the brief requires for reasons of offline behavior.
 
 ### pinyin-pro 3.29.4
 
@@ -34,16 +34,16 @@ Worth re-checking if the dependency is ever upgraded.
 
 ### CC-CEDICT, the bundled dictionary
 
-**CC BY-SA 4.0.** This is the one licence in the project that is not permissive, and it needs care.
+**CC BY-SA 4.0.** This is the one license in the project that is not permissive, and it needs care.
 
 CC-CEDICT supplies the readings and English definitions in `public/dict`, which is what lets the hanzi field accept
 pinyin. It is published by MDBG and derives from CEDICT, copyright 1997, 1998 Paul Andrew Denisowski.
 
-ShareAlike means an adaptation must carry the same licence. `public/dict` is an adaptation: joined with jieba, filtered,
+ShareAlike means an adaptation must carry the same license. `public/dict` is an adaptation: joined with jieba, filtered,
 re-ranked and reshaped by `scripts/build-dictionary.ts`. So:
 
 - **The files in `public/dict` are CC BY-SA 4.0, not MIT.** The rest of the app stays MIT; the data directory does not.
-- `public/dict/LICENCE.txt` carries the notice and is written by the build script. It must not be dropped, and the
+- `public/dict/LICENSE.txt` carries the notice and is written by the build script. It must not be dropped, and the
   README attribution section names both sources.
 - This does not affect the application code. The data is aggregated alongside it, not compiled into it.
 
@@ -65,8 +65,8 @@ Supplies the Han-Viet reading on a card, from the `kVietnamese` field of the Uni
 recorded against traditional characters, so `kTraditionalVariant` is used as a bridge to the simplified forms this app
 stores; without that step 学习 resolves to nothing, and with it, to học tập.
 
-The licence is permissive and requires the copyright and permission notice to travel with the data. The notice is in
-`public/dict/LICENCE.txt`, which the build script writes.
+The license is permissive and requires the copyright and permission notice to travel with the data. The notice is in
+`public/dict/LICENSE.txt`, which the build script writes.
 
 **Coverage is partial and Unicode says so:** `kVietnamese` is a provisional field. It reaches 52% of the bundled
 dictionary and has no entry at all for characters as common as 时, 就, 很, 咖 and 啡, which is why 时间 has no reading
@@ -75,7 +75,7 @@ card either has a correct one or none.
 
 ### Vietnamese Wiktionary, the English section, through kaikki.org
 
-**CC BY-SA 4.0**, the same licence as the rest of `public/dict`, so it changes nothing about how the directory is
+**CC BY-SA 4.0**, the same license as the rest of `public/dict`, so it changes nothing about how the directory is
 distributed. Reached through kaikki.org's machine readable extraction of `vi.wiktionary.org`.
 
 Supplies the Vietnamese meaning on a card, and it gets there sideways. Vietnamese Wiktionary's _Chinese_ section was
@@ -118,7 +118,7 @@ These are blockers for the build steps that need them, not for the scaffold.
 ### HSK word list
 
 Not yet chosen. Needed for the Piper batch generation, which runs over the whole HSK 3.0 vocabulary, and it would also
-let the HSK band be looked up instead of asked of a model. Record the source and its licence here before importing any
+let the HSK band be looked up instead of asked of a model. Record the source and its license here before importing any
 list.
 
 ### Han-Viet, the remaining half
@@ -128,11 +128,11 @@ characters include some of the most common in the language.
 
 Two sources were measured and rejected before Unihan was chosen:
 
-- **Vietnamese Wiktionary's Chinese section**, through kaikki.org (CC BY-SA, so the licence would have been fine). It
+- **Vietnamese Wiktionary's Chinese section**, through kaikki.org (CC BY-SA, so the license would have been fine). It
   carries Vietnamese _translations_ rather than readings, covers 8.4% of common words, and contains outright
   errors: 癌 "cancer" is glossed as squirrel monkey and 案 "legal case" as table. Not shipped. Note that its _English_
   section is shipped and is a different work entirely: see the entry above.
-- **Chinese-Vietnamese dictionaries on GitHub.** Several exist. None of the ones found carry any licence at all, so none
+- **Chinese-Vietnamese dictionaries on GitHub.** Several exist. None of the ones found carry any license at all, so none
   can be used.
 
 Do not scrape. Record whatever fills the gap here before importing it.
@@ -141,10 +141,10 @@ Do not scrape. Record whatever fills the gap here before importing it.
 
 Both are now fetched and self hosted by `@nuxt/fonts`, which ships as a dependency of Nuxt UI and picks the families up
 from the `@theme` block in `app/assets/css/main.css`. Nothing is committed to the repository, but files are served from
-the deployed worker, so the licences need recording before release.
+the deployed worker, so the licenses need recording before release.
 
 - LXGW WenKai is published under the **SIL Open Font License 1.1**, which is permissive but requires the copyright and
-  licence notice to travel with the font files. The CSS asks for `LXGW WenKai TC` first because that is the name the
+  license notice to travel with the font files. The CSS asks for `LXGW WenKai TC` first because that is the name the
   font providers index.
 - Nunito is also **SIL Open Font License 1.1**.
 
@@ -153,4 +153,4 @@ to the README attribution section before the first public deploy.
 
 ### Piper voice, zh_CN-huayan-medium
 
-Not yet used. Record the model licence before the batch generation step ships audio built with it.
+Not yet used. Record the model license before the batch generation step ships audio built with it.

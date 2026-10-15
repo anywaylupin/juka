@@ -22,6 +22,8 @@
   */
   --font-display: 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
   --font-brush: 'Ma Shan Zheng', 'LXGW WenKai', 'STKaiti', 'KaiTi', serif;
+  /* The hei, or gothic, hand for the card face setting: the printed sans a learner meets on signs and screens. */
+  --font-hei: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 
   /*
     The rating mandarin.
@@ -54,7 +56,7 @@ body {
 }
 
 /*
-  The scrollbar, in the theme rather than in the operating system's grey.
+  The scrollbar, in the theme rather than in the operating system's gray.
 
   Firefox takes the two keyword properties and Chromium takes the pseudo elements, so both are declared.
   `scrollbar-gutter` keeps the page from shifting sideways when a list grows past one screen.
@@ -342,7 +344,7 @@ body {
   font-weight: 700;
   color: var(--ui-text);
 }
-/* One weight for every link, so the current page is marked by ink and the underline rather than by a bolder word that pushes its neighbours. */
+/* One weight for every link, so the current page is marked by ink and the underline rather than by a bolder word that pushes its neighbors. */
 .juka-navlink-active {
   color: var(--ui-text-highlighted);
 }
@@ -458,7 +460,7 @@ body {
   outline: none;
 }
 
-/* One 田 square per character: solid edge, dashed centre cross, the character centred in it. */
+/* One 田 square per character: solid edge, dashed center cross, the character centered in it. */
 /* The front face is a size container, so a square never outgrows the card: capped by the card's height and, for long words, its width. */
 .juka-front {
   container-type: size;
@@ -531,12 +533,18 @@ body {
   Only on wide screens, where there are edges for it to sink between.
 */
 @media (min-width: 64rem) {
-  .juka-table {
+  .juka-table-surface {
+    position: absolute;
+    inset: 0.75rem 0.75rem 0.75rem 0;
     border-radius: 0.75rem;
     background: var(--juka-page);
     box-shadow:
       inset 0 0 0 1px color-mix(in oklab, var(--ui-text) 8%, transparent),
       inset 0 2px 14px -4px color-mix(in oklab, var(--ui-text) 16%, transparent);
+    transition: left 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .juka-shell:has(.juka-rail:hover, .juka-rail:focus-within) .juka-table-surface {
+    left: 10.5rem;
   }
 }
 
@@ -570,7 +578,12 @@ body {
   background: var(--ui-bg-elevated);
 }
 .juka-segment > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   min-height: 2.25rem;
+  padding: 0.35rem 0.25rem;
   border-radius: 0.35rem;
   font-size: 0.875rem;
   color: var(--ui-text-muted);
@@ -623,7 +636,7 @@ body {
 }
 
 /*
-  The sidebar at rest is a 4.5rem rail of icons; on hover or keyboard focus it widens to 15rem over the table, with a shadow so it reads as lying on top.
+  The sidebar at rest is a 4.5rem rail of icons; on hover or keyboard focus it widens to 15rem, and the table's edge slides right with it, so the sidebar grows out of the frame instead of lying on top as a sheet.
   Labels fade rather than unmount, so nothing reflows inside it as it opens, and the search field shows only its icon at rest.
 */
 .juka-rail {
@@ -638,14 +651,11 @@ body {
   overflow: hidden;
   background: var(--ui-bg);
   white-space: nowrap;
-  transition:
-    width 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 200ms ease;
+  transition: width 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .juka-rail:hover,
 .juka-rail:focus-within {
   width: 15rem;
-  box-shadow: 12px 0 32px -16px color-mix(in oklab, var(--ui-text) 35%, transparent);
 }
 .juka-rail .juka-search {
   min-width: 13.5rem;
@@ -678,14 +688,81 @@ body {
   clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 
-/* 橘 on its own mandarin. The character sits low, in the body of the fruit below the leaf; the logo never shrinks, so the rail cannot squeeze it. */
+/* 卡 cut as a red seal, a little wider than tall. It never shrinks, so the rail cannot squeeze it; size it by height and the width follows. */
 .juka-logo {
   display: grid;
   flex-shrink: 0;
   place-items: center;
-  padding-top: 0.35em;
-  background: url('/mandarin.svg') center / contain no-repeat;
+  aspect-ratio: 44 / 38;
+  width: auto;
+  border-radius: 0.3rem;
+  background: var(--juka-seal);
+  box-shadow:
+    inset 0 0 0 0.18rem var(--juka-seal),
+    inset 0 0 0 0.26rem rgb(255 248 240 / 0.6);
   color: #fff8f0;
   font-family: var(--font-brush);
   line-height: 1;
+}
+
+/*
+  The card face settings in the dock.
+  The hand: kai is the brush a learner is taught from, song the printed book face, hei the sans of signs and screens.
+  The grid: 田 has the center cross, 米 adds the diagonals that guide slanted strokes, a plain box keeps only the edge, and none leaves the character bare.
+*/
+.juka-hanzi[data-font='song'] .juka-cell {
+  font-family: var(--font-display);
+}
+.juka-hanzi[data-font='hei'] .juka-cell {
+  font-family: var(--font-hei);
+}
+.juka-hanzi[data-grid='mi'] .juka-cell {
+  background:
+    repeating-linear-gradient(90deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 100% 1px no-repeat,
+    repeating-linear-gradient(180deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 1px 100% no-repeat,
+    linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      color-mix(in oklab, var(--juka-grid) 70%, transparent) 50%,
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      to bottom right,
+      transparent calc(50% - 0.5px),
+      color-mix(in oklab, var(--juka-grid) 70%, transparent) 50%,
+      transparent calc(50% + 0.5px)
+    );
+}
+.juka-hanzi[data-grid='box'] .juka-cell {
+  background: none;
+}
+.juka-hanzi[data-grid='none'] .juka-cell {
+  border-color: transparent;
+  background: none;
+}
+
+/* A dock section title: a small icon and the name, the way a settings row reads in a reader app. */
+.juka-dock-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ui-text-highlighted);
+}
+.juka-dock-heading > .iconify {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--ui-text-muted);
+}
+/* The 字 sample in the hand picker takes the same font switch as a card, without a cell around it. */
+.juka-cell-sample {
+  font-family: var(--font-hanzi);
+}
+.juka-hanzi[data-font='song'] .juka-cell-sample {
+  font-family: var(--font-display);
+}
+.juka-hanzi[data-font='hei'] .juka-cell-sample {
+  font-family: var(--font-hei);
 }

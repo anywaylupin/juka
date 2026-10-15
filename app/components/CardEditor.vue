@@ -77,7 +77,7 @@ watch(
  * Where the pivot found nothing the English is shown underneath rather than a blank field, since a meaning you can read beats a box you have to fill.
  *
  * Han-Viet has been taken off the card for now.
- * The column and its data are still there, and `docs/licences.md` still records where the readings come from; only the field is gone.
+ * The column and its data are still there, and `docs/licenses.md` still records where the readings come from; only the field is gone.
  */
 const showVietnamese = computed(() => locale.value === 'vi');
 const posColor = computed(() => partOfSpeechColor(state.pos));

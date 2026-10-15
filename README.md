@@ -9,10 +9,10 @@ Flashcard storage for HSK learners. A box of cards, not a tutor.
 [![CI](https://github.com/anywaylupin/juka/actions/workflows/ci.yml/badge.svg)](https://github.com/anywaylupin/juka/actions/workflows/ci.yml)
 [![Nuxt 4](https://img.shields.io/badge/Nuxt-4-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
-[![Dictionary: CC BY-SA 4.0](https://img.shields.io/badge/dictionary-CC%20BY--SA%204.0-lightgrey)](public/dict/LICENCE.txt)
+[![Dictionary: CC BY-SA 4.0](https://img.shields.io/badge/dictionary-CC%20BY--SA%204.0-lightgrey)](public/dict/LICENSE.txt)
 
 [Live demo](https://juka.anywaylupin.workers.dev) · [Architecture](#architecture) · [Where this is](#where-this-is) ·
-[Licences](docs/licences.md)
+[Licenses](docs/licenses.md)
 
 </div>
 
@@ -33,7 +33,7 @@ buttons and leave the words in English, which is the half that matters least.
 
 Doing it needed a detour. There is no Chinese to Vietnamese dictionary that can be licensed and is any good: Vietnamese
 Wiktionary's Chinese section covers 8.4% of common words and glosses 癌 "cancer" as squirrel monkey, and the
-Chinese-Vietnamese dictionaries on GitHub carry no licence at all. But Vietnamese Wiktionary's **English** section is a
+Chinese-Vietnamese dictionaries on GitHub carry no license at all. But Vietnamese Wiktionary's **English** section is a
 different work, 101,470 English head words defined in Vietnamese for Vietnamese readers, and every card already has an
 English gloss from CC-CEDICT. So the gloss is the pivot: 教师 glosses _teacher_, _teacher_ is defined as _giáo viên_,
 the card gets _giáo viên_.
@@ -43,12 +43,12 @@ learner's box is made of common words. Both meanings are written into the card w
 costs no request and no wait, and where the pivot found nothing the English stands.
 
 Being a translation of a translation, it can drift, and the guards that keep it honest are written up in
-[docs/licences.md](docs/licences.md) with the mistakes that prompted each one.
+[docs/licenses.md](docs/licenses.md) with the mistakes that prompted each one.
 
 ### Han-Viet, still to come
 
 Every Chinese character also has a Sino-Vietnamese reading. 就 is _tựu_, 学 is _học_, 时间 is _thời gian_. A Vietnamese
-speaker already knows thousands of these from their own vocabulary without realising they map onto Chinese characters,
+speaker already knows thousands of these from their own vocabulary without realizing they map onto Chinese characters,
 which turns a wall of unfamiliar glyphs into words they half know already.
 
 The readings are built and stored, from Unihan's `kVietnamese` field bridged to simplified characters through
@@ -80,7 +80,7 @@ app/       components, composables, pages, layouts
 server/    api routes, binding wrappers, database schema and migrations
 shared/    types and zod schemas used by both sides
 scripts/   one off node scripts, including the FTS5 spike
-docs/      spike findings and licence records
+docs/      spike findings and license records
 ```
 
 ### Why D1
@@ -90,7 +90,7 @@ paginated. That is SQLite's home ground. D1 puts SQLite next to the worker, so a
 a round trip to a database in another region, and the free tier covers a personal vocabulary collection many times over.
 
 The cost is that D1 is not ordinary SQLite. It runs an authorizer that blocks functions you would expect to have,
-`sqlite_version()` among them, and its full text search behaviour needed testing before the schema could be designed.
+`sqlite_version()` among them, and its full text search behavior needed testing before the schema could be designed.
 That testing is written up in [docs/fts5-spike.md](docs/fts5-spike.md).
 
 Pagination is keyset, never `OFFSET`, so the cost of reading page 900 is the same as page one.
@@ -107,7 +107,7 @@ finite HSK vocabulary second, and an on-demand synthesis fallback last for words
 ### Why typing pinyin gives you the right character first
 
 The hanzi field is an input method. Type `shijian` and it offers 时间, 事件, 实践, 始建. Press space or a number and the
-field holds the character, not the romanisation.
+field holds the character, not the romanization.
 
 Getting that order right is the whole problem. CC-CEDICT has the readings and the meanings but **no frequency data at
 all**, and ranked on it alone `shijian` offers 世间, 事件, 始建, 实践 and 尸检 before it offers 时间, which makes the
@@ -128,7 +128,7 @@ with the app, which means it is the same answer every time, it costs nothing, an
 Four sources go into `public/dict`, and the fourth took the longest to find. CC-CEDICT gives the readings and the
 English meanings, jieba gives the frequency that ranks them, Unihan gives the Han-Viet reading, and Vietnamese
 Wiktionary's English section gives the Vietnamese meaning by way of the English gloss. The detour and the guards that
-keep it honest are above; the measured coverage of every candidate is in [docs/licences.md](docs/licences.md), so nobody
+keep it honest are above; the measured coverage of every candidate is in [docs/licenses.md](docs/licenses.md), so nobody
 repeats the search.
 
 ### Storing cards without an account
@@ -346,14 +346,14 @@ English section of [Vietnamese Wiktionary](https://vi.wiktionary.org) through [k
 > CEDICT, copyright 1997, 1998 Paul Andrew Denisowski.
 
 Because CC-CEDICT is ShareAlike, **the files under `public/dict` are CC BY-SA 4.0 rather than MIT**. The application
-code is unaffected. The full notice travels in `public/dict/LICENCE.txt`.
+code is unaffected. The full notice travels in `public/dict/LICENSE.txt`.
 
 Icons come from [IconPark](https://github.com/bytedance/IconPark) and [Lucide](https://lucide.dev) through Iconify. None
 are hand drawn.
 
-Full licence records, including what is still outstanding, are in [docs/licences.md](docs/licences.md).
+Full license records, including what is still outstanding, are in [docs/licenses.md](docs/licenses.md).
 
-## Licence
+## License
 
 MIT for the application code.
 

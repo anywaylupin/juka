@@ -67,7 +67,7 @@ lists, pointed at `app/assets/css/main.css` because Tailwind v4 keeps its config
 
 - Run `pnpm format` before committing. Do not hand align anything; it will be undone.
 - **ESLint no longer formats.** `eslint-config-prettier` is appended last in `eslint.config.mjs` and switches off every
-  stylistic rule, so the two cannot disagree. Rules that remain are about behaviour: unused variables, `any`, component
+  stylistic rule, so the two cannot disagree. Rules that remain are about behavior: unused variables, `any`, component
   naming, Vue correctness.
 - `.prettierignore` covers what is generated or vendored: `public/dict`, `themes.css`, `favicon.svg`, the drizzle
   migration folder, build output and the lockfile. Reformatting a generated file only makes its next diff unreadable.
@@ -176,6 +176,8 @@ not add it back without a reason that has survived a week of use.
 
 ## Writing style in the interface
 
+- **American English**, in the interface, in code, comments, commit messages and documentation: color, license, center,
+  gray, practice as a verb. Proper names keep their own spelling (Earl Grey), and applied migrations are not rewritten.
 - Sentence case everywhere. No title case.
 - Use short hyphens. Never em dashes or en dashes, in any user-facing copy, code comment, commit message, or
   documentation.
@@ -206,7 +208,7 @@ not add it back without a reason that has survived a week of use.
 - The README is the portfolio piece. Most people will spend ninety seconds on it and never open a source file. It needs
   screenshots, a short recording of a card flipping with the stroke animation, a live demo link, and an architecture
   section explaining the D1 and R2 choices. The Han-Viet angle stays near the top.
-- Licence records live in `docs/licences.md`. The `hanzi-writer` data is under the Arphic Public License, which expects
+- License records live in `docs/licenses.md`. The `hanzi-writer` data is under the Arphic Public License, which expects
   an attribution notice, so the README notice must not be dropped.
 - Conventional commits.
 - **CI runs the same commands you have.** `.github/workflows/ci.yml` is `format:check`, `lint`, `typecheck`, `test`, a

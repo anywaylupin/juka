@@ -59,7 +59,7 @@ export function useRatingLabels() {
   }
 
   /** True once any name was set by hand, so a reset can be offered. */
-  const customised = computed(() => RATING_VALUES.some((value) => (stored.value[value] ?? '').trim().length > 0));
+  const customized = computed(() => RATING_VALUES.some((value) => (stored.value[value] ?? '').trim().length > 0));
 
   async function save(next: string[] | null) {
     /*
@@ -95,5 +95,5 @@ export function useRatingLabels() {
     }
   }
 
-  return { labels, labelFor, customised, save };
+  return { labels, labelFor, customized, save };
 }

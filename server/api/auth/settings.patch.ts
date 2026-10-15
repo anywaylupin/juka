@@ -17,7 +17,7 @@ export default defineEventHandler(async (event): Promise<AccountRecord> => {
   const [updated] = await db
     .update(users)
     .set({
-      // Null clears the customisation and restores the defaults, which is what a reset button sends.
+      // Null clears the customization and restores the defaults, which is what a reset button sends.
       ...(input.ratingLabels !== undefined && {
         ratingLabels: input.ratingLabels === null ? null : JSON.stringify(input.ratingLabels)
       })

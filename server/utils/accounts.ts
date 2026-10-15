@@ -80,7 +80,7 @@ export interface ProviderProfile {
  * 3. An account with that address: link and sign in, because a person who signed up with an address and then clicked the Google button for the same address means one account, not two.
  * 4. Otherwise make an account with no password, a free username, and the address if there was one.
  *
- * Step three is the one with a judgement in it. It trusts the provider's address, which is safe for Google and for GitHub because both verify before they hand one over, and it is what keeps a box from quietly splitting in half.
+ * Step three is the one with a judgment in it. It trusts the provider's address, which is safe for Google and for GitHub because both verify before they hand one over, and it is what keeps a box from quietly splitting in half.
  */
 export async function signInWithProvider(event: H3Event, profile: ProviderProfile) {
   const db = useDrizzle(event);

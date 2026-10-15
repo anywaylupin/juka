@@ -25,3 +25,28 @@ export function tonelessPinyin(pinyin: string): string {
 export function countSyllables(hanzi: string): number {
   return [...hanzi].filter((character) => /\p{Script=Han}/u.test(character)).length;
 }
+
+/** The combining mark each tone leaves after Unicode decomposition. */
+const TONE_MARKS: Record<string, 1 | 2 | 3 | 4> = { '̄': 1, '́': 2, '̌': 3, '̀': 4 };
+
+/**
+ * The tone of each syllable in a marked reading, 5 for the neutral tone.
+ *
+ * Read from the marks rather than looked up, so it agrees with whatever reading the card shows.
+ * One entry per space separated syllable, which lines up with the characters for the readings the dictionary writes.
+ */
+export function tonesOf(pinyin: string): Array<1 | 2 | 3 | 4 | 5> {
+  return pinyin
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((syllable) => {
+      for (const mark of syllable.normalize('NFD')) {
+        const tone = TONE_MARKS[mark];
+        if (tone) {
+          return tone;
+        }
+      }
+      return 5;
+    });
+}

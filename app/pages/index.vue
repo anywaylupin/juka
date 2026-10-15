@@ -31,7 +31,7 @@ function startUpdate() {
 </script>
 
 <template>
-  <div class="space-y-5">
+  <div class="flex min-h-full flex-col gap-5">
     <div class="flex flex-wrap items-end gap-x-4 gap-y-3">
       <h1 class="juka-heading mr-auto">
         {{ t('nav.box') }}
@@ -66,7 +66,7 @@ function startUpdate() {
       :actions="[{ label: t('common.retry'), color: 'error', variant: 'soft', onClick: () => store.load() }]"
     />
 
-    <div v-else-if="!store.loaded.value" class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
+    <div v-else-if="!store.loaded.value" class="grid grid-cols-[repeat(auto-fill,minmax(max(15rem,calc((100%-3rem)/4)),1fr))] gap-4">
       <div
         v-for="placeholder in 8"
         :key="placeholder"

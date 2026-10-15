@@ -170,7 +170,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
     </div>
 
     <!--
-      The arrows sit under the deck, centred, where a thumb rests.
+      The arrows sit under the deck, centered, where a thumb rests.
       They were beside the card while a swipe still existed and the card could move sideways under them; now that stepping is the only way through, they belong together.
     -->
     <div class="flex items-center justify-center gap-3">

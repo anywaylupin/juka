@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countSyllables, tonelessPinyin } from '../shared/utils/pinyin';
+import { countSyllables, tonelessPinyin, tonesOf } from '../shared/utils/pinyin';
 
 describe('tonelessPinyin', () => {
   it('folds tone marks down to the letters someone types', () => {
@@ -66,5 +66,15 @@ describe('countSyllables', () => {
   it('ignores anything that is not a Han character', () => {
     expect(countSyllables('时间 (time)')).toBe(2);
     expect(countSyllables('abc')).toBe(0);
+  });
+});
+
+describe('tonesOf', () => {
+  it('reads one tone per syllable from the marks, neutral as 5', () => {
+    expect(tonesOf('shí jiān')).toEqual([2, 1]);
+    expect(tonesOf('péng you')).toEqual([2, 5]);
+    expect(tonesOf('tú shū guǎn')).toEqual([2, 1, 3]);
+    expect(tonesOf('yí lù píng ān')).toEqual([2, 4, 2, 1]);
+    expect(tonesOf('')).toEqual([]);
   });
 });

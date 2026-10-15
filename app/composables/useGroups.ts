@@ -17,7 +17,7 @@ const STORAGE_SEQUENCE = 'juka.groups.seq';
  */
 const STORAGE_SEEDED = 'juka.groups.seeded';
 
-/** Offered when creating a group, so a new one is never the same grey. */
+/** Offered when creating a group, so a new one is never the same gray. */
 export const GROUP_COLORS = ['#e35205', '#2f6fd0', '#2e9153', '#6b5bd2', '#e0596b', '#0e8f9e', '#d99e00', '#8c7f76'];
 
 function readLocal(): GroupRecord[] {

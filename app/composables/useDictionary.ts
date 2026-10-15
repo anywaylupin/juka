@@ -10,7 +10,7 @@ import type { DictionaryEntry } from '#shared/types/card';
  * Shards are cached for the life of the page, and an in-flight fetch is shared rather than repeated.
  *
  * Built by scripts/build-dictionary.ts.
- * See public/dict/LICENCE.txt: the data is CC BY-SA, not MIT like the rest of the app.
+ * See public/dict/LICENSE.txt: the data is CC BY-SA, not MIT like the rest of the app.
  */
 
 interface Manifest {

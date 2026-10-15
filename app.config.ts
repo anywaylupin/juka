@@ -14,7 +14,7 @@ export default defineAppConfig({
      */
     /*
      * Neutral buttons are drawn as ink chops to match the red seal of the add button: outline is a framed outline, solid is pressed in ink.
-     * Behaviour is Nuxt UI's; only the look changes.
+     * Behavior is Nuxt UI's; only the look changes.
      */
     button: {
       compoundVariants: [

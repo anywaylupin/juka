@@ -12,7 +12,7 @@ import { MAX_RATING_LABEL, RATING_ICON, RATING_VALUES } from '#shared/constants/
  */
 const { t } = useI18n();
 const toast = useToast();
-const { labels, customised, save } = useRatingLabels();
+const { labels, customized, save } = useRatingLabels();
 
 const draft = ref<string[]>([...labels.value]);
 const busy = ref(false);
@@ -81,7 +81,7 @@ async function reset() {
       <UButton color="primary" block :loading="busy" :disabled="!dirty" @click="commit">
         {{ t('card.save') }}
       </UButton>
-      <UButton v-if="customised" color="neutral" variant="ghost" :loading="busy" @click="reset">
+      <UButton v-if="customized" color="neutral" variant="ghost" :loading="busy" @click="reset">
         {{ t('rating.reset') }}
       </UButton>
     </div>

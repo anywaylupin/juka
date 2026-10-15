@@ -39,7 +39,7 @@ export const users = sqliteTable(
 /**
  * An account at GitHub or Google that signs in as this user.
  *
- * Separate from users because one person can have several, and because the columns belong to the provider rather than to us: what is stored is enough to recognise the same account next time and nothing else.
+ * Separate from users because one person can have several, and because the columns belong to the provider rather than to us: what is stored is enough to recognize the same account next time and nothing else.
  * No access token is kept. The token is used once during the callback to read the profile and is then dropped, because the app never calls a provider API on the user's behalf and storing one would mean holding a credential for no reason.
  */
 export const oauthAccounts = sqliteTable(

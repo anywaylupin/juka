@@ -3,7 +3,7 @@
  * One card at a time, from whatever the box is filtered to.
  *
  * It was the "stack" view behind an unlabelled icon on the box page.
- * As a page it says what it is for, and the filters you set on the box carry over, so "practise these" is a search and a tap.
+ * As a page it says what it is for, and the filters you set on the box carry over, so "practice these" is a search and a tap.
  */
 const { t } = useI18n();
 useSeoMeta({ title: () => `${t('nav.practice')} · Juka` });

@@ -21,7 +21,7 @@ const showSearch = computed(() => !/\/(settings|reset|login)$/.test(route.path))
   <header class="sticky top-0 z-40 border-b border-default bg-default/90 backdrop-blur">
     <div class="flex min-h-16 w-full flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 sm:px-6">
       <NuxtLink :to="localePath('/')" class="flex shrink-0 items-center gap-2 rounded-sm" :aria-label="t('nav.home')">
-        <AppLogo class="size-10 text-xl" />
+        <AppLogo class="h-9 text-2xl" />
         <span class="font-[family-name:var(--font-display)] text-xl font-bold text-highlighted">Juka</span>
       </NuxtLink>
 
