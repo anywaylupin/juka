@@ -366,22 +366,37 @@ The metaphor is a real box of index cards, and the layout is built around that r
   fits (`[data-stage]`, centered both ways on every screen), previous and next as ink buttons either side of it (under
   it beside the shuffle on a phone), then the shuffle at bottom center, the keys as key caps, and a hairline of progress
   at the very foot. The two cards to come peek out above the top one as ink edges. A click, W, S, up or down turns the
-  top card over; A or left and D or right step, and stepping deals the old card up and away. Space is not a key: it
-  scrolled the page. On a desktop the search sits fixed at the center of the screen, not of the title row. Its order
-  comes from `usePracticeOrder` unless box order is chosen. An earlier version stacked a pill, a small card, round
-  arrows, a counter and a sentence of instructions down the center line, all the same small size, and read as generated
-  rather than designed.
+  top card over; A or left and D or right step, and stepping deals the old card up and away; 1 to 5 rate the top card, Q
+  says it, E edits it and R shuffles again. Keys are ignored while a dialog is open, or a rating would also land in the
+  editor E just opened. Space is not a key: it scrolled the page. On a desktop the search sits fixed at the center of
+  the screen, not of the title row. Its order comes from `usePracticeOrder` unless box order is chosen. An earlier
+  version stacked a pill, a small card, round arrows, a counter and a sentence of instructions down the center line, all
+  the same small size, and read as generated rather than designed.
 - **There is no swipe, and adding one back needs a better argument than the first one had.** Dragging left to delete put
   the only destructive action in the app on the gesture most easily made by accident, on top of a card whose other
   gesture is a tap. It also cost a release to a silent binding bug. Every action on a card is a button now.
 - **Progress** is the box from above, and the answer comes first: four numbers in the display face (cards, known well,
   added this week, unrated), then, on a wide screen, a two by two of paper sections (`UCard` with `JUKA_SECTION`) that
   fits the table without scrolling, each body scrolling inside its own card if it must: the ripeness bar, a half-year
-  calendar of cards added per day with month and weekday labels, and the split by word type and by group. Ink draws
-  every bar and the calendar; the tangerine mandarin marks mastery alone, a level is told apart by its count of
-  mandarins rather than by five near identical oranges, and type and group colors are a small mark by the label. Empty
-  groups hide behind a link. Every level, word type and group opens the Box filtered to it. Built from divs, not SVG and
-  not a charting library, because everything on it is a proportion or a count.
+  calendar of cards added per day drawn the way GitHub draws contributions (rounded squares, never stretched, each the
+  largest square that lets half a year fill the card, through container units in `[data-heat]`), the split by word type
+  as a `DonutChart` and by group as a `BarChart` from `nuxt-charts`, two different shapes so the halves do not read as
+  the same chart twice. Each chart is told its pixel size from the card, so the ring fills the card's height and sits
+  centered, and its legend beside it scrolls inside itself rather than pushing the chart off the card. `nuxt-charts` has
+  no heatmap, so the calendar stays hand drawn. Ink draws the ripeness bar and the calendar; the tangerine mandarin
+  marks mastery alone, and a level is told apart by its count of mandarins. Empty groups hide behind a link. Every
+  level, word type and group opens the Box filtered to it, which is why the charts' own legends are hidden: the rows are
+  the legend and they are buttons.
+- **The keyboard reaches everything.** `AppShortcuts` in the layout: Ctrl K (Cmd K on a Mac) finds a card by hanzi,
+  pinyin with or without tones, or meaning, through `UCommandPalette` in a modal, and opens it in the editor; / focuses
+  the search bar, which shows the key as a `UKbd`; N adds a card, F opens filters and settings, and . opens the guide
+  that lists every key, Practice's included. Pages sit on Alt and the bottom row of the left hand, in sidebar order: Alt
+  Z Box, Alt X Practice, Alt C Progress, Alt B the profile (or signing in), and Alt V is held unbound for a page still
+  to come. G then B chords came first and were dropped. Holding Alt draws each control's key as a badge on its corner
+  from its `data-kbd`. Letters are matched on the physical key, not the character, because a Vietnamese input method
+  reports letters as `Process` while it composes. The browser's own Ctrl K is prevented; keys the operating system takes
+  first never reach a page. The guide is also a keyboard button on the frame's top right tab. `UContentSearch` was the
+  obvious pick and is built around Nuxt Content's pages, which this app has none of.
 - **A card shows only the hanzi on the front.** The back carries the reading above, the meaning large in the display
   face, and the part of speech as a small tag at the top, and nothing else. The meaning is the payoff of a turn, so it
   is sized like the word on the front. There is no flip button: clicking the card turns it.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Rating } from '#shared/constants/rating';
+import { RATING_VALUES, type Rating } from '#shared/constants/rating';
 import type { CardRecord } from '#shared/types/card';
 
 /**
@@ -88,39 +88,49 @@ function back() {
   emit('update:modelValue', (props.modelValue - 1 + props.cards.length) % props.cards.length);
 }
 
+const { speak } = useSpeech();
+
 /**
  * The keys a gamer's hand already rests on, and the arrows beside them: A or left goes back, D or right goes on, W, S, up or down turn the card over.
+ * Around them, Q says the word, E edits it, R shuffles again, and 1 to 5 rate it.
  * Space was dropped: it scrolls the page on a phone keyboard and fought the browser for focus on a desktop.
+ * Matched on the physical key, because a Vietnamese input method reports letters as `Process` while it composes.
  */
-const KEYS: Record<string, 'back' | 'next' | 'turn'> = {
-  ArrowLeft: 'back',
-  a: 'back',
-  ArrowRight: 'next',
-  d: 'next',
-  ArrowUp: 'turn',
-  ArrowDown: 'turn',
-  w: 'turn',
-  s: 'turn'
+const KEYS: Record<string, () => void> = {
+  ArrowLeft: () => back(),
+  KeyA: () => back(),
+  ArrowRight: () => advance(),
+  KeyD: () => advance(),
+  ArrowUp: () => (flipped.value = !flipped.value),
+  ArrowDown: () => (flipped.value = !flipped.value),
+  KeyW: () => (flipped.value = !flipped.value),
+  KeyS: () => (flipped.value = !flipped.value),
+  KeyQ: () => current.value && speak(current.value.hanzi),
+  KeyE: () => current.value && emit('edit', current.value),
+  KeyR: () => props.practice && emit('reshuffle'),
+  ...Object.fromEntries(
+    RATING_VALUES.map((rating) => [`Digit${rating}`, () => current.value && emit('rate', current.value, rating)])
+  )
 };
 
+/** Keys are ignored while typing and while a dialog is open, or rating a card would also type into the editor E just opened. */
 function onKeydown(event: KeyboardEvent) {
   const target = event.target;
   if (
     event.ctrlKey ||
     event.metaKey ||
     event.altKey ||
+    document.querySelector('[role=dialog]') ||
     (target instanceof Element && target.closest('input, textarea, select, [contenteditable]'))
   ) {
     return;
   }
-  const action = KEYS[event.key.length === 1 ? event.key.toLowerCase() : event.key];
+  const action = KEYS[event.code];
   if (!action) {
     return;
   }
   event.preventDefault();
-  if (action === 'back') back();
-  else if (action === 'next') advance();
-  else flipped.value = !flipped.value;
+  action();
 }
 
 onMounted(() => window.addEventListener('keydown', onKeydown));
@@ -225,6 +235,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
           color="neutral"
           variant="ghost"
           :aria-label="t('stack.reshuffle')"
+          aria-keyshortcuts="r"
+          data-kbd="R"
           @click="emit('reshuffle')"
         >
           <span class="hidden sm:inline">{{ t('stack.reshuffle') }}</span>
@@ -246,6 +258,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
           ><UKbd value="W" /><UKbd value="S" /><UKbd value="↑" /><UKbd value="↓" />{{ t('stack.keyTurn') }}</span
         >
         <span class="flex items-center gap-1"><UKbd value="D" /><UKbd value="→" />{{ t('stack.keyNext') }}</span>
+        <span class="flex items-center gap-1"><UKbd value="1" />-<UKbd value="5" />{{ t('stack.keyRate') }}</span>
+        <span class="flex items-center gap-1"><UKbd value="Q" />{{ t('stack.keyListen') }}</span>
+        <span class="flex items-center gap-1"><UKbd value="E" />{{ t('card.edit') }}</span>
       </p>
 
       <!-- How far through the deck, as a hairline of ink at the foot rather than a second counter. -->

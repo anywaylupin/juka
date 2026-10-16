@@ -23,6 +23,7 @@ which imports this file.
 | Pinyin           | `pinyin-pro`                                                                                                  |
 | Segmentation     | `segmentit` or `jieba-wasm`, for linking story text to cards                                                  |
 | Icons            | IconPark and Lucide through `@nuxt/icon`, plus `circle-flags` for languages                                   |
+| Charts           | `nuxt-charts` (Unovis under it), for the ring and the columns on Progress (it has no heatmap)                 |
 | Tests            | Vitest and `@nuxt/test-utils`                                                                                 |
 
 Single Nuxt app, flat. Not a monorepo. Plain pnpm. One-off scripts live in `scripts/`.

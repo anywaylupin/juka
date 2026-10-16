@@ -85,3 +85,29 @@
     }
   }
 }
+
+/*
+  Alt held: every control that has a key wears it as a small badge on its corner, read from its `data-kbd`.
+  Drawn here rather than in each component, so a control only has to say which key it answers to.
+*/
+@layer base {
+  html[data-alt] [data-kbd] {
+    position: relative;
+  }
+  html[data-alt] [data-kbd]::after {
+    content: attr(data-kbd);
+    position: absolute;
+    top: -0.35rem;
+    right: -0.35rem;
+    z-index: 20;
+    min-width: 1.15rem;
+    padding: 0 0.25rem;
+    border-radius: 0.3rem;
+    background: var(--ui-bg-inverted);
+    color: var(--ui-bg);
+    font: 600 0.65rem/1.15rem var(--font-sans);
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+}

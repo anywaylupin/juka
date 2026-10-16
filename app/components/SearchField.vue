@@ -25,6 +25,7 @@ onBeforeUnmount(() => clearTimeout(timer));
 
 <template>
   <UInput
+    id="juka-search"
     v-model="search"
     icon="i-lucide-search"
     size="lg"
@@ -35,9 +36,18 @@ onBeforeUnmount(() => clearTimeout(timer));
     }"
     :placeholder="t('cards.searchPlaceholder')"
     :aria-label="t('cards.searchPlaceholder')"
+    aria-keyshortcuts="/"
   >
-    <template v-if="search" #trailing>
-      <UButton icon="i-lucide-x" color="neutral" variant="link" :aria-label="t('common.clear')" @click="search = ''" />
+    <template #trailing>
+      <UButton
+        v-if="search"
+        icon="i-lucide-x"
+        color="neutral"
+        variant="link"
+        :aria-label="t('common.clear')"
+        @click="search = ''"
+      />
+      <UKbd v-else value="/" class="max-lg:hidden" />
     </template>
   </UInput>
 </template>

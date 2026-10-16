@@ -1,5 +1,13 @@
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui', '@nuxtjs/i18n', 'nuxt-auth-utils', 'motion-v/nuxt', '@nuxt/eslint', '@nuxt/test-utils/module'],
+  modules: [
+    '@nuxt/ui',
+    '@nuxtjs/i18n',
+    'nuxt-auth-utils',
+    'motion-v/nuxt',
+    'nuxt-charts',
+    '@nuxt/eslint',
+    '@nuxt/test-utils/module'
+  ],
 
   // Nuxt 4 layout: app code in app/, server code in server/, isomorphic code in shared/.
   css: ['~/assets/css/main.css'],

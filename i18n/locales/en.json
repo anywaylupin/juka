@@ -65,7 +65,9 @@
     "inOrder": "Box order",
     "keyBack": "Back",
     "keyTurn": "Turn over",
-    "keyNext": "Next"
+    "keyNext": "Next",
+    "keyRate": "Rate",
+    "keyListen": "Listen"
   },
   "pos": {
     "noun": "Noun",
@@ -274,5 +276,13 @@
     "size": "Character size",
     "tones": "Tone colors",
     "tonesHint": "Color each character by its tone"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "find": "Find a card",
+    "cards": "Cards",
+    "goTo": "Go to",
+    "everywhere": "Everywhere",
+    "hints": "Show keys on buttons (hold)"
   }
 }

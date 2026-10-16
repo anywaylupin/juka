@@ -147,6 +147,45 @@ const addedThisWeek = computed(() => (calendar.value.at(-1)?.days ?? []).reduce(
 
 /* ---- Composition ---- */
 
+/**
+ * The size of an element, kept current as the card resizes.
+ * Unovis draws to pixel sizes, so the ring and the columns are told how much room the card gives them rather than guessing a fixed size that either overflows or floats.
+ */
+function useBoxSize(target: Ref<HTMLElement | null>) {
+  const size = reactive({ w: 0, h: 0 });
+  let observer: ResizeObserver | undefined;
+  onMounted(() => {
+    observer = new ResizeObserver(([entry]) => {
+      size.w = entry!.contentRect.width;
+      size.h = entry!.contentRect.height;
+    });
+    if (target.value) {
+      size.w = target.value.clientWidth;
+      size.h = target.value.clientHeight;
+      observer.observe(target.value);
+    }
+  });
+  onBeforeUnmount(() => observer?.disconnect());
+  return size;
+}
+
+const typeBox = ref<HTMLElement | null>(null);
+const groupBox = ref<HTMLElement | null>(null);
+const typeSize = useBoxSize(typeBox);
+const groupSize = useBoxSize(groupBox);
+const ringRadius = computed(() => Math.max(48, Math.floor(Math.min(typeSize.h, typeSize.w) / 2) - 4));
+
+/** The slice for cards with no type or no group: the warm taupe neutral, so it reads as the rest of the box rather than a category. */
+const UNMARKED = '#a8a29e';
+
+/**
+ * The donut takes its slice colors keyed by position, in the same order as the rows beside it.
+ * Its own legend is hidden because the rows are the legend, and each row opens the Box filtered to it.
+ */
+function categoriesOf(rows: Array<{ label: string; mark: string }>) {
+  return Object.fromEntries(rows.map((row, index) => [String(index), { name: row.label, color: row.mark }]));
+}
+
 const byType = computed(() => {
   const counts = new Map<string, number>();
   for (const card of props.cards) {
@@ -158,7 +197,7 @@ const byType = computed(() => {
       key: pos,
       label: pos === 'unknown' ? t('chart.noType') : t(`pos.${pos}`),
       count,
-      mark: pos === 'unknown' ? undefined : partOfSpeechColor(pos as PartOfSpeech)
+      mark: pos === 'unknown' ? UNMARKED : partOfSpeechColor(pos as PartOfSpeech)
     }))
     .sort((a, b) => b.count - a.count);
 });
@@ -180,10 +219,10 @@ const allGroups = computed(() => {
       id: group.id as number | undefined,
       label: group.name,
       count: counts.get(group.id) ?? 0,
-      mark: group.color as string | undefined
+      mark: group.color as string
     })),
     ...(ungrouped > 0
-      ? [{ key: 'none', id: undefined, label: t('chart.noGroup'), count: ungrouped, mark: undefined }]
+      ? [{ key: 'none', id: undefined, label: t('chart.noGroup'), count: ungrouped, mark: UNMARKED }]
       : [])
   ].sort((a, b) => b.count - a.count);
 });
@@ -221,7 +260,7 @@ const stats = computed(() => [
         <h2 class="shrink-0 juka-subheading text-base">{{ t('chart.ripeness') }}</h2>
 
         <div
-          class="flex h-4 overflow-hidden rounded-sm bg-elevated"
+          class="flex h-4 overflow-hidden rounded-md bg-elevated"
           role="img"
           :aria-label="t('chart.knownOf', { known, total })"
         >
@@ -265,36 +304,19 @@ const stats = computed(() => [
           <p class="text-sm text-muted">{{ t('chart.thisWeek', { count: addedThisWeek }) }}</p>
         </div>
 
-        <div class="flex juka-section-body flex-1 gap-2 overflow-x-auto pb-1 lg:overflow-y-hidden">
-          <div
-            class="grid shrink-0 grid-rows-[1rem_repeat(7,minmax(0,1fr))] gap-1 text-xs text-muted"
-            aria-hidden="true"
-          >
+        <!-- A size container, so each day is the largest square that lets half a year fill the card both ways. -->
+        <div data-heat class="flex min-h-0 flex-1 gap-1">
+          <div data-heat-column class="shrink-0 text-xs text-muted" aria-hidden="true">
             <span />
             <span v-for="(label, index) in weekdayLabels" :key="index" class="flex items-center leading-none">{{
               label
             }}</span>
           </div>
-          <div class="grid flex-1 auto-cols-[minmax(0.75rem,1fr)] grid-flow-col gap-1">
-            <div
-              v-for="(week, index) in calendar"
-              :key="index"
-              class="grid grid-rows-[1rem_repeat(7,minmax(0,1fr))] gap-1"
-            >
-              <span class="text-xs whitespace-nowrap text-muted">{{ week.month }}</span>
-              <UTooltip
-                v-for="day in week.days"
-                :key="day.key"
-                :text="`${dayFormatter.format(day.date)}: ${day.count}`"
-              >
-                <div
-                  data-day
-                  class="h-full min-h-2"
-                  :class="day.future && 'invisible'"
-                  :style="{ backgroundColor: dayFill(day.count) }"
-                />
-              </UTooltip>
-            </div>
+          <div v-for="(week, index) in calendar" :key="index" data-heat-column>
+            <span class="overflow-visible text-xs whitespace-nowrap text-muted">{{ week.month }}</span>
+            <UTooltip v-for="day in week.days" :key="day.key" :text="`${dayFormatter.format(day.date)}: ${day.count}`">
+              <div data-day :class="day.future && 'invisible'" :style="{ backgroundColor: dayFill(day.count) }" />
+            </UTooltip>
           </div>
         </div>
       </UCard>
@@ -302,57 +324,85 @@ const stats = computed(() => [
       <!-- Composition -->
       <UCard as="section" :ui="JUKA_SECTION">
         <h2 class="shrink-0 juka-subheading text-base">{{ t('chart.byType') }}</h2>
-        <ul class="juka-section-body">
-          <li v-for="row in byType" :key="row.key">
-            <button
-              type="button"
-              class="w-full space-y-1 rounded-sm px-2 py-1.5 text-left hover:bg-elevated disabled:cursor-default disabled:hover:bg-transparent"
-              :disabled="row.key === 'unknown'"
-              @click="showInBox({ parts: [row.key as PartOfSpeech] })"
-            >
-              <span class="flex items-center gap-2 text-sm">
+        <!-- The ring takes the full height of the card, centered beside its legend; the legend scrolls inside itself rather than pushing the ring off the card. -->
+        <div class="flex min-h-0 flex-1 items-center gap-4">
+          <div ref="typeBox" class="flex h-full min-h-40 w-2/5 shrink-0 items-center justify-center">
+            <DonutChart
+              v-if="typeSize.h > 0"
+              :data="byType.map((row) => row.count)"
+              :categories="categoriesOf(byType)"
+              :radius="ringRadius"
+              :arc-width="Math.max(14, ringRadius * 0.28)"
+              :height="ringRadius * 2"
+              :pad-angle="0.02"
+              hide-legend
+              :show-background="false"
+            />
+          </div>
+          <ul class="max-h-full min-w-0 flex-1 overflow-y-auto">
+            <li v-for="row in byType" :key="row.key">
+              <button
+                type="button"
+                class="flex min-h-8 w-full items-center gap-2 rounded-md px-2 text-left text-sm hover:bg-elevated disabled:cursor-default disabled:hover:bg-transparent"
+                :disabled="row.key === 'unknown'"
+                @click="showInBox({ parts: [row.key as PartOfSpeech] })"
+              >
                 <span
-                  v-if="row.mark"
-                  class="size-2.5 rounded-xs"
+                  class="h-2.5 w-3.5 shrink-0 rounded-sm"
                   :style="{ backgroundColor: row.mark }"
                   aria-hidden="true"
                 />
-                <span class="flex-1 text-highlighted">{{ row.label }}</span>
+                <span class="flex-1 truncate text-highlighted">{{ row.label }}</span>
                 <span class="font-bold text-highlighted tabular-nums">{{ row.count }}</span>
                 <span class="w-10 text-right text-muted tabular-nums">{{ percent(row.count) }}%</span>
-              </span>
-              <UProgress :model-value="percent(row.count)" color="neutral" size="xs" />
-            </button>
-          </li>
-        </ul>
+              </button>
+            </li>
+          </ul>
+        </div>
       </UCard>
 
       <UCard as="section" :ui="JUKA_SECTION">
         <h2 class="shrink-0 juka-subheading text-base">{{ t('chart.byGroup') }}</h2>
         <p v-if="allGroups.length === 0" class="text-sm text-muted">{{ t('chart.noGroupsYet') }}</p>
-        <ul v-else class="juka-section-body">
-          <li v-for="row in byGroup" :key="row.key">
-            <button
-              type="button"
-              class="w-full space-y-1 rounded-sm px-2 py-1.5 text-left hover:bg-elevated disabled:cursor-default disabled:hover:bg-transparent"
-              :disabled="row.id === undefined"
-              @click="row.id !== undefined && showInBox({ groups: [row.id] })"
-            >
-              <span class="flex items-center gap-2 text-sm">
+        <!-- Columns rather than a second ring, so the two halves of the composition do not read as the same chart twice. -->
+        <div v-else class="flex min-h-0 flex-1 items-center gap-4">
+          <div ref="groupBox" class="h-full min-h-40 w-2/5 shrink-0">
+            <BarChart
+              v-if="groupSize.h > 0"
+              :data="[Object.fromEntries(byGroup.map((row, index) => [String(index), row.count]))]"
+              :categories="categoriesOf(byGroup)"
+              :y-axis="byGroup.map((_, index) => String(index))"
+              :height="groupSize.h"
+              :radius="4"
+              :group-padding="0"
+              :bar-padding="0.15"
+              :y-num-ticks="3"
+              :y-formatter="(value: number) => (Number.isInteger(value) ? String(value) : '')"
+              hide-x-axis
+              hide-legend
+              :x-grid-line="false"
+            />
+          </div>
+          <ul class="max-h-full min-w-0 flex-1 overflow-y-auto">
+            <li v-for="row in byGroup" :key="row.key">
+              <button
+                type="button"
+                class="flex min-h-8 w-full items-center gap-2 rounded-md px-2 text-left text-sm hover:bg-elevated disabled:cursor-default disabled:hover:bg-transparent"
+                :disabled="row.id === undefined"
+                @click="row.id !== undefined && showInBox({ groups: [row.id] })"
+              >
                 <span
-                  v-if="row.mark"
-                  class="size-2.5 rounded-xs"
+                  class="h-2.5 w-3.5 shrink-0 rounded-sm"
                   :style="{ backgroundColor: row.mark }"
                   aria-hidden="true"
                 />
-                <span class="flex-1 text-highlighted">{{ row.label }}</span>
+                <span class="flex-1 truncate text-highlighted">{{ row.label }}</span>
                 <span class="font-bold text-highlighted tabular-nums">{{ row.count }}</span>
                 <span class="w-10 text-right text-muted tabular-nums">{{ percent(row.count) }}%</span>
-              </span>
-              <UProgress :model-value="percent(row.count)" color="neutral" size="xs" />
-            </button>
-          </li>
-        </ul>
+              </button>
+            </li>
+          </ul>
+        </div>
         <UButton
           v-if="hiddenGroups > 0 || showAllGroups"
           color="neutral"
@@ -368,9 +418,34 @@ const stats = computed(() => [
 </template>
 
 <style scoped>
-/* A calendar day: a small square with a hairline edge, like a cell on a practice sheet, filled with ink by how much was added. */
+/*
+  The calendar, drawn the way GitHub draws contributions: every day a square with softly rounded corners, never a stretched rectangle.
+  The square is the largest that fits 26 weeks across and 7 days down, measured against the card through container units, so the calendar fills the card instead of sitting in its corner.
+  Below the wide breakpoint the card has no fixed height, so only the width decides.
+*/
+[data-heat] {
+  container-type: inline-size;
+  --cell: calc((100cqw - 2rem) / 27 - 0.25rem);
+}
+[data-heat-column] {
+  display: grid;
+  grid-template-rows: 1rem repeat(7, var(--cell));
+  grid-auto-columns: var(--cell);
+  gap: 0.25rem;
+}
+[data-heat-column]:first-child {
+  grid-auto-columns: auto;
+}
 [data-day] {
-  border-radius: 2px;
+  width: var(--cell);
+  height: var(--cell);
+  border-radius: 0.2rem;
   box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ui-text) 10%, transparent);
+}
+@media (min-width: 64rem) {
+  [data-heat] {
+    container-type: size;
+    --cell: min(calc((100cqw - 2rem) / 27 - 0.25rem), calc((100cqh - 1.25rem) / 7 - 0.25rem));
+  }
 }
 </style>

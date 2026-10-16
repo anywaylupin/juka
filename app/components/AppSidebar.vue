@@ -8,7 +8,7 @@
  * Every icon keeps one left offset in both states, padded so its center falls on the middle of the 4rem rail: centering them only while collapsed made each icon jump sideways as the rail opened.
  */
 const props = defineProps<{
-  tabs: Array<{ to: string; label: string; icon: string }>;
+  tabs: Array<{ to: string; label: string; icon: string; kbd?: string }>;
 }>();
 
 const { t } = useI18n();
@@ -59,6 +59,8 @@ const items = computed(() => [props.tabs.slice(0, -1), props.tabs.slice(-1)]);
       size="lg"
       block
       :aria-label="t('card.add')"
+      aria-keyshortcuts="n"
+      data-kbd="N"
       @click="openEditor()"
     >
       <span v-show="expanded">{{ t('card.add') }}</span>
@@ -70,7 +72,13 @@ const items = computed(() => [props.tabs.slice(0, -1), props.tabs.slice(-1)]);
       :collapsed="!expanded"
       color="neutral"
       :ui="{ link: 'min-h-11 justify-start px-3.5', linkLeadingIcon: 'size-5' }"
-    />
+    >
+      <template #item-leading="{ item }">
+        <span :data-kbd="item.kbd" class="flex">
+          <UIcon :name="item.icon" class="size-5 shrink-0" />
+        </span>
+      </template>
+    </UNavigationMenu>
   </nav>
 </template>
 

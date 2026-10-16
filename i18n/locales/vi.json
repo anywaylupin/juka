@@ -65,7 +65,9 @@
     "inOrder": "Theo hộp",
     "keyBack": "Lùi",
     "keyTurn": "Lật thẻ",
-    "keyNext": "Tiếp"
+    "keyNext": "Tiếp",
+    "keyRate": "Đánh giá",
+    "keyListen": "Nghe"
   },
   "pos": {
     "noun": "Danh từ",
@@ -274,5 +276,13 @@
     "size": "Cỡ chữ",
     "tones": "Màu thanh điệu",
     "tonesHint": "Tô màu mỗi chữ theo thanh điệu"
+  },
+  "shortcuts": {
+    "title": "Phím tắt",
+    "find": "Tìm thẻ",
+    "cards": "Thẻ",
+    "goTo": "Đi tới",
+    "everywhere": "Mọi nơi",
+    "hints": "Hiện phím trên nút (giữ)"
   }
 }

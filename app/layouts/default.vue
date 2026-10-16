@@ -6,7 +6,7 @@
  * The cards lie on a table surface between, so the box reads as something on a desk rather than a page in an app.
  * On a phone the rail folds away: a top bar and a tab bar carry the navigation, and the same drawer opens from the right.
  *
- * The box loads here, once, rather than in a page, so moving between Box, Practice and Progress never refetches and every page reads the same filtered list.
+ * The box loads here, once, rather than in a page, so moving between Box, Practice and Progress never re-fetches and every page reads the same filtered list.
  */
 const { t } = useI18n();
 const toast = useToast();
@@ -27,18 +27,19 @@ watch(reminder.requested, async (value) => {
 });
 const { editing, editorOpen, filtersOpen, groupsOpen, bulk, stopUpdate } = useCardActions();
 const { activeCount } = useCardFilters(store.cards);
+const shortcutsOpen = useState('juka:shortcuts', () => false);
 
 /** Search narrows cards, so it is offered only on the pages that show them. */
 const showSearch = computed(() => !/\/(settings|reset|login)$/.test(route.path));
 
 /** The last tab is the profile once signed in and the way in before that: a profile with no account has nothing on it that is yours. */
 const tabs = computed(() => [
-  { to: localePath('/'), label: t('nav.box'), icon: 'i-lucide-layout-grid' },
-  { to: localePath('/practice'), label: t('nav.practice'), icon: 'i-lucide-layers' },
-  { to: localePath('/progress'), label: t('nav.progress'), icon: 'i-lucide-chart-column' },
+  { to: localePath('/'), label: t('nav.box'), icon: 'i-lucide-layout-grid', kbd: 'Z' },
+  { to: localePath('/practice'), label: t('nav.practice'), icon: 'i-lucide-layers', kbd: 'X' },
+  { to: localePath('/progress'), label: t('nav.progress'), icon: 'i-lucide-chart-column', kbd: 'C' },
   session.signedIn.value
-    ? { to: localePath('/settings'), label: t('nav.profile'), icon: 'i-lucide-circle-user-round' }
-    : { to: localePath('/login'), label: t('auth.signIn'), icon: 'i-lucide-log-in' }
+    ? { to: localePath('/settings'), label: t('nav.profile'), icon: 'i-lucide-circle-user-round', kbd: 'B' }
+    : { to: localePath('/login'), label: t('auth.signIn'), icon: 'i-lucide-log-in', kbd: 'B' }
 ]);
 
 /**
@@ -99,10 +100,28 @@ function onSaved() {
       -->
       <div v-if="showSearch" data-notch class="hidden lg:flex">
         <!-- One button: both tabs live in the same drawer, so it opens on whichever was used last. -->
-        <UButton color="neutral" variant="ghost" icon="i-lucide-sliders-horizontal" @click="filtersOpen = true">
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-sliders-horizontal"
+          aria-keyshortcuts="f"
+          data-kbd="F"
+          @click="filtersOpen = true"
+        >
           {{ t('dock.title') }}
           <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
         </UButton>
+        <UTooltip :text="t('shortcuts.title')" :kbds="['.']">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-keyboard"
+            square
+            :aria-label="t('shortcuts.title')"
+            data-kbd="."
+            @click="shortcutsOpen = true"
+          />
+        </UTooltip>
       </div>
 
       <UMain
@@ -167,6 +186,8 @@ function onSaved() {
         linkLeadingIcon: 'size-5'
       }"
     />
+
+    <AppShortcuts />
 
     <USlideover
       v-model:open="filtersOpen"
