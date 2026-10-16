@@ -17,6 +17,14 @@ const session = useSession();
 const store = useCardStore();
 const groupStore = useGroups();
 const reminder = useSignInReminder();
+
+/** The sign-in reminder asks for the sign-in page through `requested`, so it never has to know where that page lives. */
+watch(reminder.requested, async (value) => {
+  if (value) {
+    reminder.requested.value = false;
+    await navigateTo(localePath('/login'));
+  }
+});
 const { editing, editorOpen, filtersOpen, groupsOpen, bulk, stopUpdate } = useCardActions();
 const { activeCount } = useCardFilters(store.cards);
 
@@ -101,10 +109,11 @@ function onSaved() {
         id="main"
         as="main"
         tabindex="-1"
-        class="relative flex w-full flex-1 flex-col px-4 pt-6 pb-28 outline-none sm:px-6 lg:min-h-0 lg:overflow-y-auto lg:px-48 lg:pt-2 lg:pb-16"
+        class="relative flex w-full flex-1 flex-col px-4 pt-4 pb-20 outline-none sm:px-6 lg:min-h-0 lg:overflow-y-auto lg:px-8 lg:pt-2 lg:pb-16 xl:px-48"
       >
         <!--
-          The open sidebar reaches 10.5rem into the table, so the content keeps a 12rem gutter on both sides: clear of it with room to spare, and still centered.
+          On a wide desktop the open sidebar reaches 11rem into the table, so the content keeps a 12rem gutter on both sides: clear of it, and still centered.
+          Below that the gutter would squeeze four cards to a stamp, so it narrows and the open sidebar briefly covers the first column instead.
           A flex column, so a page can fill it and push its pager to the foot.
         -->
         <slot />
@@ -145,15 +154,16 @@ function onSaved() {
       </UButton>
     </div>
 
-    <!-- Phone tab bar. The sidebar carries the same four on wider screens. -->
+    <!-- Phone and tablet tab bar, centered, with the pager rising out of its top edge on the Box. The sidebar carries the same links on a wide screen. -->
     <UNavigationMenu
       :items="tabs"
       color="neutral"
       :aria-label="t('nav.main')"
-      class="fixed inset-x-0 bottom-0 z-30 border-t border-default bg-default/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur lg:hidden"
+      class="fixed inset-x-0 bottom-0 z-30 border-t border-default bg-default pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
       :ui="{
-        list: 'grid w-full grid-cols-4',
-        link: 'min-h-14 flex-col justify-center gap-0.5 text-xs',
+        root: 'justify-center',
+        list: 'flex w-fit gap-1',
+        link: 'min-h-14 min-w-18 flex-col justify-center gap-0.5 text-xs',
         linkLeadingIcon: 'size-5'
       }"
     />
@@ -204,7 +214,7 @@ function onSaved() {
       inset 0 2px 14px -4px color-mix(in oklab, var(--ui-text) 16%, transparent);
     transition: left 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  :has([data-rail]:is(:hover, :focus-within)) [data-surface] {
+  :has([data-rail][data-expanded]) [data-surface] {
     left: 11rem;
   }
 

@@ -23,14 +23,15 @@ watch(
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 lg:h-full lg:min-h-0">
+  <div class="flex flex-col gap-4 xl:h-full xl:min-h-0">
     <PageTitle
+      class="max-lg:hidden"
       :glyph="session.account.value?.username?.[0]?.toUpperCase() ?? '我'"
       :title="session.account.value?.username ?? t('nav.profile')"
       :detail="session.account.value?.email ?? undefined"
     />
 
-    <div class="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-3">
+    <div class="grid gap-4 md:grid-cols-2 xl:min-h-0 xl:flex-1 xl:grid-cols-3">
       <UCard as="section" :ui="JUKA_SECTION" aria-labelledby="profile-account">
         <h2 id="profile-account" class="shrink-0 juka-subheading text-base">{{ t('settings.account') }}</h2>
         <div class="juka-section-body">

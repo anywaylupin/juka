@@ -167,7 +167,7 @@ async function submit() {
     -->
     <UFormField
       :label="t('auth.confirmPassword')"
-      :class="mode !== 'register' && 'invisible order-last'"
+      :class="mode !== 'register' && 'invisible order-last max-lg:hidden'"
       :aria-hidden="mode !== 'register'"
     >
       <UInput
@@ -182,7 +182,7 @@ async function submit() {
     <UFormField
       :label="t('auth.email')"
       :help="t('auth.emailHelp')"
-      :class="mode !== 'register' && 'invisible order-last'"
+      :class="mode !== 'register' && 'invisible order-last max-lg:hidden'"
       :aria-hidden="mode !== 'register'"
     >
       <UInput v-model="email" type="email" autocomplete="email" class="w-full" icon="i-lucide-mail" />

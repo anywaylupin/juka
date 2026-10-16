@@ -5,7 +5,8 @@
     "delete": "Xóa",
     "clear": "Xóa trắng",
     "retry": "Thử lại",
-    "undo": "Hoàn tác"
+    "undo": "Hoàn tác",
+    "close": "Đóng"
   },
   "dock": {
     "title": "Bộ lọc và cài đặt"

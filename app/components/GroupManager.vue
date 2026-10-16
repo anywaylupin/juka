@@ -88,7 +88,7 @@ function message(error: unknown): string {
 
 <template>
   <div class="space-y-4">
-    <form class="flex items-end gap-2" @submit.prevent="create">
+    <form class="flex flex-wrap items-end gap-2" @submit.prevent="create">
       <UPopover>
         <UButton color="neutral" variant="outline" :aria-label="t('group.color')">
           <span class="size-4 rounded-full" :style="{ backgroundColor: color }" />
@@ -108,7 +108,12 @@ function message(error: unknown): string {
         </template>
       </UPopover>
 
-      <UInput v-model="name" class="flex-1" :placeholder="t('group.namePlaceholder')" :aria-label="t('group.name')" />
+      <UInput
+        v-model="name"
+        class="min-w-40 flex-1"
+        :placeholder="t('group.namePlaceholder')"
+        :aria-label="t('group.name')"
+      />
 
       <UButton
         type="submit"

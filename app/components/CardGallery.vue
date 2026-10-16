@@ -91,7 +91,7 @@ function setFlipped(card: CardRecord, value: boolean) {
     <TransitionGroup
       tag="div"
       name="juka-card"
-      class="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-4 lg:grid-rows-3"
+      class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:min-h-0 lg:flex-1 lg:grid-cols-3 lg:grid-rows-4 xl:grid-cols-4 xl:grid-rows-3"
     >
       <!--
         Each card sits in a slot sized by the grid row, and is as large as fits it, so a page of three rows always fits the table above the pager with nothing to scroll.
@@ -120,10 +120,13 @@ function setFlipped(card: CardRecord, value: boolean) {
     <nav
       v-if="cards.length > 0"
       data-pager
-      class="sticky bottom-20 z-20 mx-auto mt-auto flex w-fit items-center gap-3"
+      class="mx-auto mt-auto flex w-fit items-center gap-2"
       :aria-label="t('cards.pagination')"
     >
-      <span class="font-hanzi text-sm text-muted tabular-nums" lang="zh" :aria-label="t('cards.count', cards.length)"
+      <span
+        class="font-hanzi text-xs text-muted tabular-nums sm:text-sm"
+        lang="zh"
+        :aria-label="t('cards.count', cards.length)"
         >共 {{ cards.length }} 张</span
       >
       <UPagination
@@ -132,6 +135,8 @@ function setFlipped(card: CardRecord, value: boolean) {
         :total="cards.length"
         :items-per-page="pageSize"
         :sibling-count="1"
+        size="sm"
+        :ui="{ first: 'max-sm:hidden', last: 'max-sm:hidden' }"
         color="neutral"
         variant="outline"
         active-color="neutral"
@@ -201,6 +206,40 @@ function setFlipped(card: CardRecord, value: boolean) {
     content: '';
     position: absolute;
     bottom: 0.75rem;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  [data-pager]::before {
+    left: -0.75rem;
+    background: radial-gradient(circle at 0 0, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+  [data-pager]::after {
+    right: -0.75rem;
+    background: radial-gradient(circle at 100% 0, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+}
+/*
+  On a phone and a tablet the pager rises out of the tab bar's top edge the same way it rises out of the frame on a desktop: the bar's own color, rounded on top, with curved corners where it meets the bar.
+*/
+@media (max-width: 63.999rem) {
+  [data-pager] {
+    position: fixed;
+    /* The tab bar is 4.5rem tall (its 3.5rem links plus padding), so the pager sits on its top edge and covers its border. */
+    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    z-index: 35;
+    padding: 0.35rem 0.6rem 0.25rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background: var(--ui-bg);
+    box-shadow: 0 -1px 0 var(--ui-border);
+    backdrop-filter: none;
+    transform: translateX(-50%);
+  }
+  [data-pager]::before,
+  [data-pager]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
     width: 0.75rem;
     height: 0.75rem;
   }

@@ -17,6 +17,23 @@ const { openEditor } = useCardActions();
 
 const expanded = ref(false);
 
+/**
+ * Whether the rail is open, the one place that decides it: the width, the labels and the table edge all read this.
+ *
+ * The width used to follow CSS `:hover` and `:focus-within` while the labels followed this flag, and the two disagreed after a click: the clicked link kept focus, so the rail stayed wide while the menu had already collapsed to icons, leaving a wide, empty sidebar.
+ * Leaving with the mouse now closes it unless focus inside came from the keyboard, which is the only reason to hold it open.
+ */
+function leave(event: MouseEvent) {
+  expanded.value = (event.currentTarget as HTMLElement).matches(':has(:focus-visible)');
+}
+
+/** Focus moving between links inside the rail is not leaving it. */
+function blur(event: FocusEvent) {
+  if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) {
+    expanded.value = false;
+  }
+}
+
 /** Pages first, then the account, as two groups with a line between them. */
 const items = computed(() => [props.tabs.slice(0, -1), props.tabs.slice(-1)]);
 </script>
@@ -24,11 +41,12 @@ const items = computed(() => [props.tabs.slice(0, -1), props.tabs.slice(-1)]);
 <template>
   <nav
     data-rail
+    :data-expanded="expanded || undefined"
     :aria-label="t('nav.main')"
     @mouseenter="expanded = true"
-    @mouseleave="expanded = false"
+    @mouseleave="leave"
     @focusin="expanded = true"
-    @focusout="expanded = false"
+    @focusout="blur"
   >
     <NuxtLink :to="localePath('/')" class="flex items-center gap-2 rounded-sm px-0.75" :aria-label="t('nav.home')">
       <AppLogo class="h-9 text-2xl" />
@@ -74,7 +92,7 @@ const items = computed(() => [props.tabs.slice(0, -1), props.tabs.slice(-1)]);
   white-space: nowrap;
   transition: width 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-[data-rail]:is(:hover, :focus-within) {
+[data-rail][data-expanded] {
   width: 15rem;
 }
 [data-rail] :deep(.iconify) {

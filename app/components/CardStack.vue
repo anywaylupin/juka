@@ -88,24 +88,39 @@ function back() {
   emit('update:modelValue', (props.modelValue - 1 + props.cards.length) % props.cards.length);
 }
 
+/**
+ * The keys a gamer's hand already rests on, and the arrows beside them: A or left goes back, D or right goes on, W, S, up or down turn the card over.
+ * Space was dropped: it scrolls the page on a phone keyboard and fought the browser for focus on a desktop.
+ */
+const KEYS: Record<string, 'back' | 'next' | 'turn'> = {
+  ArrowLeft: 'back',
+  a: 'back',
+  ArrowRight: 'next',
+  d: 'next',
+  ArrowUp: 'turn',
+  ArrowDown: 'turn',
+  w: 'turn',
+  s: 'turn'
+};
+
 function onKeydown(event: KeyboardEvent) {
-  const target = event.target as HTMLElement | null;
-  if (target?.closest('input, textarea, [contenteditable]')) {
+  const target = event.target;
+  if (
+    event.ctrlKey ||
+    event.metaKey ||
+    event.altKey ||
+    (target instanceof Element && target.closest('input, textarea, select, [contenteditable]'))
+  ) {
     return;
   }
-
-  if (event.key === 'ArrowRight') {
-    event.preventDefault();
-    advance();
+  const action = KEYS[event.key.length === 1 ? event.key.toLowerCase() : event.key];
+  if (!action) {
+    return;
   }
-  if (event.key === 'ArrowLeft') {
-    event.preventDefault();
-    back();
-  }
-  if (event.key === ' ' || event.key === 'Enter') {
-    event.preventDefault();
-    flipped.value = !flipped.value;
-  }
+  event.preventDefault();
+  if (action === 'back') back();
+  else if (action === 'next') advance();
+  else flipped.value = !flipped.value;
 }
 
 onMounted(() => window.addEventListener('keydown', onKeydown));
@@ -114,10 +129,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 <template>
   <!--
-    A practice session laid out like a desk: how the deck is dealt and where you are in it along the top, the deck in the middle as large as the table allows with a step either side of it, and the keys underneath.
-    The earlier version stacked a pill, a small card, two round arrows, a "1 of 8" and a sentence of instructions down the center line, every piece the same small size, which read as generated rather than designed.
+    A practice session laid out like a desk, the same on every screen: how the deck is dealt and where you are along the top, the deck centered in the space between, and under it the shuffle, the keys and a hairline of progress at the very foot.
+    On a tablet and up the steps sit either side of the deck; on a phone they flank the shuffle under the thumb.
   -->
-  <div v-if="current" class="flex flex-col gap-4 lg:h-full lg:min-h-0">
+  <div v-if="current" class="flex flex-1 flex-col gap-3 lg:min-h-0">
     <div class="flex flex-wrap items-center gap-3">
       <UTabs
         :items="orderTabs"
@@ -130,24 +145,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         :aria-label="t('stack.order')"
         @update:model-value="emit('update:practice', $event === 'weighted')"
       />
-      <UButton
-        v-if="practice"
-        icon="i-lucide-rotate-cw"
-        color="neutral"
-        variant="ghost"
-        :aria-label="t('stack.reshuffle')"
-        @click="emit('reshuffle')"
-      >
-        <span class="hidden sm:inline">{{ t('stack.reshuffle') }}</span>
-      </UButton>
-
       <p class="ml-auto font-display text-highlighted tabular-nums" aria-live="polite">
         <span class="text-2xl font-bold">{{ modelValue + 1 }}</span>
         <span class="text-muted"> / {{ cards.length }}</span>
       </p>
     </div>
 
-    <div class="flex flex-1 items-center gap-3 lg:min-h-0 lg:gap-6">
+    <div class="flex min-h-0 flex-1 items-center gap-3 lg:gap-6">
       <UButton
         icon="i-lucide-chevron-left"
         color="neutral"
@@ -159,16 +163,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
       />
 
       <!--
-        The stage is a size container, so the deck takes the largest index card that fits the table, leaving room above for the edges of the cards to come.
+        The stage centers the deck both ways; on a wide screen it is also a size container, so the deck takes the largest index card that fits the table.
         Cards to come sit behind and above in ink, the way a stack of index cards shows its edges on a desk.
       -->
       <div data-stage class="flex-1 self-stretch">
-        <div data-deck class="relative mx-auto">
+        <div data-deck class="relative">
           <div
             v-for="(card, depth) in behind"
             :key="card.id"
             data-edge
-            class="pointer-events-none absolute inset-x-0 top-0"
+            class="pointer-events-none absolute inset-x-0 top-8"
             :style="{
               transform: `translateY(${-(depth + 1) * 13}px) scale(${1 - (depth + 1) * 0.04})`,
               backgroundColor: `color-mix(in oklab, var(--ui-text) ${depth === 0 ? 14 : 8}%, var(--ui-bg))`,
@@ -203,34 +207,56 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
       />
     </div>
 
-    <div class="shrink-0 space-y-3">
-      <!-- How far through the deck, as a hairline of ink rather than a second counter. -->
-      <UProgress :model-value="modelValue + 1" :max="cards.length" color="neutral" size="2xs" aria-hidden="true" />
-
-      <!-- On a phone the arrows sit here, under the thumb; on a keyboard the keys are shown as keys. -->
-      <div class="flex items-center justify-center gap-3 sm:hidden">
+    <div class="flex shrink-0 flex-col items-center gap-3">
+      <div class="flex items-center gap-3">
         <UButton
           icon="i-lucide-chevron-left"
           color="neutral"
           variant="outline"
           size="xl"
+          class="sm:hidden"
           :aria-label="t('cards.previous')"
           @click="back"
         />
+        <UButton
+          :class="{ invisible: !practice }"
+          :aria-hidden="!practice"
+          icon="i-lucide-rotate-cw"
+          color="neutral"
+          variant="ghost"
+          :aria-label="t('stack.reshuffle')"
+          @click="emit('reshuffle')"
+        >
+          <span class="hidden sm:inline">{{ t('stack.reshuffle') }}</span>
+        </UButton>
         <UButton
           icon="i-lucide-chevron-right"
           color="neutral"
           variant="outline"
           size="xl"
+          class="sm:hidden"
           :aria-label="t('cards.next')"
           @click="advance"
         />
       </div>
-      <p class="hidden items-center justify-center gap-5 text-xs text-muted sm:flex">
-        <span class="flex items-center gap-1.5"><UKbd value="←" />{{ t('stack.keyBack') }}</span>
-        <span class="flex items-center gap-1.5"><UKbd value="Space" />{{ t('stack.keyTurn') }}</span>
-        <span class="flex items-center gap-1.5"><UKbd value="→" />{{ t('stack.keyNext') }}</span>
+
+      <p class="hidden flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted sm:flex">
+        <span class="flex items-center gap-1"><UKbd value="A" /><UKbd value="←" />{{ t('stack.keyBack') }}</span>
+        <span class="flex items-center gap-1"
+          ><UKbd value="W" /><UKbd value="S" /><UKbd value="↑" /><UKbd value="↓" />{{ t('stack.keyTurn') }}</span
+        >
+        <span class="flex items-center gap-1"><UKbd value="D" /><UKbd value="→" />{{ t('stack.keyNext') }}</span>
       </p>
+
+      <!-- How far through the deck, as a hairline of ink at the foot rather than a second counter. -->
+      <UProgress
+        :model-value="modelValue + 1"
+        :max="cards.length"
+        color="neutral"
+        size="2xs"
+        class="w-full"
+        aria-hidden="true"
+      />
     </div>
   </div>
 </template>
@@ -250,6 +276,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
   The deck takes the largest index card that fits the stage, leaving 2rem above it for the edges of the cards behind.
   Capped at 44rem so a very wide screen does not turn one card into a billboard; on a phone it is simply the width of the screen.
 */
+[data-stage] {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
 [data-deck] {
   width: 100%;
   max-width: 44rem;
@@ -258,9 +289,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 @media (min-width: 64rem) {
   [data-stage] {
     container-type: size;
-    display: grid;
-    place-items: center;
-    min-height: 0;
   }
   [data-deck] {
     width: min(100cqw, (100cqh - 2rem) * 5 / 3.2, 44rem);

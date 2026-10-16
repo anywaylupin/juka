@@ -5,7 +5,8 @@
     "delete": "Delete",
     "clear": "Clear",
     "retry": "Try again",
-    "undo": "Undo"
+    "undo": "Undo",
+    "close": "Close"
   },
   "dock": {
     "title": "Filters and settings"

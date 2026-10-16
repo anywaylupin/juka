@@ -64,11 +64,14 @@
 
   /* A thumb needs a 44px target, whatever size the control is drawn at. */
   @media (pointer: coarse) {
-    button,
+    /* A switch is a button to the browser but a pill to the eye; stretching it to a 44px square ballooned its thumb. */
+    button:not([role='switch']),
     [role='button'],
     a {
       min-width: 44px;
       min-height: 44px;
+      /* Stretching a small icon button to 44px left its icon at the old left edge; keep the content in the middle of the target. */
+      justify-content: center;
     }
   }
 

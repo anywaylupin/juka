@@ -12,7 +12,7 @@ useSeoMeta({ title: () => `${t('nav.box')} · Juka`, description: () => t('tagli
 const store = useCardStore();
 const flipMode = useFlipMode();
 const { results, activeCount, clearAll } = useCardFilters(store.cards);
-const { filtersOpen, openEditor, rate, remove } = useCardActions();
+const { openEditor, rate, remove } = useCardActions();
 
 const page = ref(1);
 const PAGE_SIZE = 12;
@@ -23,25 +23,13 @@ watch(results, () => {
 </script>
 
 <template>
-  <div class="flex min-h-full flex-col gap-5 lg:h-full lg:min-h-0">
+  <div class="flex min-h-full flex-col gap-5 pb-12 lg:h-full lg:min-h-0 lg:pb-0">
     <!-- Title, search and actions share one row, level with the frame tab, so the cards start high on the table. -->
-    <div class="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-3">
+    <div class="hidden shrink-0 items-center gap-x-6 lg:flex">
       <PageTitle glyph="盒" :title="t('nav.box')" />
       <!-- Short, because a word is a few characters. -->
-      <SearchField class="hidden lg:flex lg:w-88" />
-      <div class="ml-auto flex items-center gap-2">
-        <!-- A phone has no frame tab, so the button stays here below the wide breakpoint. -->
-        <UButton
-          color="neutral"
-          variant="outline"
-          icon="i-lucide-sliders-horizontal"
-          class="lg:hidden"
-          @click="filtersOpen = true"
-        >
-          {{ t('filter.title') }}
-          <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
-        </UButton>
-      </div>
+      <!-- Centered on the screen, level with the title, whatever the title's width. -->
+      <SearchField class="hidden lg:fixed lg:top-5 lg:left-1/2 lg:z-30 lg:flex lg:w-72 lg:-translate-x-1/2" />
     </div>
 
     <UAlert
@@ -54,10 +42,7 @@ watch(results, () => {
       :actions="[{ label: t('common.retry'), color: 'error', variant: 'soft', onClick: () => store.load() }]"
     />
 
-    <div
-      v-else-if="!store.loaded.value"
-      class="grid grid-cols-[repeat(auto-fill,minmax(max(15rem,calc((100%-3rem)/4)),1fr))] gap-4"
-    >
+    <div v-else-if="!store.loaded.value" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <USkeleton v-for="placeholder in 8" :key="placeholder" class="aspect-5/3.2 rounded-sm" />
     </div>
 

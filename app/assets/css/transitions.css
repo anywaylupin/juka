@@ -1,52 +1,53 @@
-/* Class names that Vue <Transition> and <TransitionGroup> build from their `name`, so they stay plain classes. */
+/*
+  Class names that Vue <Transition> and <TransitionGroup> build from their `name`, so they stay plain classes.
+  Un-layered on purpose: they have to win over the utilities on the element they animate, and a leaving card set `position: absolute` from inside @layer components lost to the card's own `relative`, so the old and the new card stacked on top of each other whenever the deck stepped.
+*/
 
-@layer components {
-  /*
-    Dealing a card off the practice deck, the `juka-deal` and `juka-deal-back` transitions.
-    Forward sends the top card up and away and brings the next one up from inside the deck; back runs the same movement in reverse, so the button you pressed and the motion you see agree.
-  */
-  .juka-deal-enter-active,
-  .juka-deal-leave-active,
-  .juka-deal-back-enter-active,
-  .juka-deal-back-leave-active {
-    transition:
-      opacity 240ms ease,
-      transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .juka-deal-leave-active,
-  .juka-deal-back-leave-active {
-    position: absolute;
-    inset: 0;
-  }
-  .juka-deal-enter-from,
-  .juka-deal-back-leave-to {
-    opacity: 0;
-    transform: translateY(26px) scale(0.9);
-  }
-  .juka-deal-leave-to,
-  .juka-deal-back-enter-from {
-    opacity: 0;
-    transform: translateY(-64px) rotate(-4deg) scale(0.96);
-  }
+/*
+  Dealing a card off the practice deck, the `juka-deal` and `juka-deal-back` transitions.
+  Forward sends the top card up and away and brings the next one up from inside the deck; back runs the same movement in reverse, so the button you pressed and the motion you see agree.
+*/
+.juka-deal-enter-active,
+.juka-deal-leave-active,
+.juka-deal-back-enter-active,
+.juka-deal-back-leave-active {
+  transition:
+    opacity 240ms ease,
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.juka-deal-leave-active,
+.juka-deal-back-leave-active {
+  position: absolute;
+  inset: 0;
+}
+.juka-deal-enter-from,
+.juka-deal-back-leave-to {
+  opacity: 0;
+  transform: translateY(26px) scale(0.9);
+}
+.juka-deal-leave-to,
+.juka-deal-back-enter-from {
+  opacity: 0;
+  transform: translateY(-64px) rotate(-4deg) scale(0.96);
+}
 
-  /*
-    Cards arriving in the gallery, the `juka-card` transition group, one just after another.
-    The stagger is set per card as a custom property so a page lands as a wave rather than a block; fade only, in place, because any transform fought the card's own hover.
-  */
-  .juka-card-enter-active {
-    transition: opacity 320ms ease-out;
-    transition-delay: var(--juka-stagger, 0ms);
-  }
-  .juka-card-enter-from {
-    opacity: 0;
-  }
-  .juka-card-leave-active {
-    display: none;
-  }
+/*
+  Cards arriving in the gallery, the `juka-card` transition group, one just after another.
+  The stagger is set per card as a custom property so a page lands as a wave rather than a block; fade only, in place, because any transform fought the card's own hover.
+*/
+.juka-card-enter-active {
+  transition: opacity 320ms ease-out;
+  transition-delay: var(--juka-stagger, 0ms);
+}
+.juka-card-enter-from {
+  opacity: 0;
+}
+.juka-card-leave-active {
+  display: none;
+}
 
-  /* Tabs underlined in ink, the chosen one in full weight. */
-  .juka-tabs [role='tab'][data-state='active'] {
-    color: var(--ui-text-highlighted);
-    font-weight: 700;
-  }
+/* Tabs underlined in ink, the chosen one in full weight. */
+.juka-tabs [role='tab'][data-state='active'] {
+  color: var(--ui-text-highlighted);
+  font-weight: 700;
 }

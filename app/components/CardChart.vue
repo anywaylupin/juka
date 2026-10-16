@@ -233,7 +233,7 @@ const stats = computed(() => [
           />
         </div>
 
-        <ul class="grid juka-section-body content-start gap-x-3 sm:grid-cols-2">
+        <ul class="grid juka-section-body content-start gap-x-3 2xl:grid-cols-2">
           <li v-for="level in byRating" :key="level.rating">
             <button
               type="button"

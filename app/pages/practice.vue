@@ -9,8 +9,8 @@ const { t } = useI18n();
 useSeoMeta({ title: () => `${t('nav.practice')} · Juka` });
 
 const store = useCardStore();
-const { results, activeCount } = useCardFilters(store.cards);
-const { filtersOpen, openEditor, rate, remove } = useCardActions();
+const { results } = useCardFilters(store.cards);
+const { openEditor, rate, remove } = useCardActions();
 
 const index = ref(0);
 const practice = useCookie<boolean>('juka_practice', { default: () => true, sameSite: 'lax' });
@@ -27,25 +27,13 @@ watch(results, (list) => {
 </script>
 
 <template>
-  <div class="flex min-h-full flex-col gap-4 lg:h-full lg:min-h-0">
+  <div class="flex flex-1 flex-col gap-4 lg:h-full lg:min-h-0">
     <!-- Title, search and actions share one row, level with the frame tab, so the cards start high on the table. -->
-    <div class="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-3">
+    <div class="hidden shrink-0 items-center gap-x-6 lg:flex">
       <PageTitle glyph="习" :title="t('nav.practice')" />
       <!-- Short, because a word is a few characters. -->
-      <SearchField class="hidden lg:flex lg:w-88" />
-      <div class="ml-auto flex items-center gap-2">
-        <!-- A phone has no frame tab, so the button stays here below the wide breakpoint. -->
-        <UButton
-          color="neutral"
-          variant="outline"
-          icon="i-lucide-sliders-horizontal"
-          class="lg:hidden"
-          @click="filtersOpen = true"
-        >
-          {{ t('filter.title') }}
-          <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
-        </UButton>
-      </div>
+      <!-- Centered on the screen, level with the title, whatever the title's width. -->
+      <SearchField class="hidden lg:fixed lg:top-5 lg:left-1/2 lg:z-30 lg:flex lg:w-72 lg:-translate-x-1/2" />
     </div>
 
     <USkeleton v-if="!store.loaded.value" class="aspect-5/3.2 mx-auto w-full max-w-xl rounded-sm" />
@@ -62,7 +50,7 @@ watch(results, (list) => {
       v-else
       v-model="index"
       v-model:practice="practice"
-      class="lg:min-h-0 lg:flex-1"
+      class="flex-1 lg:min-h-0"
       :cards="ordered"
       @reshuffle="reshuffle"
       @edit="openEditor"

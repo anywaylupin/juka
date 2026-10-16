@@ -10,7 +10,7 @@ const { results } = useCardFilters(store.cards);
 
 <template>
   <div class="flex flex-col gap-4 lg:h-full lg:min-h-0">
-    <PageTitle glyph="进" :title="t('nav.progress')" class="shrink-0" />
+    <PageTitle glyph="进" :title="t('nav.progress')" class="shrink-0 max-lg:hidden" />
     <USkeleton v-if="!store.loaded.value" class="h-64 w-full rounded-sm" />
     <CardChart v-else class="lg:min-h-0 lg:flex-1" :cards="results" :groups="groupStore.groups.value" />
   </div>

@@ -31,7 +31,7 @@ onBeforeUnmount(() => clearTimeout(timer));
     variant="none"
     :ui="{
       root: 'border-b-2 border-(--ui-text-highlighted) transition-colors focus-within:border-primary',
-      base: 'focus-visible:outline-none lg:h-11 lg:text-lg'
+      base: 'focus-visible:outline-none lg:h-10 lg:text-base'
     }"
     :placeholder="t('cards.searchPlaceholder')"
     :aria-label="t('cards.searchPlaceholder')"

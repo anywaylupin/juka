@@ -165,7 +165,7 @@ async function copy() {
 
 <template>
   <div
-    class="group relative mx-auto w-full transition-transform duration-300 ease-out select-none perspective-[1600px]"
+    class="group @container relative mx-auto w-full transition-transform duration-300 ease-out select-none perspective-[1600px]"
     :class="[
       widths[size],
       !inert && flipOnClick && 'cursor-pointer',
@@ -305,7 +305,10 @@ async function copy() {
       </div>
 
       <!-- The level in words, so the mandarins are never the only way to read it. -->
-      <span v-if="size !== 'sm'" class="absolute bottom-3 left-3 text-xs text-muted first-letter:uppercase">
+      <span
+        v-if="size !== 'sm'"
+        class="absolute bottom-3 left-3 text-xs text-muted first-letter:uppercase @max-2xs:hidden"
+      >
         {{ card.rating ? labelFor(card.rating) : t('filter.unrated') }}
       </span>
 
@@ -390,16 +393,17 @@ p[data-grid] > span + span {
 
 /*
   The card face settings in the dock.
+  Each variant names the `p` as the base cell rule does: without it the base rule was more specific and the hand and grid settings did nothing.
   The hand: kai is the brush a learner is taught from, song the printed book face, hei the sans of signs and screens.
   The grid: 田 has the center cross, 米 adds the diagonals that guide slanted strokes, a plain box keeps only the edge, and none leaves the character bare.
 */
-[data-font='song'] > span {
+p[data-font='song'] > span {
   font-family: var(--font-display);
 }
-[data-font='hei'] > span {
+p[data-font='hei'] > span {
   font-family: var(--font-hei);
 }
-[data-grid='mi'] > span {
+p[data-grid='mi'] > span {
   background:
     repeating-linear-gradient(90deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 100% 1px no-repeat,
     repeating-linear-gradient(180deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 1px 100% no-repeat,
@@ -416,10 +420,10 @@ p[data-grid] > span + span {
       transparent calc(50% + 0.5px)
     );
 }
-[data-grid='box'] > span {
+p[data-grid='box'] > span {
   background: none;
 }
-[data-grid='none'] > span {
+p[data-grid='none'] > span {
   border-color: transparent;
   background: none;
 }

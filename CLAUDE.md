@@ -331,39 +331,46 @@ The metaphor is a real box of index cards, and the layout is built around that r
   focus while the table's rounded edge (the `[data-surface]` layer, a layer under the content) slides right with it, so
   the sidebar grows out of the frame rather than lying over it as a sheet, and the cards never reflow. The table keeps a
   12rem gutter on both sides, so the open sidebar never covers a card and the content stays centered, the card grid is a
-  fixed four by three on a wide screen, even on a short last page, and each card is the largest that fits its cell
-  (`[data-gallery-cell]`, a size container), so a page always fits and the Box never scrolls. The pager, which also
-  carries the Box's card count, and the one filters and settings button are tabs of frame reaching into the table, the
-  pager rising from the bottom edge and the other hanging into the top right corner, each curved where it meets the
-  table (`[data-notch]` in the layout, `[data-pager]` in `CardGallery`), not bars and not sheets over the cards. Every
-  page opens on one row level with that tab: the title as `PageTitle`, its own character in the logo's seal
-  (盒 Box, 习 Practice, 进 Progress, your initial on the profile) with the name beside it and no count, at the same
+  fixed four by three on a wide desktop (three by four on a laptop), even on a short last page, and each card is the
+  largest that fits its cell (`[data-gallery-cell]`, a size container), so a page always fits and the Box never scrolls.
+  The pager, which also carries the Box's card count, and the one filters and settings button are tabs of frame reaching
+  into the table, the pager rising from the bottom edge and the other hanging into the top right corner, each curved
+  where it meets the table (`[data-notch]` in the layout, `[data-pager]` in `CardGallery`), not bars and not sheets over
+  the cards. Every page opens on one row level with that tab: the title as `PageTitle`, its own character in the logo's
+  seal (盒 Box, 习 Practice, 进 Progress, your initial on the profile) with the name beside it and no count, at the same
   place and size on every page so the title and the search never jump between views, then search (short and set large
   because a word is a few characters) and the page's actions. Search is not in the sidebar, which is for navigation.
   `AppDock` is a drawer from the right, closed until asked for, with centered Filters and Settings tabs (the card face:
   hand kai, song or hei, practice grid 田, 米, box or none, character size, opt-in tone colors; then how cards turn,
   language and theme, as icon-led rows of segmented choices; the card face lives in `useCardStyle`, a cookie like the
   flip mode, so the server renders cards as they will look). The cards lie between on the ink wash sunk like the inside
-  of a card box. On a phone the rail becomes `AppHeader` plus a tab bar at the bottom. The profile holds the account,
-  rating names and groups in three sections that fit a desktop screen, rating names saving as you leave each field. It
-  is only offered once signed in: the last navigation item is Profile for an account and Sign in before that, and a
-  signed out visit to `/settings` goes to `/login`. Signing in is the `/login` page, not a dialog, with the submit and
-  provider buttons in one column; the forgotten password link is off for now, though `/reset` still works. `/status`
-  redirects to the profile. The box loads once in the default layout, and `useCardActions` holds the editor, the drawer
-  and the bulk dictionary update so any page can open them. Looking cards up again sits at the foot of the Filters tab,
-  because it acts on exactly the cards the filters show, and it asks before it overwrites edited wording.
+  of a card box. Below the wide breakpoint the rail becomes `AppHeader`, which names the current page with its seal and
+  title (the page itself then drops its own title row) and keeps everything else to icons: search opens inside the bar
+  in place of the title, filters and settings open the drawer, the red seal adds a card. The tab bar at the bottom is
+  centered, and on the Box the pager rises out of its top edge with the same curved corners it has on the desktop frame.
+  The card grid steps one, two, three and four columns with the screen, three by four on a laptop, and the 12rem gutter
+  applies only on a wide desktop. The profile holds the account, rating names and groups in three sections that fit a
+  desktop screen, rating names saving as you leave each field. It is only offered once signed in: the last navigation
+  item is Profile for an account and Sign in before that, and a signed out visit to `/settings` goes to `/login`.
+  Signing in is the `/login` page, not a dialog, with the submit and provider buttons in one column; the forgotten
+  password link is off for now, though `/reset` still works. `/status` redirects to the profile. The box loads once in
+  the default layout, and `useCardActions` holds the editor, the drawer and the bulk dictionary update so any page can
+  open them. Looking cards up again sits at the foot of the Filters tab, because it acts on exactly the cards the
+  filters show, and it asks before it overwrites edited wording.
 - **Box** is the browse view: the whole box laid out, paged. A toggle in the dock's settings tab decides whether turning
   one card turns the last one back (for testing yourself) or cards turn independently (for reading back through them).
   An edge-on deck was tried in between and removed: it looked like a card box and was miserable to read, because a
   vertical word in a 44px spine tells you almost nothing.
 - **Practice** is the one-at-a-time view, laid out like a desk: the deal order (weaker first or box order) as a
   segmented choice and the position as "3 / 8" along the top, the deck in the middle as the largest index card the table
-  fits (`[data-stage]`, a size container), previous and next as ink buttons either side of it, and under it a hairline
-  of progress and the keys shown as key caps. The two cards to come peek out above the top one as ink edges. A click or
-  the space bar turns the top card over; stepping deals the old card up and away. Its order comes from
-  `usePracticeOrder` unless box order is chosen. An earlier version stacked a pill, a small card, round arrows, a
-  counter and a sentence of instructions down the center line, all the same small size, and read as generated rather
-  than designed.
+  fits (`[data-stage]`, centered both ways on every screen), previous and next as ink buttons either side of it (under
+  it beside the shuffle on a phone), then the shuffle at bottom center, the keys as key caps, and a hairline of progress
+  at the very foot. The two cards to come peek out above the top one as ink edges. A click, W, S, up or down turns the
+  top card over; A or left and D or right step, and stepping deals the old card up and away. Space is not a key: it
+  scrolled the page. On a desktop the search sits fixed at the center of the screen, not of the title row. Its order
+  comes from `usePracticeOrder` unless box order is chosen. An earlier version stacked a pill, a small card, round
+  arrows, a counter and a sentence of instructions down the center line, all the same small size, and read as generated
+  rather than designed.
 - **There is no swipe, and adding one back needs a better argument than the first one had.** Dragging left to delete put
   the only destructive action in the app on the gesture most easily made by accident, on top of a card whose other
   gesture is a tap. It also cost a release to a silent binding bug. Every action on a card is a button now.
