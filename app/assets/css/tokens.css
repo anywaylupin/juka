@@ -1,0 +1,73 @@
+/* Design tokens: fonts, the rating color and the sweep animation as theme values, then the page, seal and grid colors as custom properties. */
+
+@theme static {
+  /*
+    Zen Kaku Gothic New for interface text, a heavy East Asian gothic whose Latin is drawn to sit beside CJK, and LXGW WenKai for hanzi.
+    All of these are fetched and self hosted by @nuxt/fonts, which ships with Nuxt UI and scans these declarations.
+    The fallbacks are listed in full because a CJK face is large enough that the first paint often lands before it arrives.
+  */
+  --font-sans: 'Zen Kaku Gothic New', 'Noto Sans SC', 'Segoe UI Variable', system-ui, sans-serif;
+  --font-hanzi: 'LXGW WenKai TC', 'LXGW WenKai', 'Songti SC', 'SimSun', serif;
+  /*
+    Noto Serif SC is a Song face, the printed style of a Chinese book, and its Latin is cut to sit beside it, so a page title reads like the heading of a dictionary rather than an app.
+    Ma Shan Zheng is a brush script, kept to the seal where a single character carries it.
+  */
+  --font-display: 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+  --font-brush: 'Ma Shan Zheng', 'LXGW WenKai', 'STKaiti', 'KaiTi', serif;
+  /* The hei, or gothic, hand for the card face setting: the printed sans a learner meets on signs and screens. */
+  --font-hei: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  /*
+    The rating mandarin.
+    One fixed color across every theme, because a rating is information and must never be mistaken for the accent on a button.
+  */
+  --color-rating: #f5821f;
+
+  /* The indeterminate loading bar under the top edge, as `animate-sweep`. */
+  --animate-sweep: sweep 1.1s ease-in-out infinite;
+
+  @keyframes sweep {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+}
+
+/*
+  Tokens.
+  White in light themes, black in dark ones, with the cards on an ink wash page tinted a few percent toward the accent.
+  A reading mode overrides the white with its own paper color in its file under themes/.
+*/
+:root {
+  --ui-bg: #ffffff;
+  --ui-radius: 0.25rem;
+  --juka-page: color-mix(in oklab, var(--ui-primary) 5%, #eceef0);
+  --juka-seal: #c8392b;
+  --juka-grid: color-mix(in oklab, var(--ui-primary) 60%, var(--ui-bg));
+}
+
+.dark {
+  --ui-bg: #000000;
+  --juka-page: color-mix(in oklab, var(--ui-primary) 4%, #15171a);
+}
+
+/*
+  Nuxt UI's muted and dimmed grays are tuned for a white page; on the tinted ink wash they measured 3.95:1 and 2.18:1, under the 4.5:1 that WCAG asks of body text.
+  One step darker each in light mode clears it on the page and on a card; dark mode keeps Nuxt UI's values, which already read light on black.
+*/
+:root:not(.dark) {
+  --ui-text-muted: var(--ui-color-neutral-600);
+  --ui-text-dimmed: var(--ui-color-neutral-500);
+}
+
+/*
+  Zen Kaku Gothic New has no Vietnamese: ơ, ư and the stacked tone marks fell back letter by letter to a system face, so a word changed font halfway through.
+  M PLUS 1p is the nearest gothic that has the Vietnamese subset, Japanese made like Zen Kaku with the same heavy weights, so the interface keeps its voice in both languages.
+  The html lang follows the locale, set in app.vue.
+*/
+:root:lang(vi) {
+  --font-sans: 'M PLUS 1p', 'Noto Sans SC', 'Segoe UI Variable', system-ui, sans-serif;
+}

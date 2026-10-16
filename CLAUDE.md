@@ -276,7 +276,7 @@ Implementation:
 
 - **A theme sets the accent and nothing else.** Surfaces, borders and text come from Nuxt UI's defaults. An earlier
   version generated fifteen semantic tokens per theme, which meant twelve hand tuned palettes to keep in balance.
-- **The page is ink wash, not plain white.** `--juka-page` in `main.css` tints a cool paper gray (light) or ink gray
+- **The page is ink wash, not plain white.** `--juka-page` in `tokens.css` tints a cool paper gray (light) or ink gray
   (dark) with a few percent of the accent, and cards sit on it in `--ui-bg`. A reading mode still names its own paper
   color through `ThemeDefinition.page`.
 - **Color mode follows the theme.** The color mode module restores its own value from local storage after hydration,
@@ -300,25 +300,25 @@ color of the focus ring on a text field, which Nuxt UI paints in the accent and 
 palette; it is swapped to neutral and the extra translucent outline is dropped. The other entries are two button
 compound variants that map neutral buttons to the ink chop classes below.
 
-**Calligraphy, kept small.** The look is brush and seal on paper. `main.css` holds only what is global: the tokens, a
-`@layer base` (body, scrollbar, cursor, focus ring, touch targets, reduced motion), the Vue transition class names in
-`@layer components`, and a few `@utility` classes more than one component uses: `juka-seal-button` (the red seal for the
-one add action), `juka-ink-button` and `juka-ink-solid` (neutral outline and solid buttons as ink chops, wired through
-`app.config.ts` so call sites keep plain `color` and `variant`), `juka-ink-shadow`, `juka-subheading`, `juka-panel` and
-`juka-panel-title` (paper and a Song title for every UModal and USlideover through `JUKA_PANEL`), `juka-section-body`
-and `no-scrollbar`. Everything that belongs to one component lives in that component's `<style scoped>`, selected by tag
-or data attribute rather than an invented class: the 田 cell is `p[data-grid] > span` in `CardFace` (with `data-font`
-and `data-grid` for the card face settings), the folded corner is `[data-corner]`, the logo is the `span` of `AppLogo`,
-the rail is `[data-rail]` in `AppSidebar`, the table surface and the top frame tab are `[data-surface]` and
-`[data-notch]` in the layout, the pager is `[data-pager]` and a gallery cell `[data-gallery-cell]` in `CardGallery`, the
-practice deck `[data-stage]`, `[data-deck]` and `[data-edge]` in `CardStack`, a filter chip `[data-chip]`, a calendar
-day `[data-day]`. Where a Tailwind utility will do, it does: the search underline is the input's `ui` prop, the loading
-bar is `animate-sweep` with its keyframes in `@theme`, and sizes use the spacing scale (`px-0.75`, `max-w-144`) rather
-than bracketed values. Headings use `--font-display` (Noto Serif SC, a Song face) and the seal uses `--font-brush` (Ma
-Shan Zheng); body text is Zen Kaku Gothic New, a heavy East Asian gothic, and M PLUS 1p under the `vi` locale, because
-Zen Kaku has no Vietnamese and ơ, ư and the tone marks fell back to another face mid-word. Ma Shan Zheng has none
-either, so it stays on the 卡 seal and never sets Vietnamese text. Pagination is a row of ink chops with the current
-page as the red seal and 第N页 beside it.
+**Calligraphy, kept small.** The look is brush and seal on paper. `main.css` imports one module per kind of global rule:
+`tokens.css`, `base.css` (body, scrollbar, cursor, focus ring, touch targets, reduced motion), `transitions.css` (the
+Vue transition class names) and `utilities.css`, a few `@utility` classes more than one component uses:
+`juka-seal-button` (the red seal for the one add action), `juka-ink-button` and `juka-ink-solid` (neutral outline and
+solid buttons as ink chops, wired through `app.config.ts` so call sites keep plain `color` and `variant`),
+`juka-ink-shadow`, `juka-subheading`, `juka-panel` and `juka-panel-title` (paper and a Song title for every UModal and
+USlideover through `JUKA_PANEL`), `juka-section-body` and `no-scrollbar`. Everything that belongs to one component lives
+in that component's `<style scoped>`, selected by tag or data attribute rather than an invented class: the 田 cell is
+`p[data-grid] > span` in `CardFace` (with `data-font` and `data-grid` for the card face settings), the folded corner is
+`[data-corner]`, the logo is the `span` of `AppLogo`, the rail is `[data-rail]` in `AppSidebar`, the table surface and
+the top frame tab are `[data-surface]` and `[data-notch]` in the layout, the pager is `[data-pager]` and a gallery cell
+`[data-gallery-cell]` in `CardGallery`, the practice deck `[data-stage]`, `[data-deck]` and `[data-edge]` in
+`CardStack`, a filter chip `[data-chip]`, a calendar day `[data-day]`. Where a Tailwind utility will do, it does: the
+search underline is the input's `ui` prop, the loading bar is `animate-sweep` with its keyframes in `@theme`, and sizes
+use the spacing scale (`px-0.75`, `max-w-144`) rather than bracketed values. Headings use `--font-display` (Noto Serif
+SC, a Song face) and the seal uses `--font-brush` (Ma Shan Zheng); body text is Zen Kaku Gothic New, a heavy East Asian
+gothic, and M PLUS 1p under the `vi` locale, because Zen Kaku has no Vietnamese and ơ, ư and the tone marks fell back to
+another face mid-word. Ma Shan Zheng has none either, so it stays on the 卡 seal and never sets Vietnamese text.
+Pagination is a row of ink chops with the current page as the red seal and 第N页 beside it.
 
 Do not add a 3D press, a raised panel class, or a page gradient back. That was tried and removed: it read as heavy and
 made problems hard to place, because a wrong border could have come from the theme, a slot override, or the component.
@@ -396,7 +396,7 @@ The metaphor is a real box of index cards, and the layout is built around that r
 - **Waiting has a shape.** A card-shaped skeleton in the grid the cards will fill, plus an indeterminate bar under the
   top bar. Never a spinner in the middle of an empty page, and never a progress bar that is not measuring anything.
 - **Anything that acts when clicked has a pointer cursor.** Tailwind's reset gives buttons `cursor: default`, which
-  leaves an interface where nothing looks pressable; `main.css` puts it back for buttons, summaries, and the menu,
+  leaves an interface where nothing looks pressable; `base.css` puts it back for buttons, summaries, and the menu,
   option and tab roles.
 - **Part of speech has its own color**, fixed across every theme, as a folded corner on the card and in the filter.
   Color is otherwise kept to two meanings: the red seal is an action, the tangerine mandarin is a rating; everything

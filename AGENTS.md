@@ -166,13 +166,14 @@ not add it back without a reason that has survived a week of use.
 - `app.config.ts` carries **colors and two button compound variants** (neutral outline and solid to the ink chop
   classes). No component slot overrides. If one component needs to look different, say so at the call site; promote it
   only once the pattern has repeated.
-- **CSS has three homes.** `app/assets/css/main.css` holds only what is global: tokens, `@layer base`, the Vue
-  transition class names in `@layer components`, and `@utility` classes that more than one component uses. A rule that
-  belongs to one component goes in that component's `<style scoped>`, selected by tag or data attribute, never an
-  invented class. Each theme is its own generated file under `app/assets/css/themes/`. Reach for a Tailwind utility
-  first, on the spacing scale rather than bracketed values (`px-0.75`, not `px-[3px]`), and through a Nuxt UI
-  component's `ui` prop when the element is inside the component. A data attribute on a Nuxt UI component may land on an
-  inner element rather than the root, so a scoped rule will not match it: style those through `ui`.
+- **CSS has three homes.** `app/assets/css/main.css` is the entry point and imports one module per kind of global rule:
+  `tokens.css`, `base.css` (`@layer base`), `transitions.css` (the Vue transition class names in `@layer components`)
+  and `utilities.css` (`@utility` classes that more than one component uses). A rule that belongs to one component goes
+  in that component's `<style scoped>`, selected by tag or data attribute, never an invented class. Each theme is its
+  own generated file under `app/assets/css/themes/`. Reach for a Tailwind utility first, on the spacing scale rather
+  than bracketed values (`px-0.75`, not `px-[3px]`), and through a Nuxt UI component's `ui` prop when the element is
+  inside the component. A data attribute on a Nuxt UI component may land on an inner element rather than the root, so a
+  scoped rule will not match it: style those through `ui`.
 - A theme sets the accent and nothing else. Surfaces, borders and text come from Nuxt UI. Read them through the semantic
   classes (`bg-default`, `bg-muted`, `bg-elevated`, `text-muted`, `text-highlighted`, `border-default`), never by
   writing `var(--ui-bg)` inline.
