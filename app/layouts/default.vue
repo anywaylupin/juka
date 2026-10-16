@@ -66,10 +66,10 @@ function onSaved() {
 </script>
 
 <template>
-  <div class="juka-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:bg-default">
+  <div class="juka-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[4rem_minmax(0,1fr)] lg:bg-default">
     <a href="#main" class="juka-skip">{{ t('nav.skip') }}</a>
 
-    <!-- The rail holds its 4.5rem column; the sidebar inside it widens over the table rather than pushing it. -->
+    <!-- The rail holds its 4rem column; the sidebar inside it widens over the table rather than pushing it. -->
     <div class="relative hidden lg:block">
       <AppSidebar :tabs="tabs" />
     </div>
@@ -95,8 +95,9 @@ function onSaved() {
         </UButton>
       </div>
 
-      <main
+      <UMain
         id="main"
+        as="main"
         tabindex="-1"
         class="juka-table relative flex w-full flex-1 flex-col px-4 pt-6 pb-28 outline-none sm:px-6 lg:min-h-0 lg:overflow-y-auto lg:px-[12rem] lg:pt-2 lg:pb-16"
       >
@@ -105,7 +106,7 @@ function onSaved() {
           A flex column, so a page can fill it and push its pager to the foot.
         -->
         <slot />
-      </main>
+      </UMain>
     </div>
 
     <!-- Waiting has a shape: an indeterminate bar while the box loads. -->
@@ -140,22 +141,17 @@ function onSaved() {
     </div>
 
     <!-- Phone tab bar. The sidebar carries the same four on wider screens. -->
-    <nav
-      class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-default bg-default/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur lg:hidden"
+    <UNavigationMenu
+      :items="tabs"
+      color="neutral"
       :aria-label="t('nav.main')"
-    >
-      <NuxtLink
-        v-for="tab in tabs"
-        :key="tab.to"
-        :to="tab.to"
-        class="juka-tab flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs text-muted"
-        active-class="juka-tab-active"
-        exact-active-class="juka-tab-active"
-      >
-        <UIcon :name="tab.icon" class="size-5" />
-        {{ tab.label }}
-      </NuxtLink>
-    </nav>
+      class="fixed inset-x-0 bottom-0 z-30 border-t border-default bg-default/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur lg:hidden"
+      :ui="{
+        list: 'grid w-full grid-cols-4',
+        link: 'min-h-14 flex-col justify-center gap-0.5 text-xs',
+        linkLeadingIcon: 'size-5'
+      }"
+    />
 
     <USlideover
       v-model:open="filtersOpen"

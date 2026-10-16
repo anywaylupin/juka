@@ -31,28 +31,28 @@ watch(
     />
 
     <div class="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-3">
-      <section class="juka-section" aria-labelledby="profile-account">
+      <UCard as="section" :ui="JUKA_SECTION" aria-labelledby="profile-account">
         <h2 id="profile-account" class="juka-subheading shrink-0 text-base">{{ t('settings.account') }}</h2>
         <div class="juka-section-body">
           <AccountSettings v-if="session.signedIn.value" />
         </div>
-      </section>
+      </UCard>
 
-      <section class="juka-section" aria-labelledby="profile-ratings">
+      <UCard as="section" :ui="JUKA_SECTION" aria-labelledby="profile-ratings">
         <div class="shrink-0">
           <h2 id="profile-ratings" class="juka-subheading text-base">{{ t('rating.settings') }}</h2>
           <p class="text-sm text-muted">{{ t('rating.settingsHint') }}</p>
         </div>
         <div class="juka-section-body"><RatingSettings /></div>
-      </section>
+      </UCard>
 
-      <section class="juka-section" aria-labelledby="profile-groups">
+      <UCard as="section" :ui="JUKA_SECTION" aria-labelledby="profile-groups">
         <div class="shrink-0">
           <h2 id="profile-groups" class="juka-subheading text-base">{{ t('group.manage') }}</h2>
           <p class="text-sm text-muted">{{ t('group.manageHint') }}</p>
         </div>
         <div class="juka-section-body"><GroupManager /></div>
-      </section>
+      </UCard>
     </div>
   </div>
 </template>

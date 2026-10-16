@@ -36,7 +36,7 @@ export default withNuxt(
   {
     // Page filenames are routes, so Nuxt's index.vue convention wins here.
     // The rule still holds for everything in app/components.
-    files: ['app/pages/**/*.vue', 'app/layouts/**/*.vue', 'app/app.vue'],
+    files: ['app/pages/**/*.vue', 'app/layouts/**/*.vue', 'app/app.vue', 'app/error.vue'],
     rules: {
       'vue/multi-word-component-names': 'off'
     }

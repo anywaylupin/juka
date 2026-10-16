@@ -47,12 +47,15 @@ watch(results, (list) => {
       </div>
     </div>
 
-    <div v-if="!store.loaded.value" class="juka-skeleton-card mx-auto max-w-[26rem] rounded-sm" />
+    <USkeleton v-if="!store.loaded.value" class="mx-auto aspect-[5/3.2] w-full max-w-[36rem] rounded-sm" />
 
-    <div v-else-if="results.length === 0" class="juka-paper mx-auto max-w-md p-10 text-center">
-      <h2 class="font-semibold text-highlighted">{{ t('cards.noMatches') }}</h2>
-      <p class="mt-1 text-sm text-muted">{{ t('practice.empty') }}</p>
-    </div>
+    <UEmpty
+      v-else-if="results.length === 0"
+      icon="i-lucide-layers"
+      class="mx-auto max-w-md"
+      :title="t('cards.noMatches')"
+      :description="t('practice.empty')"
+    />
 
     <CardStack
       v-else

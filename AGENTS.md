@@ -157,6 +157,12 @@ panel class and a page gradient, and putting a border on everything. It read as 
 because a wrong border could have come from the theme, the slot override, or the component itself. That is all gone. Do
 not add it back without a reason that has survived a week of use.
 
+- **Reach for a Nuxt UI component before a plain element.** The shell is `UApp`, `UMain`, `UHeader` on a phone and
+  `UError` for a failed page; navigation is `UNavigationMenu` (the sidebar collapses it to icons until hovered); a
+  choice between a few values is `UTabs` with `variant="pill"` and `:content="false"`; a panel is `UCard`
+  (`JUKA_SECTION` from `app/utils/panel.ts` when it fills a grid cell); a proportion is `UProgress`; nothing to show is
+  `UEmpty`; waiting is `USkeleton`; a key is `UKbd`. Write a plain element or a `juka-` class only when no component
+  covers it: the card face, the 田 cell, the seal, the frame tabs and the table surface.
 - `app.config.ts` carries **colors and two button compound variants** (neutral outline and solid to the ink chop
   classes). No component slot overrides. If one component needs to look different, say so at the call site; promote it
   only once the pattern has repeated.

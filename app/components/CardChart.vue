@@ -206,7 +206,7 @@ const stats = computed(() => [
   <div class="flex flex-col gap-4 lg:h-full lg:min-h-0">
     <!-- The answer first. -->
     <div class="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
-      <div v-for="stat in stats" :key="stat.label" class="juka-paper px-4 py-2.5">
+      <UCard v-for="stat in stats" :key="stat.label" :ui="{ body: 'px-4 py-2.5 sm:px-4 sm:py-2.5' }">
         <p class="text-sm text-muted">{{ stat.label }}</p>
         <p class="flex items-baseline gap-2">
           <span class="font-[family-name:var(--font-display)] text-3xl font-bold text-highlighted tabular-nums">{{
@@ -214,12 +214,12 @@ const stats = computed(() => [
           }}</span>
           <span v-if="stat.hint" class="text-sm text-muted">{{ stat.hint }}</span>
         </p>
-      </div>
+      </UCard>
     </div>
 
     <div class="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-flow-col lg:grid-cols-2 lg:grid-rows-2">
       <!-- Ripeness -->
-      <section class="juka-section">
+      <UCard as="section" :ui="JUKA_SECTION">
         <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.ripeness') }}</h2>
 
         <div
@@ -258,10 +258,10 @@ const stats = computed(() => [
             </button>
           </li>
         </ul>
-      </section>
+      </UCard>
 
       <!-- Habit -->
-      <section class="juka-section">
+      <UCard as="section" :ui="JUKA_SECTION">
         <div class="flex items-baseline justify-between gap-3">
           <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.added') }}</h2>
           <p class="text-sm text-muted">{{ t('chart.thisWeek', { count: addedThisWeek }) }}</p>
@@ -298,10 +298,10 @@ const stats = computed(() => [
             </div>
           </div>
         </div>
-      </section>
+      </UCard>
 
       <!-- Composition -->
-      <section class="juka-section">
+      <UCard as="section" :ui="JUKA_SECTION">
         <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.byType') }}</h2>
         <ul class="juka-section-body">
           <li v-for="row in byType" :key="row.key">
@@ -322,15 +322,13 @@ const stats = computed(() => [
                 <span class="font-bold text-highlighted tabular-nums">{{ row.count }}</span>
                 <span class="w-10 text-right text-muted tabular-nums">{{ percent(row.count) }}%</span>
               </span>
-              <span class="block h-1.5 overflow-hidden rounded-full bg-elevated">
-                <span class="juka-ink-bar block h-full rounded-full" :style="{ width: `${percent(row.count)}%` }" />
-              </span>
+              <UProgress :model-value="percent(row.count)" color="neutral" size="xs" />
             </button>
           </li>
         </ul>
-      </section>
+      </UCard>
 
-      <section class="juka-section">
+      <UCard as="section" :ui="JUKA_SECTION">
         <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.byGroup') }}</h2>
         <p v-if="allGroups.length === 0" class="text-sm text-muted">{{ t('chart.noGroupsYet') }}</p>
         <ul v-else class="juka-section-body">
@@ -352,9 +350,7 @@ const stats = computed(() => [
                 <span class="font-bold text-highlighted tabular-nums">{{ row.count }}</span>
                 <span class="w-10 text-right text-muted tabular-nums">{{ percent(row.count) }}%</span>
               </span>
-              <span class="block h-1.5 overflow-hidden rounded-full bg-elevated">
-                <span class="juka-ink-bar block h-full rounded-full" :style="{ width: `${percent(row.count)}%` }" />
-              </span>
+              <UProgress :model-value="percent(row.count)" color="neutral" size="xs" />
             </button>
           </li>
         </ul>
@@ -367,7 +363,7 @@ const stats = computed(() => [
         >
           {{ showAllGroups ? t('chart.hideEmptyGroups') : t('chart.showAllGroups', { count: hiddenGroups }) }}
         </UButton>
-      </section>
+      </UCard>
     </div>
   </div>
 </template>

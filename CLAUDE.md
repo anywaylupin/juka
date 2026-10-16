@@ -320,7 +320,7 @@ made problems hard to place, because a wrong border could have come from the the
 
 The metaphor is a real box of index cards, and the layout is built around that rather than around a dashboard:
 
-- **A rail, a table and a drawer.** On a wide screen `AppSidebar` is a 4.5rem rail of icons (logo, add card, Box `/`,
+- **A rail, a table and a drawer.** On a wide screen `AppSidebar` is a 4rem rail of icons (logo, add card, Box `/`,
   Practice `/practice`, Progress `/progress`, Profile `/settings`, Sign in `/login`) that widens to 15rem on hover or
   focus while the table's rounded edge (`juka-table-surface`, a layer under the content) slides right with it, so the
   sidebar grows out of the frame rather than lying over it as a sheet, and the cards never reflow. The table keeps a

@@ -26,7 +26,7 @@ watch(
 
 <template>
   <div class="flex justify-center lg:h-full lg:items-center">
-    <div class="juka-paper w-full max-w-md p-6">
+    <UCard class="w-full max-w-md">
       <div class="mb-4 flex items-center gap-3">
         <AppLogo class="h-12 text-3xl" />
         <div>
@@ -37,6 +37,6 @@ watch(
         </div>
       </div>
       <AuthPanel @done="done" />
-    </div>
+    </UCard>
   </div>
 </template>

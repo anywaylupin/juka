@@ -60,6 +60,14 @@ const grids = computed(() => [
   { value: 'none' as const, glyph: '字', label: t('style.gridNone') }
 ]);
 
+const turnTabs = computed(() => [
+  { label: t('view.turnOne'), value: 'single', icon: 'i-lucide-square' },
+  { label: t('view.turnMany'), value: 'all', icon: 'i-lucide-copy' }
+]);
+const localeTabs = computed(() =>
+  locales.value.map((entry) => ({ label: entry.name ?? entry.code, value: entry.code, icon: FLAGS[entry.code] }))
+);
+
 async function choose(name: ThemeName) {
   try {
     await setTheme(name);
@@ -116,38 +124,42 @@ async function choose(name: ThemeName) {
       <div v-else class="space-y-6">
         <section class="space-y-2.5">
           <h3 class="juka-dock-heading"><UIcon name="i-lucide-pen-tool" />{{ t('style.font') }}</h3>
-          <div class="juka-segment grid-cols-3" role="group" :aria-label="t('style.font')">
-            <button
-              v-for="font in fonts"
-              :key="font.value"
-              type="button"
-              class="flex-col"
-              :aria-pressed="cardStyle.font === font.value"
-              @click="setStyle('font', font.value)"
-            >
-              <span class="juka-hanzi text-xl leading-none" :data-font="font.value" lang="zh" aria-hidden="true"
+          <UTabs
+            :items="fonts"
+            :model-value="cardStyle.font"
+            variant="pill"
+            color="neutral"
+            size="sm"
+            :content="false"
+            class="w-full"
+            :aria-label="t('style.font')"
+            @update:model-value="setStyle('font', $event as typeof cardStyle.font)"
+          >
+            <template #leading="{ item }">
+              <span class="juka-hanzi leading-none" :data-font="item.value" lang="zh" aria-hidden="true"
                 ><span class="juka-cell-sample">字</span></span
               >
-              <span class="text-xs">{{ font.label }}</span>
-            </button>
-          </div>
+            </template>
+          </UTabs>
         </section>
 
         <section class="space-y-2.5">
           <h3 class="juka-dock-heading"><UIcon name="i-lucide-grid-2x2" />{{ t('style.grid') }}</h3>
-          <div class="juka-segment grid-cols-4" role="group" :aria-label="t('style.grid')">
-            <button
-              v-for="grid in grids"
-              :key="grid.value"
-              type="button"
-              class="flex-col"
-              :aria-pressed="cardStyle.grid === grid.value"
-              @click="setStyle('grid', grid.value)"
-            >
-              <span class="font-hanzi text-xl leading-none" lang="zh" aria-hidden="true">{{ grid.glyph }}</span>
-              <span class="text-xs">{{ grid.label }}</span>
-            </button>
-          </div>
+          <UTabs
+            :items="grids"
+            :model-value="cardStyle.grid"
+            variant="pill"
+            color="neutral"
+            size="sm"
+            :content="false"
+            class="w-full"
+            :aria-label="t('style.grid')"
+            @update:model-value="setStyle('grid', $event as typeof cardStyle.grid)"
+          >
+            <template #leading="{ item }">
+              <span class="font-hanzi leading-none" lang="zh" aria-hidden="true">{{ item.glyph }}</span>
+            </template>
+          </UTabs>
         </section>
 
         <section class="space-y-2.5">
@@ -188,29 +200,31 @@ async function choose(name: ThemeName) {
 
         <section class="space-y-2.5">
           <h3 class="juka-dock-heading"><UIcon name="i-lucide-refresh-ccw" />{{ t('view.turning') }}</h3>
-          <div class="juka-segment grid-cols-2" role="group" :aria-label="t('view.turning')">
-            <button type="button" :aria-pressed="flipMode === 'single'" @click="flipMode = 'single'">
-              <UIcon name="i-lucide-square" />{{ t('view.turnOne') }}
-            </button>
-            <button type="button" :aria-pressed="flipMode === 'all'" @click="flipMode = 'all'">
-              <UIcon name="i-lucide-copy" />{{ t('view.turnMany') }}
-            </button>
-          </div>
+          <UTabs
+            v-model="flipMode"
+            :items="turnTabs"
+            variant="pill"
+            color="neutral"
+            size="sm"
+            :content="false"
+            class="w-full"
+            :aria-label="t('view.turning')"
+          />
         </section>
 
         <section class="space-y-2.5">
           <h3 class="juka-dock-heading"><UIcon name="i-lucide-languages" />{{ t('settings.language') }}</h3>
-          <div class="juka-segment grid-cols-2" role="group" :aria-label="t('settings.language')">
-            <button
-              v-for="entry in locales"
-              :key="entry.code"
-              type="button"
-              :aria-pressed="locale === entry.code"
-              @click="setLocale(entry.code)"
-            >
-              <UIcon :name="FLAGS[entry.code] ?? 'i-lucide-languages'" class="size-4" />{{ entry.name ?? entry.code }}
-            </button>
-          </div>
+          <UTabs
+            :items="localeTabs"
+            :model-value="locale"
+            variant="pill"
+            color="neutral"
+            size="sm"
+            :content="false"
+            class="w-full"
+            :aria-label="t('settings.language')"
+            @update:model-value="setLocale($event as typeof locale)"
+          />
         </section>
 
         <section class="space-y-3">
@@ -218,18 +232,22 @@ async function choose(name: ThemeName) {
           <div v-for="group in modes" :key="group.mode" class="space-y-1.5">
             <p class="text-xs text-muted">{{ group.label }}</p>
             <div class="grid grid-cols-3 gap-1.5">
-              <button
+              <UButton
                 v-for="entry in group.entries"
                 :key="entry.name"
-                type="button"
-                class="juka-swatch"
+                color="neutral"
+                :variant="theme === entry.name ? 'soft' : 'ghost'"
+                size="sm"
+                class="justify-start"
                 :aria-pressed="theme === entry.name"
                 :title="entry.description"
                 @click="choose(entry.name)"
               >
-                <span class="size-4 shrink-0 rounded-full" :style="{ backgroundColor: entry.primary }" />
+                <template #leading>
+                  <span class="size-4 shrink-0 rounded-full" :style="{ backgroundColor: entry.primary }" />
+                </template>
                 <span class="truncate">{{ entry.label }}</span>
-              </button>
+              </UButton>
             </div>
           </div>
         </section>

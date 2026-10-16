@@ -35,6 +35,11 @@ const { t } = useI18n();
 
 const flipped = ref(false);
 
+const orderTabs = computed(() => [
+  { label: t('stack.weighted'), value: 'weighted', icon: 'i-lucide-shuffle' },
+  { label: t('stack.inOrder'), value: 'box', icon: 'i-lucide-list-ordered' }
+]);
+
 const current = computed<CardRecord | null>(() => props.cards[props.modelValue] ?? null);
 
 /** The two behind, for depth. Wraps, so the deck never looks like it ran out. */
@@ -114,24 +119,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
   -->
   <div v-if="current" class="flex flex-col gap-4 lg:h-full lg:min-h-0">
     <div class="flex flex-wrap items-center gap-3">
-      <div class="juka-segment w-full grid-cols-2 sm:w-80" role="group" :aria-label="t('stack.order')">
-        <button
-          type="button"
-          :aria-pressed="practice"
-          :title="t('stack.practiceOn')"
-          @click="emit('update:practice', true)"
-        >
-          <UIcon name="i-lucide-shuffle" />{{ t('stack.weighted') }}
-        </button>
-        <button
-          type="button"
-          :aria-pressed="!practice"
-          :title="t('stack.practiceOff')"
-          @click="emit('update:practice', false)"
-        >
-          <UIcon name="i-lucide-list-ordered" />{{ t('stack.inOrder') }}
-        </button>
-      </div>
+      <UTabs
+        :items="orderTabs"
+        :model-value="practice ? 'weighted' : 'box'"
+        variant="pill"
+        color="neutral"
+        size="sm"
+        :content="false"
+        class="w-full sm:w-80"
+        :aria-label="t('stack.order')"
+        @update:model-value="emit('update:practice', $event === 'weighted')"
+      />
       <UButton
         v-if="practice"
         icon="i-lucide-rotate-cw"
@@ -206,12 +204,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
     <div class="shrink-0 space-y-3">
       <!-- How far through the deck, as a hairline of ink rather than a second counter. -->
-      <div class="h-0.5 overflow-hidden rounded-full bg-elevated" aria-hidden="true">
-        <div
-          class="juka-ink-bar h-full transition-[width] duration-300"
-          :style="{ width: `${((modelValue + 1) / cards.length) * 100}%` }"
-        />
-      </div>
+      <UProgress :model-value="modelValue + 1" :max="cards.length" color="neutral" size="2xs" aria-hidden="true" />
 
       <!-- On a phone the arrows sit here, under the thumb; on a keyboard the keys are shown as keys. -->
       <div class="flex items-center justify-center gap-3 sm:hidden">

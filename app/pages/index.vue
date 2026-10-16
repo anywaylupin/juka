@@ -57,36 +57,29 @@ watch(results, () => {
       v-else-if="!store.loaded.value"
       class="grid grid-cols-[repeat(auto-fill,minmax(max(15rem,calc((100%-3rem)/4)),1fr))] gap-4"
     >
-      <div
-        v-for="placeholder in 8"
-        :key="placeholder"
-        class="juka-skeleton-card rounded-sm"
-        :style="{ '--juka-stagger': `${placeholder * 90}ms` }"
-      />
+      <USkeleton v-for="placeholder in 8" :key="placeholder" class="aspect-[5/3.2] rounded-sm" />
     </div>
 
-    <div v-else-if="results.length === 0" class="juka-paper mx-auto max-w-md p-10 text-center">
-      <p class="font-hanzi text-5xl text-muted" lang="zh">空</p>
-      <h2 class="mt-3 font-semibold text-highlighted">
-        {{ activeCount > 0 ? t('cards.noMatches') : t('cards.empty') }}
-      </h2>
-      <p class="mt-1 text-sm text-muted">
-        {{ activeCount > 0 ? t('cards.noMatchesHint') : t('cards.emptyHint') }}
-      </p>
-      <UButton
-        v-if="activeCount > 0"
-        class="mt-5"
-        color="neutral"
-        variant="outline"
-        icon="i-lucide-filter-x"
-        @click="clearAll"
-      >
-        {{ t('filter.clearAll') }}
-      </UButton>
-      <UButton v-else class="juka-seal-button mt-5" size="lg" icon="i-lucide-plus" @click="openEditor()">
-        {{ t('card.add') }}
-      </UButton>
-    </div>
+    <UEmpty
+      v-else-if="results.length === 0"
+      icon="i-lucide-inbox"
+      class="mx-auto max-w-md"
+      :title="activeCount > 0 ? t('cards.noMatches') : t('cards.empty')"
+      :description="activeCount > 0 ? t('cards.noMatchesHint') : t('cards.emptyHint')"
+      :actions="
+        activeCount > 0
+          ? [
+              {
+                label: t('filter.clearAll'),
+                icon: 'i-lucide-filter-x',
+                color: 'neutral',
+                variant: 'outline',
+                onClick: clearAll
+              }
+            ]
+          : [{ label: t('card.add'), icon: 'i-lucide-plus', class: 'juka-seal-button', onClick: () => openEditor() }]
+      "
+    />
 
     <CardGallery
       v-else
