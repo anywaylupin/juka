@@ -113,7 +113,9 @@ function setFlipped(card: CardRecord, value: boolean) {
     <!--
       UPagination carries its own previous and next arrows, so there are no extra ones around it.
       On a wide screen it rises out of the frame into the bottom edge of the table as a tab, curved where it meets the table, so it is part of the border rather than a bar or a sheet over the cards; on a phone it sticks above the tab bar.
-      Pages are ink chops and the current one is the red seal, with the page written the way a Chinese book numbers it beside them.
+      Pages are ink chops and the current one is the red seal.
+      The count of the box leads, written as a Chinese book would, 共295张, in the same hand as the cards; a screen reader hears it in the interface language.
+      A page number beside it repeated what the red seal already says.
     -->
     <nav
       v-if="cards.length > 0"
@@ -121,6 +123,9 @@ function setFlipped(card: CardRecord, value: boolean) {
       class="sticky bottom-20 z-20 mx-auto mt-auto flex w-fit items-center gap-3"
       :aria-label="t('cards.pagination')"
     >
+      <span class="font-hanzi text-sm text-muted tabular-nums" lang="zh" :aria-label="t('cards.count', cards.length)"
+        >共 {{ cards.length }} 张</span
+      >
       <UPagination
         v-if="pageCount > 1"
         :page="page"
@@ -133,10 +138,6 @@ function setFlipped(card: CardRecord, value: boolean) {
         active-variant="solid"
         @update:page="emit('update:page', $event)"
       />
-      <span v-if="pageCount > 1" class="font-hanzi text-sm text-muted" lang="zh" aria-hidden="true"
-        >第{{ page }}页</span
-      >
-      <span class="text-sm text-muted tabular-nums">{{ t('cards.count', cards.length) }}</span>
     </nav>
   </div>
 </template>

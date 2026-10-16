@@ -318,7 +318,8 @@ use the spacing scale (`px-0.75`, `max-w-144`) rather than bracketed values. Hea
 SC, a Song face) and the seal uses `--font-brush` (Ma Shan Zheng); body text is Zen Kaku Gothic New, a heavy East Asian
 gothic, and M PLUS 1p under the `vi` locale, because Zen Kaku has no Vietnamese and ơ, ư and the tone marks fell back to
 another face mid-word. Ma Shan Zheng has none either, so it stays on the 卡 seal and never sets Vietnamese text.
-Pagination is a row of ink chops with the current page as the red seal and 第N页 beside it.
+Pagination is a row of ink chops with the current page as the red seal, led by the box's count written in
+hanzi, 共295张, in the card hand.
 
 Do not add a 3D press, a raised panel class, or a page gradient back. That was tried and removed: it read as heavy and
 made problems hard to place, because a wrong border could have come from the theme, a slot override, or the component.
