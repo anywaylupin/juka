@@ -284,5 +284,12 @@
     "goTo": "Go to",
     "everywhere": "Everywhere",
     "hints": "Show keys on buttons (hold)"
+  },
+  "contact": {
+    "title": "Contact",
+    "hint": "The person behind Juka, and the code it is made of.",
+    "source": "Source code",
+    "github": "GitHub",
+    "linkedin": "LinkedIn"
   }
 }

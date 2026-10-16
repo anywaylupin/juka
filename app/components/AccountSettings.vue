@@ -8,6 +8,7 @@ import type { AuthProvider } from '#shared/types/auth';
 const { t } = useI18n();
 const toast = useToast();
 const session = useSession();
+onMounted(() => session.loadProviders());
 
 const username = ref('');
 const email = ref('');

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CONTACT_LINKS } from '#shared/constants/contact';
 /**
  * The left edge on wide screens: where you are and where you can go.
  *
@@ -16,6 +17,8 @@ const localePath = useLocalePath();
 const { openEditor } = useCardActions();
 
 const expanded = ref(false);
+const contactOpen = ref(false);
+const contacts = CONTACT_LINKS.filter((link) => link.href);
 
 /**
  * Whether the rail is open, the one place that decides it: the width, the labels and the table edge all read this.
@@ -79,6 +82,42 @@ const items = computed(() => [props.tabs.slice(0, -1), props.tabs.slice(-1)]);
         </span>
       </template>
     </UNavigationMenu>
+
+    <!-- Who made this and where the code lives, at the foot of the rail where it stays out of the way of the cards. -->
+    <UButton
+      class="mt-auto justify-start px-3.5 whitespace-nowrap"
+      color="neutral"
+      variant="ghost"
+      icon="i-lucide-at-sign"
+      size="lg"
+      block
+      :aria-label="t('contact.title')"
+      @click="contactOpen = true"
+    >
+      <span v-show="expanded">{{ t('contact.title') }}</span>
+    </UButton>
+
+    <UModal v-model:open="contactOpen" :ui="JUKA_PANEL" :title="t('contact.title')" :description="t('contact.hint')">
+      <template #body>
+        <ul class="space-y-1">
+          <li v-for="link in contacts" :key="link.key">
+            <UButton
+              :to="link.href"
+              target="_blank"
+              color="neutral"
+              variant="ghost"
+              :icon="link.icon"
+              trailing-icon="i-lucide-arrow-up-right"
+              block
+              class="justify-start"
+              :ui="{ trailingIcon: 'ms-auto' }"
+            >
+              {{ t(`contact.${link.key}`) }}
+            </UButton>
+          </li>
+        </ul>
+      </template>
+    </UModal>
   </nav>
 </template>
 

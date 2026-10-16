@@ -24,12 +24,7 @@ watch(
 
 <template>
   <div class="flex flex-col gap-4 xl:h-full xl:min-h-0">
-    <PageTitle
-      class="max-lg:hidden"
-      :glyph="session.account.value?.username?.[0]?.toUpperCase() ?? '我'"
-      :title="session.account.value?.username ?? t('nav.profile')"
-      :detail="session.account.value?.email ?? undefined"
-    />
+    <PageTitle class="max-lg:hidden" glyph="我" :title="t('nav.profile')" />
 
     <div class="grid gap-4 md:grid-cols-2 xl:min-h-0 xl:flex-1 xl:grid-cols-3">
       <UCard as="section" :ui="JUKA_SECTION" aria-labelledby="profile-account">

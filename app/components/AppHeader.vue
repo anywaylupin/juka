@@ -10,7 +10,6 @@
 const { t } = useI18n();
 const route = useRoute();
 const localePath = useLocalePath();
-const session = useSession();
 const { openEditor, filtersOpen } = useCardActions();
 const { activeCount } = useCardFilters(useCardStore().cards);
 
@@ -22,10 +21,7 @@ const page = computed(() => {
   if (path.startsWith('/practice')) return { glyph: '习', title: t('nav.practice') };
   if (path.startsWith('/progress')) return { glyph: '进', title: t('nav.progress') };
   if (path.startsWith('/settings')) {
-    return {
-      glyph: session.account.value?.username?.[0]?.toUpperCase() ?? '我',
-      title: session.account.value?.username ?? t('nav.profile')
-    };
+    return { glyph: '我', title: t('nav.profile') };
   }
   if (path.startsWith('/login')) return { glyph: '卡', title: t('auth.signIn') };
   return { glyph: '盒', title: t('nav.box') };

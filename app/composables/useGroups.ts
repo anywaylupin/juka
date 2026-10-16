@@ -17,8 +17,30 @@ const STORAGE_SEQUENCE = 'juka.groups.seq';
  */
 const STORAGE_SEEDED = 'juka.groups.seeded';
 
-/** Offered when creating a group, so a new one is never the same gray. */
-export const GROUP_COLORS = ['#e35205', '#2f6fd0', '#2e9153', '#6b5bd2', '#e0596b', '#0e8f9e', '#d99e00', '#8c7f76'];
+/**
+ * Offered when creating a group, so a new one is never the same gray.
+ * Every theme's accent, in hue order, then a few the themes do not reach and the taupe neutral, so eighteen groups can each have their own.
+ */
+export const GROUP_COLORS = [
+  '#e0344e',
+  '#e0596b',
+  '#db2777',
+  '#d97757',
+  '#e35205',
+  '#e08236',
+  '#f5821f',
+  '#d99e00',
+  '#8a9b1f',
+  '#65a30d',
+  '#2e9153',
+  '#0e8f9e',
+  '#0891b2',
+  '#2f6fd0',
+  '#4f46e5',
+  '#6b5bd2',
+  '#9c5a2b',
+  '#8c7f76'
+];
 
 function readLocal(): GroupRecord[] {
   if (import.meta.server) {
@@ -122,7 +144,7 @@ export function useGroups() {
     () => account.value?.id ?? null,
     () => {
       if (import.meta.client) {
-        load();
+        void load();
       }
     }
   );

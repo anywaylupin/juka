@@ -48,10 +48,10 @@ function percent(count: number) {
  */
 const LEVEL_FILL: Record<Rating, string> = {
   0: 'var(--ui-bg-accented)',
-  1: 'color-mix(in oklab, var(--ui-text-highlighted) 18%, transparent)',
-  2: 'color-mix(in oklab, var(--ui-text-highlighted) 34%, transparent)',
-  3: 'color-mix(in oklab, var(--ui-text-highlighted) 52%, transparent)',
-  4: 'color-mix(in oklab, var(--ui-text-highlighted) 78%, transparent)',
+  1: `color-mix(in oklab, ${RATING_COLOR} 22%, transparent)`,
+  2: `color-mix(in oklab, ${RATING_COLOR} 40%, transparent)`,
+  3: `color-mix(in oklab, ${RATING_COLOR} 60%, transparent)`,
+  4: `color-mix(in oklab, ${RATING_COLOR} 80%, transparent)`,
   5: RATING_COLOR
 };
 
@@ -140,7 +140,7 @@ function dayFill(count: number) {
     return 'transparent';
   }
   const step = Math.ceil((Math.min(count, busiestDay.value) / busiestDay.value) * 4);
-  return `color-mix(in oklab, var(--ui-text-highlighted) ${[0, 22, 44, 66, 88][step]}%, transparent)`;
+  return `color-mix(in oklab, ${RATING_COLOR} ${[0, 30, 55, 78, 100][step]}%, transparent)`;
 }
 
 const addedThisWeek = computed(() => (calendar.value.at(-1)?.days ?? []).reduce((sum, day) => sum + day.count, 0));
@@ -173,7 +173,8 @@ const typeBox = ref<HTMLElement | null>(null);
 const groupBox = ref<HTMLElement | null>(null);
 const typeSize = useBoxSize(typeBox);
 const groupSize = useBoxSize(groupBox);
-const ringRadius = computed(() => Math.max(48, Math.floor(Math.min(typeSize.h, typeSize.w) / 2) - 4));
+/** Inset from the box by the rounded caps and the padding between slices, which Unovis draws past the radius it is given; at the full half of the box they spilled over its edge. */
+const ringRadius = computed(() => Math.max(40, Math.floor(Math.min(typeSize.h, typeSize.w) / 2) - 14));
 
 /** The slice for cards with no type or no group: the warm taupe neutral, so it reads as the rest of the box rather than a category. */
 const UNMARKED = '#a8a29e';
@@ -326,9 +327,10 @@ const stats = computed(() => [
         <h2 class="shrink-0 juka-subheading text-base">{{ t('chart.byType') }}</h2>
         <!-- The ring takes the full height of the card, centered beside its legend; the legend scrolls inside itself rather than pushing the ring off the card. -->
         <div class="flex min-h-0 flex-1 items-center gap-4">
-          <div ref="typeBox" class="flex h-full min-h-40 w-2/5 shrink-0 items-center justify-center">
+          <div ref="typeBox" class="flex h-full min-h-40 w-1/2 shrink-0 items-center justify-center">
             <DonutChart
               v-if="typeSize.h > 0"
+              class="w-full"
               :data="byType.map((row) => row.count)"
               :categories="categoriesOf(byType)"
               :radius="ringRadius"
@@ -366,7 +368,7 @@ const stats = computed(() => [
         <p v-if="allGroups.length === 0" class="text-sm text-muted">{{ t('chart.noGroupsYet') }}</p>
         <!-- Columns rather than a second ring, so the two halves of the composition do not read as the same chart twice. -->
         <div v-else class="flex min-h-0 flex-1 items-center gap-4">
-          <div ref="groupBox" class="h-full min-h-40 w-2/5 shrink-0">
+          <div ref="groupBox" class="h-full min-h-40 w-1/2 shrink-0">
             <BarChart
               v-if="groupSize.h > 0"
               :data="[Object.fromEntries(byGroup.map((row, index) => [String(index), row.count]))]"

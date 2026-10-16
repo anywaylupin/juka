@@ -88,13 +88,13 @@ function message(error: unknown): string {
 
 <template>
   <div class="space-y-4">
-    <form class="flex flex-wrap items-end gap-2" @submit.prevent="create">
+    <form class="flex flex-wrap items-stretch gap-2" @submit.prevent="create">
       <UPopover>
         <UButton color="neutral" variant="outline" :aria-label="t('group.color')">
           <span class="size-4 rounded-full" :style="{ backgroundColor: color }" />
         </UButton>
         <template #content>
-          <div class="grid grid-cols-4 gap-1 p-2">
+          <div class="grid grid-cols-6 gap-1 p-2">
             <button
               v-for="option in GROUP_COLORS"
               :key="option"

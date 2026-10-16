@@ -327,36 +327,37 @@ made problems hard to place, because a wrong border could have come from the the
 The metaphor is a real box of index cards, and the layout is built around that rather than around a dashboard:
 
 - **A rail, a table and a drawer.** On a wide screen `AppSidebar` is a 4rem rail of icons (logo, add card, Box `/`,
-  Practice `/practice`, Progress `/progress`, Profile `/settings`, Sign in `/login`) that widens to 15rem on hover or
-  focus while the table's rounded edge (the `[data-surface]` layer, a layer under the content) slides right with it, so
-  the sidebar grows out of the frame rather than lying over it as a sheet, and the cards never reflow. The table keeps a
-  12rem gutter on both sides, so the open sidebar never covers a card and the content stays centered, the card grid is a
-  fixed four by three on a wide desktop (three by four on a laptop), even on a short last page, and each card is the
-  largest that fits its cell (`[data-gallery-cell]`, a size container), so a page always fits and the Box never scrolls.
-  The pager, which also carries the Box's card count, and the one filters and settings button are tabs of frame reaching
-  into the table, the pager rising from the bottom edge and the other hanging into the top right corner, each curved
-  where it meets the table (`[data-notch]` in the layout, `[data-pager]` in `CardGallery`), not bars and not sheets over
-  the cards. Every page opens on one row level with that tab: the title as `PageTitle`, its own character in the logo's
-  seal (盒 Box, 习 Practice, 进 Progress, your initial on the profile) with the name beside it and no count, at the same
-  place and size on every page so the title and the search never jump between views, then search (short and set large
-  because a word is a few characters) and the page's actions. Search is not in the sidebar, which is for navigation.
-  `AppDock` is a drawer from the right, closed until asked for, with centered Filters and Settings tabs (the card face:
-  hand kai, song or hei, practice grid 田, 米, box or none, character size, opt-in tone colors; then how cards turn,
-  language and theme, as icon-led rows of segmented choices; the card face lives in `useCardStyle`, a cookie like the
-  flip mode, so the server renders cards as they will look). The cards lie between on the ink wash sunk like the inside
-  of a card box. Below the wide breakpoint the rail becomes `AppHeader`, which names the current page with its seal and
-  title (the page itself then drops its own title row) and keeps everything else to icons: search opens inside the bar
-  in place of the title, filters and settings open the drawer, the red seal adds a card. The tab bar at the bottom is
-  centered, and on the Box the pager rises out of its top edge with the same curved corners it has on the desktop frame.
-  The card grid steps one, two, three and four columns with the screen, three by four on a laptop, and the 12rem gutter
-  applies only on a wide desktop. The profile holds the account, rating names and groups in three sections that fit a
-  desktop screen, rating names saving as you leave each field. It is only offered once signed in: the last navigation
-  item is Profile for an account and Sign in before that, and a signed out visit to `/settings` goes to `/login`.
-  Signing in is the `/login` page, not a dialog, with the submit and provider buttons in one column; the forgotten
-  password link is off for now, though `/reset` still works. `/status` redirects to the profile. The box loads once in
-  the default layout, and `useCardActions` holds the editor, the drawer and the bulk dictionary update so any page can
-  open them. Looking cards up again sits at the foot of the Filters tab, because it acts on exactly the cards the
-  filters show, and it asks before it overwrites edited wording.
+  Practice `/practice`, Progress `/progress`, Profile `/settings`, Sign in `/login`, and Contact at its foot, a dialog
+  of links to the source code and the author) that widens to 15rem on hover or focus while the table's rounded edge (the
+  `[data-surface]` layer, a layer under the content) slides right with it, so the sidebar grows out of the frame rather
+  than lying over it as a sheet, and the cards never reflow. The table keeps a 12rem gutter on both sides, so the open
+  sidebar never covers a card and the content stays centered, the card grid is a fixed four by three on a wide desktop
+  (three by four on a laptop), even on a short last page, and each card is the largest that fits its cell
+  (`[data-gallery-cell]`, a size container), so a page always fits and the Box never scrolls. The pager, which also
+  carries the Box's card count, and the one filters and settings button are tabs of frame reaching into the table, the
+  pager rising from the bottom edge and the other hanging into the top right corner, each curved where it meets the
+  table (`[data-notch]` in the layout, `[data-pager]` in `CardGallery`), not bars and not sheets over the cards. Every
+  page opens on one row level with that tab: the title as `PageTitle`, its own character in the logo's seal
+  (盒 Box, 习 Practice, 进 Progress, 我 Profile) with the name beside it and no count, at the same place and size on
+  every page so the title and the search never jump between views, then search (short and set large because a word is a
+  few characters) and the page's actions. Search is not in the sidebar, which is for navigation. `AppDock` is a drawer
+  from the right, closed until asked for, with centered Filters and Settings tabs (the card face: hand kai, song or hei,
+  practice grid 田, 米, box or none, character size, opt-in tone colors; then how cards turn, language and theme, as
+  icon-led rows of segmented choices; the card face lives in `useCardStyle`, a cookie like the flip mode, so the server
+  renders cards as they will look). The cards lie between on the ink wash sunk like the inside of a card box. Below the
+  wide breakpoint the rail becomes `AppHeader`, which names the current page with its seal and title (the page itself
+  then drops its own title row) and keeps everything else to icons: search opens inside the bar in place of the title,
+  filters and settings open the drawer, the red seal adds a card. The tab bar at the bottom is centered, and on the Box
+  the pager rises out of its top edge with the same curved corners it has on the desktop frame. The card grid steps one,
+  two, three and four columns with the screen, three by four on a laptop, and the 12rem gutter applies only on a wide
+  desktop. The profile holds the account, rating names and groups in three sections that fit a desktop screen, rating
+  names saving as you leave each field. It is only offered once signed in: the last navigation item is Profile for an
+  account and Sign in before that, and a signed out visit to `/settings` goes to `/login`. Signing in is the `/login`
+  page, not a dialog, with the submit and provider buttons in one column; the forgotten password link is off for now,
+  though `/reset` still works. `/status` redirects to the profile. The box loads once in the default layout, and
+  `useCardActions` holds the editor, the drawer and the bulk dictionary update so any page can open them. Looking cards
+  up again sits at the foot of the Filters tab, because it acts on exactly the cards the filters show, and it asks
+  before it overwrites edited wording.
 - **Box** is the browse view: the whole box laid out, paged. A toggle in the dock's settings tab decides whether turning
   one card turns the last one back (for testing yourself) or cards turn independently (for reading back through them).
   An edge-on deck was tried in between and removed: it looked like a card box and was miserable to read, because a
@@ -383,10 +384,12 @@ The metaphor is a real box of index cards, and the layout is built around that r
   as a `DonutChart` and by group as a `BarChart` from `nuxt-charts`, two different shapes so the halves do not read as
   the same chart twice. Each chart is told its pixel size from the card, so the ring fills the card's height and sits
   centered, and its legend beside it scrolls inside itself rather than pushing the chart off the card. `nuxt-charts` has
-  no heatmap, so the calendar stays hand drawn. Ink draws the ripeness bar and the calendar; the tangerine mandarin
-  marks mastery alone, and a level is told apart by its count of mandarins. Empty groups hide behind a link. Every
-  level, word type and group opens the Box filtered to it, which is why the charts' own legends are hidden: the rows are
-  the legend and they are buttons.
+  no heatmap, so the calendar stays hand drawn. The ripeness bar and the calendar are drawn in the rating tangerine at
+  rising strengths, because both measure the same thing the mandarins do, and a level is told apart by its count of
+  mandarins. The ring and the columns each take half their card; the ring is inset from its box because Unovis draws
+  rounded caps past the radius it is given, and it needs `w-full` or its drawing area stays at a default 300px while the
+  radius follows the card. Empty groups hide behind a link. Every level, word type and group opens the Box filtered to
+  it, which is why the charts' own legends are hidden: the rows are the legend and they are buttons.
 - **The keyboard reaches everything.** `AppShortcuts` in the layout: Ctrl K (Cmd K on a Mac) finds a card by hanzi,
   pinyin with or without tones, or meaning, through `UCommandPalette` in a modal, and opens it in the editor; / focuses
   the search bar, which shows the key as a `UKbd`; N adds a card, F opens filters and settings, and . opens the guide

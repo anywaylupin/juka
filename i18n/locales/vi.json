@@ -284,5 +284,12 @@
     "goTo": "Đi tới",
     "everywhere": "Mọi nơi",
     "hints": "Hiện phím trên nút (giữ)"
+  },
+  "contact": {
+    "title": "Liên hệ",
+    "hint": "Người làm ra Juka, và mã nguồn của nó.",
+    "source": "Mã nguồn",
+    "github": "GitHub",
+    "linkedin": "LinkedIn"
   }
 }
