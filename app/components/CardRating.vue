@@ -44,7 +44,7 @@ function choose(value: Rating) {
       v-for="value in RATING_VALUES"
       :key="value"
       :name="RATING_ICON"
-      :class="[sizeClass, value <= modelValue ? 'text-[var(--color-rating)]' : 'text-muted']"
+      :class="[sizeClass, value <= modelValue ? 'text-rating' : 'text-muted']"
     />
   </div>
 
@@ -63,10 +63,7 @@ function choose(value: Rating) {
         @pointerdown.stop
         @click.stop="choose(value)"
       >
-        <UIcon
-          :name="RATING_ICON"
-          :class="[sizeClass, value <= modelValue ? 'text-[var(--color-rating)]' : 'text-muted']"
-        />
+        <UIcon :name="RATING_ICON" :class="[sizeClass, value <= modelValue ? 'text-rating' : 'text-muted']" />
       </button>
     </UTooltip>
   </div>

@@ -5,6 +5,7 @@ import type { CardFilters } from '~/composables/useCardFilters';
  * The one search box, shared by the sidebar on wide screens and the top bar on a phone.
  *
  * Debounced into the shared filters, so every page that shows cards narrows as you type without a request per key.
+ * Drawn as an underline rather than a box, and the underline turning to the accent is the focus indicator: the global ring would only draw a second, orange box around it.
  */
 const { t } = useI18n();
 
@@ -28,7 +29,10 @@ onBeforeUnmount(() => clearTimeout(timer));
     icon="i-lucide-search"
     size="lg"
     variant="none"
-    class="juka-search"
+    :ui="{
+      root: 'border-b-2 border-(--ui-text-highlighted) transition-colors focus-within:border-primary',
+      base: 'focus-visible:outline-none lg:h-11 lg:text-lg'
+    }"
     :placeholder="t('cards.searchPlaceholder')"
     :aria-label="t('cards.searchPlaceholder')"
   >

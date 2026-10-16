@@ -32,7 +32,7 @@ watch(
 
     <div class="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-3">
       <UCard as="section" :ui="JUKA_SECTION" aria-labelledby="profile-account">
-        <h2 id="profile-account" class="juka-subheading shrink-0 text-base">{{ t('settings.account') }}</h2>
+        <h2 id="profile-account" class="shrink-0 juka-subheading text-base">{{ t('settings.account') }}</h2>
         <div class="juka-section-body">
           <AccountSettings v-if="session.signedIn.value" />
         </div>

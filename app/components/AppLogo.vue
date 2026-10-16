@@ -9,5 +9,24 @@ withDefaults(defineProps<{ glyph?: string }>(), { glyph: '卡' });
 </script>
 
 <template>
-  <span class="juka-logo" aria-hidden="true">{{ glyph }}</span>
+  <span aria-hidden="true">{{ glyph }}</span>
 </template>
+
+<style scoped>
+/* A red seal a little wider than tall. It never shrinks, so the rail cannot squeeze it; size it by height and the width follows. */
+span {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  aspect-ratio: 44 / 38;
+  width: auto;
+  border-radius: 0.3rem;
+  background: var(--juka-seal);
+  box-shadow:
+    inset 0 0 0 0.18rem var(--juka-seal),
+    inset 0 0 0 0.26rem rgb(255 248 240 / 0.6);
+  color: #fff8f0;
+  font-family: var(--font-brush);
+  line-height: 1;
+}
+</style>

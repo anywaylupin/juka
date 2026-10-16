@@ -96,7 +96,7 @@ function setFlipped(card: CardRecord, value: boolean) {
       <!--
         Each card sits in a slot sized by the grid row, and is as large as fits it, so a page of three rows always fits the table above the pager with nothing to scroll.
       -->
-      <div v-for="(card, position) in visible" :key="card.id" class="juka-slot">
+      <div v-for="(card, position) in visible" :key="card.id" data-gallery-cell>
         <CardFace
           :card="card"
           :flipped="isFlipped(card)"
@@ -117,7 +117,8 @@ function setFlipped(card: CardRecord, value: boolean) {
     -->
     <nav
       v-if="cards.length > 0"
-      class="juka-pages juka-notch-bottom sticky bottom-20 z-20 mx-auto mt-auto flex w-fit items-center gap-3"
+      data-pager
+      class="sticky bottom-20 z-20 mx-auto mt-auto flex w-fit items-center gap-3"
       :aria-label="t('cards.pagination')"
     >
       <UPagination
@@ -139,3 +140,76 @@ function setFlipped(card: CardRecord, value: boolean) {
     </nav>
   </div>
 </template>
+
+<style scoped>
+/* The pager on a phone: a small sheet of paper stuck above the tab bar. The current page is the red seal; the rest stay ink chops. */
+[data-pager] {
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.6rem;
+  background: color-mix(in oklab, var(--ui-bg) 90%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--ui-text) 8%, transparent),
+    0 10px 24px -12px color-mix(in oklab, var(--ui-text) 30%, transparent);
+  backdrop-filter: blur(6px);
+}
+[data-pager] :deep([aria-current='page']) {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--juka-seal) 92%, white), var(--juka-seal));
+  color: #fff8f0;
+  box-shadow:
+    inset 0 0 0 2.5px var(--juka-seal),
+    inset 0 0 0 3.5px rgb(255 248 240 / 0.55);
+}
+
+@media (min-width: 64rem) {
+  /*
+    A gallery cell is a size container, and the card in it takes the largest 5 by 3.2 box that fits, so the grid's rows decide the card size and a page never overflows the table.
+    A cell on its way out gives up its place at once, or the next page would land in a fourth row.
+  */
+  [data-gallery-cell] {
+    container-type: size;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+  }
+  [data-gallery-cell].juka-card-leave-active {
+    display: none;
+  }
+  [data-gallery-cell] > .group {
+    width: min(100cqw, 100cqh * 5 / 3.2);
+    max-width: none;
+  }
+
+  /*
+    On a wide screen the pager is a tab of frame rising into the table's bottom edge: the frame's own color with rounded top corners, and two small squares beside it filled with frame except for a quarter circle, so the corners curve outward the way the sidebar meets the table.
+  */
+  [data-pager] {
+    position: fixed;
+    bottom: 0;
+    left: calc(50% + 1.625rem);
+    z-index: 30;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem 0.75rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background: var(--ui-bg);
+    box-shadow: none;
+    backdrop-filter: none;
+    transform: translateX(-50%);
+  }
+  [data-pager]::before,
+  [data-pager]::after {
+    content: '';
+    position: absolute;
+    bottom: 0.75rem;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  [data-pager]::before {
+    left: -0.75rem;
+    background: radial-gradient(circle at 0 0, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+  [data-pager]::after {
+    right: -0.75rem;
+    background: radial-gradient(circle at 100% 0, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+}
+</style>

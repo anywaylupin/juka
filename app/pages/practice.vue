@@ -31,7 +31,8 @@ watch(results, (list) => {
     <!-- Title, search and actions share one row, level with the frame tab, so the cards start high on the table. -->
     <div class="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-3">
       <PageTitle glyph="习" :title="t('nav.practice')" />
-      <SearchField class="juka-table-search hidden lg:flex" />
+      <!-- Short, because a word is a few characters. -->
+      <SearchField class="hidden lg:flex lg:w-88" />
       <div class="ml-auto flex items-center gap-2">
         <!-- A phone has no frame tab, so the button stays here below the wide breakpoint. -->
         <UButton
@@ -47,7 +48,7 @@ watch(results, (list) => {
       </div>
     </div>
 
-    <USkeleton v-if="!store.loaded.value" class="mx-auto aspect-[5/3.2] w-full max-w-[36rem] rounded-sm" />
+    <USkeleton v-if="!store.loaded.value" class="aspect-5/3.2 mx-auto w-full max-w-xl rounded-sm" />
 
     <UEmpty
       v-else-if="results.length === 0"

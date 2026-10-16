@@ -21,7 +21,7 @@ const showSearch = computed(() => !/\/(settings|reset|login)$/.test(route.path))
   <UHeader :to="localePath('/')" :toggle="false" :ui="{ root: 'bg-default/90' }">
     <template #title>
       <AppLogo class="h-9 text-2xl" />
-      <span class="font-[family-name:var(--font-display)] text-xl font-bold text-highlighted">Juka</span>
+      <span class="font-display text-xl font-bold text-highlighted">Juka</span>
     </template>
 
     <template #right>

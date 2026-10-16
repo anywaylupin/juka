@@ -23,18 +23,16 @@ const items = computed(() => [props.tabs.slice(0, -1), props.tabs.slice(-1)]);
 
 <template>
   <nav
-    class="juka-rail"
+    data-rail
     :aria-label="t('nav.main')"
     @mouseenter="expanded = true"
     @mouseleave="expanded = false"
     @focusin="expanded = true"
     @focusout="expanded = false"
   >
-    <NuxtLink :to="localePath('/')" class="flex items-center gap-2 rounded-sm px-[3px]" :aria-label="t('nav.home')">
+    <NuxtLink :to="localePath('/')" class="flex items-center gap-2 rounded-sm px-0.75" :aria-label="t('nav.home')">
       <AppLogo class="h-9 text-2xl" />
-      <span v-show="expanded" class="font-[family-name:var(--font-display)] text-xl font-bold text-highlighted"
-        >Juka</span
-      >
+      <span v-show="expanded" class="font-display text-xl font-bold text-highlighted">Juka</span>
     </NuxtLink>
 
     <UButton
@@ -57,3 +55,29 @@ const items = computed(() => [props.tabs.slice(0, -1), props.tabs.slice(-1)]);
     />
   </nav>
 </template>
+
+<style scoped>
+/*
+  At rest a 4rem rail of icons; on hover or keyboard focus it widens to 15rem, and the table's edge slides right with it, so the sidebar grows out of the frame instead of lying on top as a sheet.
+*/
+[data-rail] {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 4rem;
+  padding: 1.25rem 0.5rem;
+  overflow: hidden;
+  background: var(--ui-bg);
+  white-space: nowrap;
+  transition: width 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-rail]:is(:hover, :focus-within) {
+  width: 15rem;
+}
+[data-rail] :deep(.iconify) {
+  flex-shrink: 0;
+}
+</style>

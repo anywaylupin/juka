@@ -66,8 +66,10 @@ function onSaved() {
 </script>
 
 <template>
-  <div class="juka-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[4rem_minmax(0,1fr)] lg:bg-default">
-    <a href="#main" class="juka-skip">{{ t('nav.skip') }}</a>
+  <div class="min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[4rem_minmax(0,1fr)] lg:bg-default">
+    <a href="#main" class="absolute -top-16 left-4 z-60 rounded-sm bg-default px-4 py-2 text-highlighted focus:top-4">{{
+      t('nav.skip')
+    }}</a>
 
     <!-- The rail holds its 4rem column; the sidebar inside it widens over the table rather than pushing it. -->
     <div class="relative hidden lg:block">
@@ -81,13 +83,13 @@ function onSaved() {
         The table is drawn as its own layer under the content, so when the sidebar opens the table's rounded edge slides right with it and the sidebar reads as part of the frame rather than a sheet over it.
         The content does not move: its gutter is wider than the slide.
       -->
-      <div class="juka-table-surface hidden lg:block" aria-hidden="true" />
+      <div data-surface class="hidden lg:block" aria-hidden="true" />
 
       <!--
         Filters and settings hang from the frame into the table's top right corner as a tab, the way the pager rises from the bottom edge.
         Offered on the pages that show cards; the profile has nothing to filter.
       -->
-      <div v-if="showSearch" class="juka-notch-top hidden lg:flex">
+      <div v-if="showSearch" data-notch class="hidden lg:flex">
         <!-- One button: both tabs live in the same drawer, so it opens on whichever was used last. -->
         <UButton color="neutral" variant="ghost" icon="i-lucide-sliders-horizontal" @click="filtersOpen = true">
           {{ t('dock.title') }}
@@ -99,7 +101,7 @@ function onSaved() {
         id="main"
         as="main"
         tabindex="-1"
-        class="juka-table relative flex w-full flex-1 flex-col px-4 pt-6 pb-28 outline-none sm:px-6 lg:min-h-0 lg:overflow-y-auto lg:px-[12rem] lg:pt-2 lg:pb-16"
+        class="relative flex w-full flex-1 flex-col px-4 pt-6 pb-28 outline-none sm:px-6 lg:min-h-0 lg:overflow-y-auto lg:px-48 lg:pt-2 lg:pb-16"
       >
         <!--
           The open sidebar reaches 10.5rem into the table, so the content keeps a 12rem gutter on both sides: clear of it with room to spare, and still centered.
@@ -115,7 +117,10 @@ function onSaved() {
       role="status"
       :aria-label="store.loaded.value ? '' : t('cards.loading')"
     >
-      <div v-if="!store.loaded.value && !store.failed.value" class="juka-loading-bar h-full" />
+      <div
+        v-if="!store.loaded.value && !store.failed.value"
+        class="h-full animate-sweep bg-linear-to-r from-transparent via-primary to-transparent"
+      />
     </div>
 
     <!--
@@ -124,7 +129,7 @@ function onSaved() {
     -->
     <div
       v-if="bulk.running"
-      class="juka-ink-shadow fixed inset-x-3 bottom-20 z-40 mx-auto flex max-w-md items-center gap-3 rounded-lg bg-default px-4 py-3 lg:bottom-6"
+      class="fixed inset-x-3 bottom-20 z-40 mx-auto flex max-w-md items-center gap-3 rounded-lg bg-default px-4 py-3 juka-ink-shadow lg:bottom-6"
       role="status"
       aria-live="polite"
     >
@@ -182,3 +187,54 @@ function onSaved() {
     </UModal>
   </div>
 </template>
+
+<style scoped>
+@media (min-width: 64rem) {
+  /*
+    The table the cards lie on: the ink wash page, sunk a little below the frame with an inner shadow, the way the inside of a card box sits below its rim.
+    When the sidebar opens, its rounded edge slides right with it.
+  */
+  [data-surface] {
+    position: absolute;
+    inset: 0.75rem 0.75rem 0.75rem 0;
+    border-radius: 0.75rem;
+    background: var(--juka-page);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--ui-text) 8%, transparent),
+      inset 0 2px 14px -4px color-mix(in oklab, var(--ui-text) 16%, transparent);
+    transition: left 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :has([data-rail]:is(:hover, :focus-within)) [data-surface] {
+    left: 11rem;
+  }
+
+  /* Filters and settings, as a tab of frame hanging into the table's top right corner, curved where it meets the table the way the pager is at the bottom. */
+  [data-notch] {
+    position: fixed;
+    top: 0;
+    right: 2.25rem;
+    z-index: 30;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem 0.4rem;
+    border-radius: 0 0 0.75rem 0.75rem;
+    background: var(--ui-bg);
+  }
+  [data-notch]::before,
+  [data-notch]::after {
+    content: '';
+    position: absolute;
+    top: 0.75rem;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  [data-notch]::before {
+    left: -0.75rem;
+    background: radial-gradient(circle at 0 100%, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+  [data-notch]::after {
+    right: -0.75rem;
+    background: radial-gradient(circle at 100% 100%, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+}
+</style>

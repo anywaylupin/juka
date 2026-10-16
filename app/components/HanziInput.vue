@@ -172,7 +172,7 @@ defineExpose({ focus: () => input.value?.focus() });
     <!--
       The candidate strip, the way an input method shows it: numbered, the first one already selected, horizontally scrollable when there are more.
     -->
-    <div v-if="open" id="hanzi-candidates" role="listbox" class="no-scrollbar mt-3 flex gap-1.5 overflow-x-auto pb-1">
+    <div v-if="open" id="hanzi-candidates" role="listbox" class="mt-3 no-scrollbar flex gap-1.5 overflow-x-auto pb-1">
       <button
         v-for="(entry, index) in candidates"
         :key="entry.hanzi + entry.pinyin"

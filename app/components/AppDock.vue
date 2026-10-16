@@ -106,7 +106,7 @@ async function choose(name: ThemeName) {
         />
 
         <section class="mt-6 space-y-2 border-t border-default pt-5">
-          <h3 class="juka-dock-heading"><UIcon name="i-lucide-refresh-cw" />{{ t('bulk.title') }}</h3>
+          <h3><UIcon name="i-lucide-refresh-cw" />{{ t('bulk.title') }}</h3>
           <p class="text-xs text-muted">{{ t('bulk.hint') }}</p>
           <UButton
             color="neutral"
@@ -123,7 +123,7 @@ async function choose(name: ThemeName) {
 
       <div v-else class="space-y-6">
         <section class="space-y-2.5">
-          <h3 class="juka-dock-heading"><UIcon name="i-lucide-pen-tool" />{{ t('style.font') }}</h3>
+          <h3><UIcon name="i-lucide-pen-tool" />{{ t('style.font') }}</h3>
           <UTabs
             :items="fonts"
             :model-value="cardStyle.font"
@@ -136,15 +136,13 @@ async function choose(name: ThemeName) {
             @update:model-value="setStyle('font', $event as typeof cardStyle.font)"
           >
             <template #leading="{ item }">
-              <span class="juka-hanzi leading-none" :data-font="item.value" lang="zh" aria-hidden="true"
-                ><span class="juka-cell-sample">字</span></span
-              >
+              <span class="leading-none" :data-font="item.value" lang="zh" aria-hidden="true">字</span>
             </template>
           </UTabs>
         </section>
 
         <section class="space-y-2.5">
-          <h3 class="juka-dock-heading"><UIcon name="i-lucide-grid-2x2" />{{ t('style.grid') }}</h3>
+          <h3><UIcon name="i-lucide-grid-2x2" />{{ t('style.grid') }}</h3>
           <UTabs
             :items="grids"
             :model-value="cardStyle.grid"
@@ -164,7 +162,7 @@ async function choose(name: ThemeName) {
 
         <section class="space-y-2.5">
           <div class="flex items-center justify-between">
-            <h3 class="juka-dock-heading"><UIcon name="i-lucide-scaling" />{{ t('style.size') }}</h3>
+            <h3><UIcon name="i-lucide-scaling" />{{ t('style.size') }}</h3>
             <span class="text-sm text-muted tabular-nums">{{ Math.round(cardStyle.size * 100) }}%</span>
           </div>
           <div class="flex items-center gap-3">
@@ -185,7 +183,7 @@ async function choose(name: ThemeName) {
 
         <section class="flex items-center justify-between gap-4">
           <div>
-            <h3 class="juka-dock-heading"><UIcon name="i-lucide-palette" />{{ t('style.tones') }}</h3>
+            <h3><UIcon name="i-lucide-palette" />{{ t('style.tones') }}</h3>
             <p class="text-xs text-muted">{{ t('style.tonesHint') }}</p>
           </div>
           <USwitch
@@ -199,7 +197,7 @@ async function choose(name: ThemeName) {
         <USeparator />
 
         <section class="space-y-2.5">
-          <h3 class="juka-dock-heading"><UIcon name="i-lucide-refresh-ccw" />{{ t('view.turning') }}</h3>
+          <h3><UIcon name="i-lucide-refresh-ccw" />{{ t('view.turning') }}</h3>
           <UTabs
             v-model="flipMode"
             :items="turnTabs"
@@ -213,7 +211,7 @@ async function choose(name: ThemeName) {
         </section>
 
         <section class="space-y-2.5">
-          <h3 class="juka-dock-heading"><UIcon name="i-lucide-languages" />{{ t('settings.language') }}</h3>
+          <h3><UIcon name="i-lucide-languages" />{{ t('settings.language') }}</h3>
           <UTabs
             :items="localeTabs"
             :model-value="locale"
@@ -228,7 +226,7 @@ async function choose(name: ThemeName) {
         </section>
 
         <section class="space-y-3">
-          <h3 class="juka-dock-heading"><UIcon name="i-lucide-swatch-book" />{{ t('settings.theme') }}</h3>
+          <h3><UIcon name="i-lucide-swatch-book" />{{ t('settings.theme') }}</h3>
           <div v-for="group in modes" :key="group.mode" class="space-y-1.5">
             <p class="text-xs text-muted">{{ group.label }}</p>
             <div class="grid grid-cols-3 gap-1.5">
@@ -269,3 +267,32 @@ async function choose(name: ThemeName) {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* A section title: a small icon and the name, the way a settings row reads in a reader app. */
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ui-text-highlighted);
+}
+h3 > .iconify {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--ui-text-muted);
+}
+
+/* The 字 sample in the hand picker takes the same font switch as a card. */
+[data-font] {
+  font-family: var(--font-hanzi);
+}
+[data-font='song'] {
+  font-family: var(--font-display);
+}
+[data-font='hei'] {
+  font-family: var(--font-hei);
+}
+</style>

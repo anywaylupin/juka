@@ -10,7 +10,7 @@
  * Tarocco is a blood orange, so it is blood.
  * The name still carries the color, it just carries the association rather than the photograph, and the set finally spans the wheel.
  *
- * The color scales live in app/assets/css/themes.css, which is generated from this list by scripts/generate-theme-css.ts.
+ * The color scales live in app/assets/css/themes/ (one file per theme), which is generated from this list by scripts/generate-theme-css.ts.
  * This list is also what the picker renders and what the preferences route validates against.
  */
 export interface ThemeDefinition {

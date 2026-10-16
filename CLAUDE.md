@@ -281,7 +281,7 @@ Implementation:
   color through `ThemeDefinition.page`.
 - **Color mode follows the theme.** The color mode module restores its own value from local storage after hydration,
   which could leave a dark theme rendering light, so `useJukaTheme` applies the theme's mode again on `onNuxtReady`.
-- Generated into `app/assets/css/themes.css`. Edit `shared/constants/themes.ts` and run
+- Generated into `app/assets/css/themes/ (one file per theme)`. Edit `shared/constants/themes.ts` and run
   `node scripts/generate-theme-css.ts`.
 - Neutral is one warm taupe shared by every theme. Never stock gray. In light mode muted and dimmed text sit one step
   darker than Nuxt UI's, because its grays measured 3.95:1 and 2.18:1 on the ink wash, under WCAG's 4.5:1; muted now
@@ -300,20 +300,25 @@ color of the focus ring on a text field, which Nuxt UI paints in the accent and 
 palette; it is swapped to neutral and the extra translucent outline is dropped. The other entries are two button
 compound variants that map neutral buttons to the ink chop classes below.
 
-**Calligraphy, in a few named classes.** The look is brush and seal on paper, kept to classes in `main.css` rather than
-slot overrides: `juka-heading` (a page title with a brush stroke under it), `juka-navlink` (the current page underlined
-in ink), `juka-seal` and `juka-seal-button` (the 橘 logo and the add button as a red seal), `juka-paper` and
-`juka-ink-shadow` (a soft diffuse shadow, never a hard offset). Buttons speak the seal's language: `juka-seal-button` in
-red for the one add action, `juka-ink-button` (neutral outline) and `juka-ink-solid` (neutral solid, a toggle's chosen
-side) in ink, wired through `app.config.ts` so call sites keep plain `color` and `variant`. Headings use
-`--font-display` (Noto Serif SC, a Song face) and the seal uses `--font-brush` (Ma Shan Zheng); body text is Zen Kaku
-Gothic New, a heavy East Asian gothic, and M PLUS 1p under the `vi` locale, because Zen Kaku has no Vietnamese and ơ, ư
-and the tone marks fell back to another face mid-word. Ma Shan Zheng has none either, so it stays on the 卡 seal and
-never sets Vietnamese text. Every UModal and USlideover takes `:ui="JUKA_PANEL"` from `app/utils/panel.ts`: paper, the
-ink shadow and a Song title. Pagination is a row of ink chops with the current page as the red seal and 第N页 beside it.
-Filter chips in a group or word type color use `juka-chip`, framed like a chop when on. The search field has no focus
-ring: its underline turning tangerine is the indicator. Each hanzi on a card front stands in its own 田 practice square,
-`juka-cell`, sized by container query so four still fit the card above the rating.
+**Calligraphy, kept small.** The look is brush and seal on paper. `main.css` holds only what is global: the tokens, a
+`@layer base` (body, scrollbar, cursor, focus ring, touch targets, reduced motion), the Vue transition class names in
+`@layer components`, and a few `@utility` classes more than one component uses: `juka-seal-button` (the red seal for the
+one add action), `juka-ink-button` and `juka-ink-solid` (neutral outline and solid buttons as ink chops, wired through
+`app.config.ts` so call sites keep plain `color` and `variant`), `juka-ink-shadow`, `juka-subheading`, `juka-panel` and
+`juka-panel-title` (paper and a Song title for every UModal and USlideover through `JUKA_PANEL`), `juka-section-body`
+and `no-scrollbar`. Everything that belongs to one component lives in that component's `<style scoped>`, selected by tag
+or data attribute rather than an invented class: the 田 cell is `p[data-grid] > span` in `CardFace` (with `data-font`
+and `data-grid` for the card face settings), the folded corner is `[data-corner]`, the logo is the `span` of `AppLogo`,
+the rail is `[data-rail]` in `AppSidebar`, the table surface and the top frame tab are `[data-surface]` and
+`[data-notch]` in the layout, the pager is `[data-pager]` and a gallery cell `[data-gallery-cell]` in `CardGallery`, the
+practice deck `[data-stage]`, `[data-deck]` and `[data-edge]` in `CardStack`, a filter chip `[data-chip]`, a calendar
+day `[data-day]`. Where a Tailwind utility will do, it does: the search underline is the input's `ui` prop, the loading
+bar is `animate-sweep` with its keyframes in `@theme`, and sizes use the spacing scale (`px-0.75`, `max-w-144`) rather
+than bracketed values. Headings use `--font-display` (Noto Serif SC, a Song face) and the seal uses `--font-brush` (Ma
+Shan Zheng); body text is Zen Kaku Gothic New, a heavy East Asian gothic, and M PLUS 1p under the `vi` locale, because
+Zen Kaku has no Vietnamese and ơ, ư and the tone marks fell back to another face mid-word. Ma Shan Zheng has none
+either, so it stays on the 卡 seal and never sets Vietnamese text. Pagination is a row of ink chops with the current
+page as the red seal and 第N页 beside it.
 
 Do not add a 3D press, a raised panel class, or a page gradient back. That was tried and removed: it read as heavy and
 made problems hard to place, because a wrong border could have come from the theme, a slot override, or the component.
@@ -322,39 +327,39 @@ The metaphor is a real box of index cards, and the layout is built around that r
 
 - **A rail, a table and a drawer.** On a wide screen `AppSidebar` is a 4rem rail of icons (logo, add card, Box `/`,
   Practice `/practice`, Progress `/progress`, Profile `/settings`, Sign in `/login`) that widens to 15rem on hover or
-  focus while the table's rounded edge (`juka-table-surface`, a layer under the content) slides right with it, so the
-  sidebar grows out of the frame rather than lying over it as a sheet, and the cards never reflow. The table keeps a
+  focus while the table's rounded edge (the `[data-surface]` layer, a layer under the content) slides right with it, so
+  the sidebar grows out of the frame rather than lying over it as a sheet, and the cards never reflow. The table keeps a
   12rem gutter on both sides, so the open sidebar never covers a card and the content stays centered, the card grid is a
   fixed four by three on a wide screen, even on a short last page, and each card is the largest that fits its cell
-  (`juka-slot`, a size container), so a page always fits and the Box never scrolls. The pager, which also carries the
-  Box's card count, and the one filters and settings button are tabs of frame reaching into the table, the pager rising
-  from the bottom edge and the other hanging into the top right corner, each curved where it meets the table
-  (`juka-notch-top`, `juka-notch-bottom`), not bars and not sheets over the cards. Every page opens on one row level
-  with that tab: the title as `PageTitle`, its own character in the logo's seal (盒 Box, 习 Practice, 进 Progress, your
-  initial on the profile) with the name beside it and no count, at the same place and size on every page so the title
-  and the search never jump between views, then search (`juka-table-search`, short and set large because a word is a few
-  characters) and the page's actions. Search is not in the sidebar, which is for navigation. `AppDock` is a drawer from
-  the right, closed until asked for, with centered Filters and Settings tabs (the card face: hand kai, song or hei,
-  practice grid 田, 米, box or none, character size, opt-in tone colors; then how cards turn, language and theme, as
-  icon-led rows of segmented choices; the card face lives in `useCardStyle`, a cookie like the flip mode, so the server
-  renders cards as they will look). The cards lie between on `juka-table`, the ink wash sunk like the inside of a card
-  box. On a phone the rail becomes `AppHeader` plus a tab bar at the bottom. The profile holds the account, rating names
-  and groups in three sections that fit a desktop screen, rating names saving as you leave each field. It is only
-  offered once signed in: the last navigation item is Profile for an account and Sign in before that, and a signed out
-  visit to `/settings` goes to `/login`. Signing in is the `/login` page, not a dialog, with the submit and provider
-  buttons in one column; the forgotten password link is off for now, though `/reset` still works. `/status` redirects to
-  the profile. The box loads once in the default layout, and `useCardActions` holds the editor, the drawer and the bulk
-  dictionary update so any page can open them. Looking cards up again sits at the foot of the Filters tab, because it
-  acts on exactly the cards the filters show, and it asks before it overwrites edited wording.
+  (`[data-gallery-cell]`, a size container), so a page always fits and the Box never scrolls. The pager, which also
+  carries the Box's card count, and the one filters and settings button are tabs of frame reaching into the table, the
+  pager rising from the bottom edge and the other hanging into the top right corner, each curved where it meets the
+  table (`[data-notch]` in the layout, `[data-pager]` in `CardGallery`), not bars and not sheets over the cards. Every
+  page opens on one row level with that tab: the title as `PageTitle`, its own character in the logo's seal
+  (盒 Box, 习 Practice, 进 Progress, your initial on the profile) with the name beside it and no count, at the same
+  place and size on every page so the title and the search never jump between views, then search (short and set large
+  because a word is a few characters) and the page's actions. Search is not in the sidebar, which is for navigation.
+  `AppDock` is a drawer from the right, closed until asked for, with centered Filters and Settings tabs (the card face:
+  hand kai, song or hei, practice grid 田, 米, box or none, character size, opt-in tone colors; then how cards turn,
+  language and theme, as icon-led rows of segmented choices; the card face lives in `useCardStyle`, a cookie like the
+  flip mode, so the server renders cards as they will look). The cards lie between on the ink wash sunk like the inside
+  of a card box. On a phone the rail becomes `AppHeader` plus a tab bar at the bottom. The profile holds the account,
+  rating names and groups in three sections that fit a desktop screen, rating names saving as you leave each field. It
+  is only offered once signed in: the last navigation item is Profile for an account and Sign in before that, and a
+  signed out visit to `/settings` goes to `/login`. Signing in is the `/login` page, not a dialog, with the submit and
+  provider buttons in one column; the forgotten password link is off for now, though `/reset` still works. `/status`
+  redirects to the profile. The box loads once in the default layout, and `useCardActions` holds the editor, the drawer
+  and the bulk dictionary update so any page can open them. Looking cards up again sits at the foot of the Filters tab,
+  because it acts on exactly the cards the filters show, and it asks before it overwrites edited wording.
 - **Box** is the browse view: the whole box laid out, paged. A toggle in the dock's settings tab decides whether turning
   one card turns the last one back (for testing yourself) or cards turn independently (for reading back through them).
   An edge-on deck was tried in between and removed: it looked like a card box and was miserable to read, because a
   vertical word in a 44px spine tells you almost nothing.
 - **Practice** is the one-at-a-time view, laid out like a desk: the deal order (weaker first or box order) as a
   segmented choice and the position as "3 / 8" along the top, the deck in the middle as the largest index card the table
-  fits (`juka-deck-stage`, a size container), previous and next as ink buttons either side of it, and under it a
-  hairline of progress and the keys shown as key caps. The two cards to come peek out above the top one as ink edges. A
-  click or the space bar turns the top card over; stepping deals the old card up and away. Its order comes from
+  fits (`[data-stage]`, a size container), previous and next as ink buttons either side of it, and under it a hairline
+  of progress and the keys shown as key caps. The two cards to come peek out above the top one as ink edges. A click or
+  the space bar turns the top card over; stepping deals the old card up and away. Its order comes from
   `usePracticeOrder` unless box order is chosen. An earlier version stacked a pill, a small card, round arrows, a
   counter and a sentence of instructions down the center line, all the same small size, and read as generated rather
   than designed.
@@ -362,13 +367,13 @@ The metaphor is a real box of index cards, and the layout is built around that r
   the only destructive action in the app on the gesture most easily made by accident, on top of a card whose other
   gesture is a tap. It also cost a release to a silent binding bug. Every action on a card is a button now.
 - **Progress** is the box from above, and the answer comes first: four numbers in the display face (cards, known well,
-  added this week, unrated), then, on a wide screen, a two by two of paper sections (`juka-section`) that fits the table
-  without scrolling, each body scrolling inside its own card if it must: the ripeness bar, a half-year calendar of cards
-  added per day with month and weekday labels, and the split by word type and by group. Ink draws every bar and the
-  calendar; the tangerine mandarin marks mastery alone, a level is told apart by its count of mandarins rather than by
-  five near identical oranges, and type and group colors are a small mark by the label. Empty groups hide behind a link.
-  Every level, word type and group opens the Box filtered to it. Built from divs, not SVG and not a charting library,
-  because everything on it is a proportion or a count.
+  added this week, unrated), then, on a wide screen, a two by two of paper sections (`UCard` with `JUKA_SECTION`) that
+  fits the table without scrolling, each body scrolling inside its own card if it must: the ripeness bar, a half-year
+  calendar of cards added per day with month and weekday labels, and the split by word type and by group. Ink draws
+  every bar and the calendar; the tangerine mandarin marks mastery alone, a level is told apart by its count of
+  mandarins rather than by five near identical oranges, and type and group colors are a small mark by the label. Empty
+  groups hide behind a link. Every level, word type and group opens the Box filtered to it. Built from divs, not SVG and
+  not a charting library, because everything on it is a proportion or a count.
 - **A card shows only the hanzi on the front.** The back carries the reading above, the meaning large in the display
   face, and the part of speech as a small tag at the top, and nothing else. The meaning is the payoff of a turn, so it
   is sized like the word on the front. There is no flip button: clicking the card turns it.
@@ -440,8 +445,9 @@ Keep Notion running in parallel until the app has been used daily for two weeks.
 - **Auth is real.** Username and password through `nuxt-auth-utils`, scrypt hashing, sessions in a signed cookie.
   `requireUserId` returns a 401 rather than falling back to an owner; the bootstrap owner row from migration 0001 was
   removed in 0006. Signed out visitors never reach a card route, because their cards are in local storage.
-- **Theme colors are generated.** `app/assets/css/themes.css` is written by `node scripts/generate-theme-css.ts` from
-  `shared/constants/themes.ts`. Edit the constants and regenerate, never the CSS.
+- **Theme colors are generated.** `app/assets/css/themes/ (one file per theme)` is written by
+  `node scripts/generate-theme-css.ts` from `shared/constants/themes.ts`. Edit the constants and regenerate, never the
+  CSS.
 - **Derived card fields have one home.** `deriveCardFields` in `server/utils/card-fields.ts` produces `pinyin`,
   `pinyin_plain`, `hanzi_chars`, `pinyin_search`, and `syllables`. Nothing else may write those columns.
 - **Search input never reaches FTS5 as syntax.** `buildSearchMatch` extracts only Han runs and alphanumeric runs, so

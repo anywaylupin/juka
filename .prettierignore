@@ -13,7 +13,7 @@ public/dict
 
 # Generated from shared/constants/themes.ts by scripts/generate-theme-css.ts,
 # and from the icon set by scripts/build-favicon.ts.
-app/assets/css/themes.css
+app/assets/css/themes/
 public/favicon.svg
 
 # Drizzle writes these. Reformatting a snapshot makes the next diff unreadable.

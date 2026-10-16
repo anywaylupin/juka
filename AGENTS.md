@@ -39,7 +39,7 @@ pnpm typecheck            # vue-tsc
 pnpm db:generate          # drizzle-kit generate, after editing server/database/schema.ts
 pnpm db:migrate:local     # apply migrations to .wrangler/state/v3
 pnpm db:migrate:remote    # apply migrations to the deployed D1
-node scripts/generate-theme-css.ts   # rewrite app/assets/css/themes.css
+node scripts/generate-theme-css.ts   # rewrite app/assets/css/themes/ (one file per theme)
 pnpm dict:build           # rebuild public/dict from its four upstream sources
 node scripts/build-favicon.ts        # rewrite public/favicon.svg from the icon set
 ```
@@ -69,8 +69,8 @@ lists, pointed at `app/assets/css/main.css` because Tailwind v4 keeps its config
 - **ESLint no longer formats.** `eslint-config-prettier` is appended last in `eslint.config.mjs` and switches off every
   stylistic rule, so the two cannot disagree. Rules that remain are about behavior: unused variables, `any`, component
   naming, Vue correctness.
-- `.prettierignore` covers what is generated or vendored: `public/dict`, `themes.css`, `favicon.svg`, the drizzle
-  migration folder, build output and the lockfile. Reformatting a generated file only makes its next diff unreadable.
+- `.prettierignore` covers what is generated or vendored: `public/dict`, `themes/`, `favicon.svg`, the drizzle migration
+  folder, build output and the lockfile. Reformatting a generated file only makes its next diff unreadable.
 
 ### Comments
 
@@ -166,9 +166,13 @@ not add it back without a reason that has survived a week of use.
 - `app.config.ts` carries **colors and two button compound variants** (neutral outline and solid to the ink chop
   classes). No component slot overrides. If one component needs to look different, say so at the call site; promote it
   only once the pattern has repeated.
-- `app/assets/css/main.css` is small: font stacks, the rating color, the ink wash page, a focus ring, and the named
-  calligraphy classes (`juka-heading`, `juka-seal`, `juka-cell` and friends) listed in CLAUDE.md. Add to it only when a
-  component cannot be styled through the theme.
+- **CSS has three homes.** `app/assets/css/main.css` holds only what is global: tokens, `@layer base`, the Vue
+  transition class names in `@layer components`, and `@utility` classes that more than one component uses. A rule that
+  belongs to one component goes in that component's `<style scoped>`, selected by tag or data attribute, never an
+  invented class. Each theme is its own generated file under `app/assets/css/themes/`. Reach for a Tailwind utility
+  first, on the spacing scale rather than bracketed values (`px-0.75`, not `px-[3px]`), and through a Nuxt UI
+  component's `ui` prop when the element is inside the component. A data attribute on a Nuxt UI component may land on an
+  inner element rather than the root, so a scoped rule will not match it: style those through `ui`.
 - A theme sets the accent and nothing else. Surfaces, borders and text come from Nuxt UI. Read them through the semantic
   classes (`bg-default`, `bg-muted`, `bg-elevated`, `text-muted`, `text-highlighted`, `border-default`), never by
   writing `var(--ui-bg)` inline.

@@ -209,9 +209,7 @@ const stats = computed(() => [
       <UCard v-for="stat in stats" :key="stat.label" :ui="{ body: 'px-4 py-2.5 sm:px-4 sm:py-2.5' }">
         <p class="text-sm text-muted">{{ stat.label }}</p>
         <p class="flex items-baseline gap-2">
-          <span class="font-[family-name:var(--font-display)] text-3xl font-bold text-highlighted tabular-nums">{{
-            stat.value
-          }}</span>
+          <span class="font-display text-3xl font-bold text-highlighted tabular-nums">{{ stat.value }}</span>
           <span v-if="stat.hint" class="text-sm text-muted">{{ stat.hint }}</span>
         </p>
       </UCard>
@@ -220,7 +218,7 @@ const stats = computed(() => [
     <div class="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-flow-col lg:grid-cols-2 lg:grid-rows-2">
       <!-- Ripeness -->
       <UCard as="section" :ui="JUKA_SECTION">
-        <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.ripeness') }}</h2>
+        <h2 class="shrink-0 juka-subheading text-base">{{ t('chart.ripeness') }}</h2>
 
         <div
           class="flex h-4 overflow-hidden rounded-sm bg-elevated"
@@ -235,7 +233,7 @@ const stats = computed(() => [
           />
         </div>
 
-        <ul class="juka-section-body grid content-start gap-x-3 sm:grid-cols-2">
+        <ul class="grid juka-section-body content-start gap-x-3 sm:grid-cols-2">
           <li v-for="level in byRating" :key="level.rating">
             <button
               type="button"
@@ -263,11 +261,11 @@ const stats = computed(() => [
       <!-- Habit -->
       <UCard as="section" :ui="JUKA_SECTION">
         <div class="flex items-baseline justify-between gap-3">
-          <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.added') }}</h2>
+          <h2 class="shrink-0 juka-subheading text-base">{{ t('chart.added') }}</h2>
           <p class="text-sm text-muted">{{ t('chart.thisWeek', { count: addedThisWeek }) }}</p>
         </div>
 
-        <div class="juka-section-body flex flex-1 gap-2 overflow-x-auto pb-1 lg:overflow-y-hidden">
+        <div class="flex juka-section-body flex-1 gap-2 overflow-x-auto pb-1 lg:overflow-y-hidden">
           <div
             class="grid shrink-0 grid-rows-[1rem_repeat(7,minmax(0,1fr))] gap-1 text-xs text-muted"
             aria-hidden="true"
@@ -290,7 +288,8 @@ const stats = computed(() => [
                 :text="`${dayFormatter.format(day.date)}: ${day.count}`"
               >
                 <div
-                  class="juka-day h-full min-h-2"
+                  data-day
+                  class="h-full min-h-2"
                   :class="day.future && 'invisible'"
                   :style="{ backgroundColor: dayFill(day.count) }"
                 />
@@ -302,7 +301,7 @@ const stats = computed(() => [
 
       <!-- Composition -->
       <UCard as="section" :ui="JUKA_SECTION">
-        <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.byType') }}</h2>
+        <h2 class="shrink-0 juka-subheading text-base">{{ t('chart.byType') }}</h2>
         <ul class="juka-section-body">
           <li v-for="row in byType" :key="row.key">
             <button
@@ -329,7 +328,7 @@ const stats = computed(() => [
       </UCard>
 
       <UCard as="section" :ui="JUKA_SECTION">
-        <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.byGroup') }}</h2>
+        <h2 class="shrink-0 juka-subheading text-base">{{ t('chart.byGroup') }}</h2>
         <p v-if="allGroups.length === 0" class="text-sm text-muted">{{ t('chart.noGroupsYet') }}</p>
         <ul v-else class="juka-section-body">
           <li v-for="row in byGroup" :key="row.key">
@@ -367,3 +366,11 @@ const stats = computed(() => [
     </div>
   </div>
 </template>
+
+<style scoped>
+/* A calendar day: a small square with a hairline edge, like a cell on a practice sheet, filled with ink by how much was added. */
+[data-day] {
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ui-text) 10%, transparent);
+}
+</style>

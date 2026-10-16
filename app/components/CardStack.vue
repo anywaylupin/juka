@@ -141,7 +141,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <span class="hidden sm:inline">{{ t('stack.reshuffle') }}</span>
       </UButton>
 
-      <p class="ml-auto font-[family-name:var(--font-display)] text-highlighted tabular-nums" aria-live="polite">
+      <p class="ml-auto font-display text-highlighted tabular-nums" aria-live="polite">
         <span class="text-2xl font-bold">{{ modelValue + 1 }}</span>
         <span class="text-muted"> / {{ cards.length }}</span>
       </p>
@@ -162,12 +162,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         The stage is a size container, so the deck takes the largest index card that fits the table, leaving room above for the edges of the cards to come.
         Cards to come sit behind and above in ink, the way a stack of index cards shows its edges on a desk.
       -->
-      <div class="juka-deck-stage flex-1 self-stretch">
-        <div class="juka-deck relative mx-auto">
+      <div data-stage class="flex-1 self-stretch">
+        <div data-deck class="relative mx-auto">
           <div
             v-for="(card, depth) in behind"
             :key="card.id"
-            class="juka-deck-edge pointer-events-none absolute inset-x-0 top-0"
+            data-edge
+            class="pointer-events-none absolute inset-x-0 top-0"
             :style="{
               transform: `translateY(${-(depth + 1) * 13}px) scale(${1 - (depth + 1) * 0.04})`,
               backgroundColor: `color-mix(in oklab, var(--ui-text) ${depth === 0 ? 14 : 8}%, var(--ui-bg))`,
@@ -238,11 +239,31 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 /*
   A card edge is only ever seen as a band above the card in front of it, so it is drawn as a rounded block the height of the card rather than as a whole card: there is nothing on the part that shows except its color.
 */
-.juka-deck-edge {
+[data-edge] {
   aspect-ratio: 5 / 3.2;
   /* The card's own radius, so the deck reads as a stack of the same cards rather than tabs sticking out behind one. */
   border-radius: 0.25rem;
   transform-origin: top center;
   transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/*
+  The deck takes the largest index card that fits the stage, leaving 2rem above it for the edges of the cards behind.
+  Capped at 44rem so a very wide screen does not turn one card into a billboard; on a phone it is simply the width of the screen.
+*/
+[data-deck] {
+  width: 100%;
+  max-width: 44rem;
+  padding-top: 2rem;
+}
+@media (min-width: 64rem) {
+  [data-stage] {
+    container-type: size;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+  }
+  [data-deck] {
+    width: min(100cqw, (100cqh - 2rem) * 5 / 3.2, 44rem);
+  }
 }
 </style>

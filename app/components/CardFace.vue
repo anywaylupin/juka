@@ -177,21 +177,22 @@ async function copy() {
   >
     <div
       class="relative size-full transition-transform duration-500 transform-3d"
-      :class="[flipped && 'transform-[rotateY(180deg)]', pressed && 'scale-[0.97]']"
+      :class="[flipped && 'rotate-y-180', pressed && 'scale-97']"
     >
       <!-- Front -->
       <div
-        class="juka-card juka-front absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden px-6 pb-8 backface-hidden"
+        data-face="front"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden px-6 pb-8 backface-hidden"
         :class="inert && 'opacity-60'"
       >
         <!--
           The word type as a folded corner rather than a stripe across the top: a stripe in five hues across a grid of cards was the loudest color on the page, louder than the seal and the rating.
           Clipped by the card's own overflow, so it follows the corner.
         -->
-        <span class="juka-corner" :style="{ backgroundColor: posColor }" aria-hidden="true" />
+        <span data-corner :style="{ backgroundColor: posColor }" aria-hidden="true" />
 
         <p
-          class="juka-hanzi flex"
+          class="flex"
           lang="zh"
           :data-grid="cardStyle.grid"
           :data-font="cardStyle.font"
@@ -200,7 +201,6 @@ async function copy() {
           <span
             v-for="(entry, index) in characters"
             :key="index"
-            class="juka-cell"
             :style="entry.color ? { color: entry.color } : undefined"
             >{{ entry.character }}</span
           >
@@ -222,9 +222,10 @@ async function copy() {
 
       <!-- Back: the reading above, the meaning large, the word type as a quiet tag in the corner. -->
       <div
-        class="juka-card absolute inset-0 flex transform-[rotateY(180deg)] flex-col items-center justify-center gap-1 overflow-hidden px-6 pb-6 text-center backface-hidden"
+        data-face="back"
+        class="absolute inset-0 flex rotate-y-180 flex-col items-center justify-center gap-1 overflow-hidden px-6 pb-6 text-center backface-hidden"
       >
-        <span class="juka-corner" :style="{ backgroundColor: posColor }" aria-hidden="true" />
+        <span data-corner :style="{ backgroundColor: posColor }" aria-hidden="true" />
         <span
           v-if="card.pos && size !== 'sm'"
           class="absolute top-3 left-1/2 -translate-x-1/2 text-xs font-semibold tracking-wide text-muted"
@@ -232,10 +233,7 @@ async function copy() {
         >
 
         <p class="text-muted" :class="pinyinSizes[size]">{{ card.pinyin }}</p>
-        <p
-          class="font-[family-name:var(--font-display)] leading-tight font-bold text-highlighted"
-          :class="meaningSizes[size]"
-        >
+        <p class="font-display leading-tight font-bold text-highlighted" :class="meaningSizes[size]">
           {{ meaning || t('card.noTranslation') }}
         </p>
       </div>
@@ -338,7 +336,7 @@ async function copy() {
 /*
   Card stock, not a panel. overflow-hidden on the faces is what keeps the colored part-of-speech edge inside the corner radius instead of squaring off the top of the card.
 */
-.juka-card {
+[data-face] {
   background-color: var(--ui-bg);
   border-radius: 0.25rem;
   /* Soft ink bleeding into the paper rather than a drawn edge. */
@@ -349,7 +347,7 @@ async function copy() {
   transition: box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.group:hover .juka-card {
+.group:hover [data-face] {
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--ui-text) 10%, transparent),
     0 4px 10px -4px color-mix(in oklab, var(--ui-text) 12%, transparent),
@@ -360,8 +358,79 @@ async function copy() {
   The hanzi is a thing to read and copy, not to drag-select.
   Selecting it by accident while swiping the card is the common case, and the copy button is the deliberate one.
 */
-.juka-hanzi {
+p[data-grid] {
   user-select: none;
   -webkit-user-select: none;
+}
+/* The front face is a size container, so a square never outgrows the card: capped by the card's height and, for long words, its width. */
+[data-face='front'] {
+  container-type: size;
+}
+
+/* One 田 square per character: solid edge, dashed center cross, the character centered in it. */
+p[data-grid] > span {
+  --fit: min(var(--cell), 58cqh, calc((100cqw - 3rem) / var(--n, 1)));
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--fit);
+  height: var(--fit);
+  border: 1.5px solid var(--juka-grid);
+  background:
+    repeating-linear-gradient(90deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 100% 1px no-repeat,
+    repeating-linear-gradient(180deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 1px 100% no-repeat;
+  font-family: var(--font-hanzi);
+  font-size: calc(var(--fit) * 0.8);
+  line-height: 1;
+  color: var(--ui-text-highlighted);
+}
+p[data-grid] > span + span {
+  border-left: 0;
+}
+
+/*
+  The card face settings in the dock.
+  The hand: kai is the brush a learner is taught from, song the printed book face, hei the sans of signs and screens.
+  The grid: 田 has the center cross, 米 adds the diagonals that guide slanted strokes, a plain box keeps only the edge, and none leaves the character bare.
+*/
+[data-font='song'] > span {
+  font-family: var(--font-display);
+}
+[data-font='hei'] > span {
+  font-family: var(--font-hei);
+}
+[data-grid='mi'] > span {
+  background:
+    repeating-linear-gradient(90deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 100% 1px no-repeat,
+    repeating-linear-gradient(180deg, var(--juka-grid) 0 5px, transparent 5px 9px) center / 1px 100% no-repeat,
+    linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      color-mix(in oklab, var(--juka-grid) 70%, transparent) 50%,
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      to bottom right,
+      transparent calc(50% - 0.5px),
+      color-mix(in oklab, var(--juka-grid) 70%, transparent) 50%,
+      transparent calc(50% + 0.5px)
+    );
+}
+[data-grid='box'] > span {
+  background: none;
+}
+[data-grid='none'] > span {
+  border-color: transparent;
+  background: none;
+}
+
+/* A folded corner in the word type's color: enough to sort by eye, quiet enough not to compete with the seal or the rating. */
+[data-corner] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 </style>

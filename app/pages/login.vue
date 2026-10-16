@@ -30,9 +30,7 @@ watch(
       <div class="mb-4 flex items-center gap-3">
         <AppLogo class="h-12 text-3xl" />
         <div>
-          <h1 class="font-[family-name:var(--font-display)] text-2xl font-bold text-highlighted">{{
-            t('auth.title')
-          }}</h1>
+          <h1 class="font-display text-2xl font-bold text-highlighted">{{ t('auth.title') }}</h1>
           <p class="text-sm text-muted">{{ t('auth.subtitle') }}</p>
         </div>
       </div>

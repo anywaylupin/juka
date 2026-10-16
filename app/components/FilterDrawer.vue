@@ -153,7 +153,7 @@ const lengths = [1, 2, 3, 4];
           v-for="group in groups"
           :key="group.id"
           type="button"
-          class="juka-chip"
+          data-chip
           :aria-pressed="filters.groups.includes(group.id)"
           :style="
             filters.groups.includes(group.id)
@@ -192,7 +192,7 @@ const lengths = [1, 2, 3, 4];
           v-for="part in availableParts"
           :key="part"
           type="button"
-          class="juka-chip"
+          data-chip
           :aria-pressed="filters.parts.includes(part)"
           :style="
             filters.parts.includes(part)
@@ -251,3 +251,25 @@ const lengths = [1, 2, 3, 4];
     </UButton>
   </div>
 </template>
+
+<style scoped>
+/* A filter chip in a word type or group color: a tinted slip when off, the solid color with the chop frame when on. */
+[data-chip] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+[data-chip][aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 2.5px transparent,
+    inset 0 0 0 3.5px rgb(255 255 255 / 0.55);
+}
+</style>
