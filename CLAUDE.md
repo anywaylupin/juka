@@ -408,7 +408,9 @@ The metaphor is a real box of index cards, and the layout is built around that r
 - Icons come from the installed sets. Never hand write path data. The logo is 卡, card, the second half of 橘卡, cut as
   a red seal a little wider than tall: `AppLogo` draws it in CSS with the brush font, and `scripts/build-favicon.ts`
   writes the same seal to `public/favicon.svg` with the character as text in the system's kai face, because a favicon
-  cannot load a web font. The language buttons use `circle-flags`, the US flag for English.
+  cannot load a web font. `public/logo.png` is the same seal at 512 by 512 on a transparent ground, drawn in the browser
+  with the real brush font, for anywhere a raster logo is needed. The language buttons use `circle-flags`, the US flag
+  for English.
 
 ## Build order
 
