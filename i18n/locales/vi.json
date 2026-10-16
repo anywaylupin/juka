@@ -56,11 +56,15 @@
     }
   },
   "stack": {
-    "hint": "Chạm vào thẻ để lật. Với bàn phím, phím mũi tên để chuyển, phím cách để lật.",
-    "practice": "Thứ tự ôn tập",
     "practiceOn": "Ưu tiên thẻ chưa thuộc",
     "practiceOff": "Theo thứ tự trong hộp",
-    "reshuffle": "Xáo lại"
+    "reshuffle": "Xáo lại",
+    "order": "Thứ tự chia",
+    "weighted": "Thẻ yếu trước",
+    "inOrder": "Theo hộp",
+    "keyBack": "Lùi",
+    "keyTurn": "Lật thẻ",
+    "keyNext": "Tiếp"
   },
   "pos": {
     "noun": "Danh từ",
@@ -221,7 +225,12 @@
     "byGroup": "Theo nhóm",
     "noType": "Chưa có từ loại",
     "noGroup": "Chưa vào nhóm",
-    "noGroupsYet": "Chưa có nhóm nào. Tạo nhóm trong bảng bộ lọc."
+    "noGroupsYet": "Chưa có nhóm nào. Tạo nhóm trong bảng bộ lọc.",
+    "total": "Thẻ trong hộp",
+    "known": "Đã thuộc",
+    "thisWeekShort": "tuần này",
+    "showAllGroups": "Hiện {count} nhóm trống",
+    "hideEmptyGroups": "Ẩn nhóm trống"
   },
   "reminder": {
     "welcomeTitle": "Thẻ của bạn lưu trong trình duyệt này",
@@ -236,7 +245,9 @@
     "confirm": "Không có thẻ để tra. | Cách đọc, nghĩa và từ loại của 1 thẻ sẽ được thay bằng từ điển, kể cả phần bạn đã sửa. | Cách đọc, nghĩa và từ loại của {count} thẻ sẽ được thay bằng từ điển, kể cả phần bạn đã sửa. Mỗi thẻ mất khoảng một giây.",
     "progress": "Đang tra {done} trên {total}",
     "stop": "Dừng",
-    "finished": "Đã cập nhật {updated} trên {total} thẻ"
+    "finished": "Đã cập nhật {updated} trên {total} thẻ",
+    "title": "Từ điển",
+    "hint": "Tra lại cách đọc và nghĩa của các thẻ đang hiện ở trên. Chữ đã sửa sẽ bị thay."
   },
   "practice": {
     "empty": "Bỏ bộ lọc ở hộp thẻ để luyện mọi thẻ."

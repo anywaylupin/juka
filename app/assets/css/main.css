@@ -272,6 +272,14 @@ button:disabled,
   Calligraphy shows in the shapes rather than the fonts: a plain line under headings and the current page, seals for the main action, ink bleed for edges.
   The accent still comes from the theme picker, and the neutrals lean toward it.
 */
+/*
+  Nuxt UI's muted and dimmed grays are tuned for a white page; on the tinted ink wash they measured 3.95:1 and 2.18:1, under the 4.5:1 that WCAG asks of body text.
+  One step darker each in light mode clears it on the page and on a card; dark mode keeps Nuxt UI's values, which already read light on black.
+*/
+:root:not(.dark) {
+  --ui-text-muted: var(--ui-color-neutral-600);
+  --ui-text-dimmed: var(--ui-color-neutral-500);
+}
 :root {
   --ui-radius: 0.25rem;
   --juka-page: color-mix(in oklab, var(--ui-primary) 5%, #eceef0);
@@ -773,4 +781,145 @@ body {
 }
 .juka-hanzi[data-font='hei'] .juka-cell-sample {
   font-family: var(--font-hei);
+}
+
+/*
+  A gallery slot is a size container, and the card in it takes the largest 5 by 3.2 box that fits, so the grid's rows decide the card size and a page never overflows the table.
+  Only on wide screens, where the table has a fixed height; on a phone the cards stack and the page scrolls.
+*/
+@media (min-width: 64rem) {
+  .juka-slot {
+    container-type: size;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+  }
+  /* A slot on its way out gives up its cell at once, as a bare card did, or the next page would land in a fourth row. */
+  .juka-slot.juka-card-leave-active {
+    display: none;
+  }
+  .juka-slot > .group {
+    width: min(100cqw, 100cqh * 5 / 3.2);
+    max-width: none;
+  }
+
+  /*
+    Tabs of frame that reach into the table: the pager rising from the bottom edge, filters and settings hanging into the top right corner.
+    Each is the frame's own color with rounded ends, and the two small squares beside it are filled with frame except for a quarter circle, so where a tab meets the table's edge the corner curves outward the way the sidebar meets it.
+  */
+  .juka-notch-top,
+  .juka-pages.juka-notch-bottom {
+    position: fixed;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--ui-bg);
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .juka-pages.juka-notch-bottom {
+    bottom: 0;
+    left: calc(50% + 1.875rem);
+    transform: translateX(-50%);
+    padding: 0.5rem 1rem 0.75rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+  }
+  .juka-notch-top {
+    top: 0;
+    right: 2.25rem;
+    padding: 0.75rem 0.5rem 0.4rem;
+    border-radius: 0 0 0.75rem 0.75rem;
+  }
+  .juka-notch-top::before,
+  .juka-notch-top::after,
+  .juka-pages.juka-notch-bottom::before,
+  .juka-pages.juka-notch-bottom::after {
+    content: '';
+    position: absolute;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .juka-notch-top::before {
+    top: 0.75rem;
+    left: -0.75rem;
+    background: radial-gradient(circle at 0 100%, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+  .juka-notch-top::after {
+    top: 0.75rem;
+    right: -0.75rem;
+    background: radial-gradient(circle at 100% 100%, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+  .juka-pages.juka-notch-bottom::before {
+    bottom: 0.75rem;
+    left: -0.75rem;
+    background: radial-gradient(circle at 0 0, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+  .juka-pages.juka-notch-bottom::after {
+    bottom: 0.75rem;
+    right: -0.75rem;
+    background: radial-gradient(circle at 100% 0, transparent 0.75rem, var(--ui-bg) calc(0.75rem + 0.5px));
+  }
+}
+
+/* Search in the page title row: short, because a word is a few characters, and set large enough to read them. */
+@media (min-width: 64rem) {
+  .juka-table-search {
+    width: 22rem;
+  }
+  .juka-table-search input {
+    font-size: 1.125rem;
+    height: 2.75rem;
+  }
+}
+
+/* A calendar day on Progress: a small square with a hairline edge, like a cell on a practice sheet, filled with ink by how much was added. */
+.juka-day {
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ui-text) 10%, transparent);
+}
+/* The ink bar on Progress: a proportion drawn in ink, so the only color on the page is the mastery tangerine and the small type and group marks. */
+.juka-ink-bar {
+  background: color-mix(in oklab, var(--ui-text-highlighted) 70%, transparent);
+}
+
+/* A Progress section: paper, a heading, and a body that scrolls inside the card on a wide screen so the page itself never does. */
+.juka-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  padding: 1rem 1.25rem;
+  background: var(--ui-bg);
+  border-radius: var(--ui-radius);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--ui-text) 8%, transparent),
+    0 12px 28px -16px color-mix(in oklab, var(--ui-text) 22%, transparent);
+}
+@media (min-width: 64rem) {
+  .juka-section-body {
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+/*
+  The practice deck takes the largest index card that fits the stage, leaving 2rem above it for the edges of the cards behind.
+  Capped at 44rem so a very wide screen does not turn one card into a billboard; on a phone it is simply the width of the screen.
+*/
+.juka-deck {
+  width: 100%;
+  max-width: 44rem;
+  padding-top: 2rem;
+}
+@media (min-width: 64rem) {
+  .juka-deck-stage {
+    container-type: size;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+  }
+  .juka-deck {
+    width: min(100cqw, (100cqh - 2rem) * 5 / 3.2, 44rem);
+  }
 }

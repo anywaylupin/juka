@@ -49,9 +49,9 @@ const { style: cardStyle } = useCardStyle();
 
 /** 3 by 5, the index card everyone already owns. */
 /** The gallery card fills its grid column, so it grows with the screen; the grid caps it at four across. */
-const widths = { sm: 'max-w-60', md: '', lg: 'max-w-[36rem]' };
+const widths = { sm: 'max-w-60', md: '', lg: '' };
 /** One 田 square per character, smaller as the word gets longer so four still fit the card. */
-const cellSizes = { sm: [64, 56, 46, 38], md: [120, 108, 88, 70], lg: [168, 150, 120, 96] };
+const cellSizes = { sm: [64, 56, 46, 38], md: [120, 108, 88, 70], lg: [220, 190, 150, 120] };
 const cellSize = computed(
   () => `${(cellSizes[props.size][Math.min([...props.card.hanzi].length, 4) - 1] ?? 0) * cardStyle.value.size}px`
 );

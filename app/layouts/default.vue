@@ -18,15 +18,19 @@ const store = useCardStore();
 const groupStore = useGroups();
 const reminder = useSignInReminder();
 const { editing, editorOpen, filtersOpen, groupsOpen, bulk, stopUpdate } = useCardActions();
+const { activeCount } = useCardFilters(store.cards);
 
 /** Search narrows cards, so it is offered only on the pages that show them. */
 const showSearch = computed(() => !/\/(settings|reset|login)$/.test(route.path));
 
+/** The last tab is the profile once signed in and the way in before that: a profile with no account has nothing on it that is yours. */
 const tabs = computed(() => [
   { to: localePath('/'), label: t('nav.box'), icon: 'i-lucide-layout-grid' },
   { to: localePath('/practice'), label: t('nav.practice'), icon: 'i-lucide-layers' },
   { to: localePath('/progress'), label: t('nav.progress'), icon: 'i-lucide-chart-column' },
-  { to: localePath('/settings'), label: t('nav.profile'), icon: 'i-lucide-circle-user-round' }
+  session.signedIn.value
+    ? { to: localePath('/settings'), label: t('nav.profile'), icon: 'i-lucide-circle-user-round' }
+    : { to: localePath('/login'), label: t('auth.signIn'), icon: 'i-lucide-log-in' }
 ]);
 
 /**
@@ -79,17 +83,27 @@ function onSaved() {
       -->
       <div class="juka-table-surface hidden lg:block" aria-hidden="true" />
 
+      <!--
+        Filters and settings hang from the frame into the table's top right corner as a tab, the way the pager rises from the bottom edge.
+        Offered on the pages that show cards; the profile has nothing to filter.
+      -->
+      <div v-if="showSearch" class="juka-notch-top hidden lg:flex">
+        <!-- One button: both tabs live in the same drawer, so it opens on whichever was used last. -->
+        <UButton color="neutral" variant="ghost" icon="i-lucide-sliders-horizontal" @click="filtersOpen = true">
+          {{ t('dock.title') }}
+          <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
+        </UButton>
+      </div>
+
       <main
         id="main"
         tabindex="-1"
-        class="juka-table relative flex w-full flex-1 flex-col px-4 pt-6 pb-28 outline-none sm:px-6 lg:overflow-y-auto lg:px-[12rem] lg:pb-8"
+        class="juka-table relative flex w-full flex-1 flex-col px-4 pt-6 pb-28 outline-none sm:px-6 lg:min-h-0 lg:overflow-y-auto lg:px-[12rem] lg:pt-2 lg:pb-16"
       >
         <!--
           The open sidebar reaches 10.5rem into the table, so the content keeps a 12rem gutter on both sides: clear of it with room to spare, and still centered.
           A flex column, so a page can fill it and push its pager to the foot.
-          Search sits on the table above the cards it narrows; on a phone the top bar carries it.
         -->
-        <SearchField v-if="showSearch" class="mb-6 hidden w-full shrink-0 lg:flex" />
         <slot />
       </main>
     </div>

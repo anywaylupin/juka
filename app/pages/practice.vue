@@ -27,16 +27,24 @@ watch(results, (list) => {
 </script>
 
 <template>
-  <div class="space-y-5">
-    <div class="flex flex-wrap items-end gap-x-4 gap-y-3">
-      <h1 class="juka-heading mr-auto">
-        {{ t('nav.practice') }}
-        <span class="ml-1 text-base font-normal text-muted tabular-nums">{{ t('cards.count', results.length) }}</span>
-      </h1>
-      <UButton color="neutral" variant="outline" icon="i-lucide-sliders-horizontal" @click="filtersOpen = true">
-        {{ t('filter.title') }}
-        <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
-      </UButton>
+  <div class="flex min-h-full flex-col gap-4 lg:h-full lg:min-h-0">
+    <!-- Title, search and actions share one row, level with the frame tab, so the cards start high on the table. -->
+    <div class="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-3">
+      <PageTitle glyph="习" :title="t('nav.practice')" />
+      <SearchField class="juka-table-search hidden lg:flex" />
+      <div class="ml-auto flex items-center gap-2">
+        <!-- A phone has no frame tab, so the button stays here below the wide breakpoint. -->
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-sliders-horizontal"
+          class="lg:hidden"
+          @click="filtersOpen = true"
+        >
+          {{ t('filter.title') }}
+          <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
+        </UButton>
+      </div>
     </div>
 
     <div v-if="!store.loaded.value" class="juka-skeleton-card mx-auto max-w-[26rem] rounded-sm" />
@@ -50,6 +58,7 @@ watch(results, (list) => {
       v-else
       v-model="index"
       v-model:practice="practice"
+      class="lg:min-h-0 lg:flex-1"
       :cards="ordered"
       @reshuffle="reshuffle"
       @edit="openEditor"

@@ -112,7 +112,8 @@ function message(error: unknown): string {
 
       <UButton
         type="submit"
-        color="primary"
+        color="neutral"
+        variant="outline"
         icon="i-lucide-plus"
         :loading="busy"
         :disabled="!name.trim()"
@@ -129,10 +130,11 @@ function message(error: unknown): string {
         <UPopover>
           <button
             type="button"
-            class="size-4 shrink-0 rounded-full"
-            :style="{ backgroundColor: group.color }"
+            class="grid size-8 shrink-0 place-items-center rounded-full"
             :aria-label="t('group.color')"
-          />
+          >
+            <span class="size-4 rounded-full" :style="{ backgroundColor: group.color }" />
+          </button>
           <template #content>
             <div class="grid grid-cols-4 gap-1 p-2">
               <button
@@ -167,23 +169,19 @@ function message(error: unknown): string {
           {{ group.name }}
         </button>
 
-        <span class="shrink-0 text-xs text-dimmed tabular-nums">{{ group.count ?? 0 }}</span>
+        <span v-if="group.count" class="shrink-0 text-xs text-muted tabular-nums">{{ group.count }}</span>
 
-        <UTooltip :text="t('common.delete')">
+        <UTooltip :text="t('group.deleteHint')">
           <UButton
             icon="i-lucide-trash-2"
             color="neutral"
             variant="ghost"
-            size="xs"
+            size="sm"
             :aria-label="t('common.delete')"
             @click="destroy(group.id, group.name)"
           />
         </UTooltip>
       </li>
     </ul>
-
-    <p class="text-xs text-dimmed">
-      {{ t('group.deleteHint') }}
-    </p>
   </div>
 </template>

@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { partOfSpeechColor } from '#shared/constants/pos';
-import { RATING_COLOR, RATING_VALUES, type Rating } from '#shared/constants/rating';
+import { partOfSpeechColor, type PartOfSpeech } from '#shared/constants/pos';
+import { RATING_COLOR, RATING_ICON, RATING_VALUES, type Rating } from '#shared/constants/rating';
 import type { CardRecord, GroupRecord } from '#shared/types/card';
+import type { CardFilters } from '~/composables/useCardFilters';
 
 /**
  * What the box looks like from above.
  *
- * Three questions, in the order they are worth asking: how well do I know it, am I actually keeping it up, and what is in it.
+ * The answer comes first, as four numbers in the display face: how many cards, how many known well, how many added this week, how many still unrated.
+ * Below them the same three questions as charts: how well do I know it, am I keeping it up, and what is in it.
  *
- * Built from divs rather than SVG or a charting library.
- * Everything here is a proportion or a count, which a flex row and a grid draw perfectly well, and it means no dependency, no canvas, and text that is selectable and readable by a screen reader.
+ * Color keeps the two meanings it has everywhere else.
+ * Ink carries every bar and the calendar, the tangerine mandarin marks only mastery, and word types and groups show their own color as a small mark beside the label rather than as a heavy bar, because five hues of bar were the loudest thing on the page and the least important.
+ * A level is told apart by its count of mandarins, the way a card shows it, not by five near identical oranges.
+ *
+ * Every row is a way into the box: pressing a level, a word type or a group opens the Box filtered to it.
+ *
+ * Built from divs rather than SVG or a charting library, because everything here is a proportion or a count, and it keeps the text selectable and readable by a screen reader.
  */
 const props = defineProps<{
   cards: CardRecord[];
@@ -18,34 +25,56 @@ const props = defineProps<{
 
 const { t, locale } = useI18n();
 const { labelFor } = useRatingLabels();
+const localePath = useLocalePath();
+const filters = useState<CardFilters>('juka:filters');
 
-/* ---- Ripeness: the distribution across the five levels ---- */
+/** Opens the Box showing only the cards a row counted. */
+async function showInBox(patch: Partial<CardFilters>) {
+  filters.value = { q: '', ratings: [], parts: [], lengths: [], groups: [], ...patch };
+  await navigateTo(localePath('/'));
+}
+
+const total = computed(() => props.cards.length);
+
+function percent(count: number) {
+  return Math.round((count / Math.max(1, total.value)) * 100);
+}
+
+/* ---- Ripeness ---- */
+
+/**
+ * Ink at five strengths for unrated through good, and the rating tangerine for mastered alone.
+ * The bar reads as how much ink the box has taken, with the one color reserved for the thing worth reaching.
+ */
+const LEVEL_FILL: Record<Rating, string> = {
+  0: 'var(--ui-bg-accented)',
+  1: 'color-mix(in oklab, var(--ui-text-highlighted) 18%, transparent)',
+  2: 'color-mix(in oklab, var(--ui-text-highlighted) 34%, transparent)',
+  3: 'color-mix(in oklab, var(--ui-text-highlighted) 52%, transparent)',
+  4: 'color-mix(in oklab, var(--ui-text-highlighted) 78%, transparent)',
+  5: RATING_COLOR
+};
 
 const byRating = computed(() => {
   const counts = new Map<number, number>();
   for (const card of props.cards) {
     counts.set(card.rating, (counts.get(card.rating) ?? 0) + 1);
   }
-
-  /*
-   * One hue at five strengths rather than five hues.
-   * The rating color is fixed across every theme precisely so a rating is never mistaken for a button, and inventing a five color ramp here would undo that.
-   * More color means more of the thing.
-   */
-  return [0, ...RATING_VALUES].map((rating) => ({
-    rating: rating as Rating,
-    label: rating === 0 ? t('filter.unrated') : labelFor(rating as Rating),
+  return ([0, ...RATING_VALUES] as Rating[]).map((rating) => ({
+    rating,
+    label: rating === 0 ? t('filter.unrated') : labelFor(rating),
     count: counts.get(rating) ?? 0,
-    color: rating === 0 ? 'var(--ui-bg-accented)' : RATING_COLOR,
-    opacity: rating === 0 ? 1 : 0.25 + (rating / 5) * 0.75
+    fill: LEVEL_FILL[rating]
   }));
 });
 
 const known = computed(() => props.cards.filter((card) => card.rating >= 4).length);
+const unrated = computed(() => props.cards.filter((card) => card.rating === 0).length);
 
-/* ---- Habit: cards added per day, over the last fifteen weeks ---- */
+/* ---- Habit: cards added per day ---- */
 
-const WEEKS = 15;
+/** Half a year of weeks: long enough to show a habit, short enough that every week stays a readable square across the table. */
+const WEEKS = 26;
 
 /**
  * A calendar day in the reader's own timezone.
@@ -58,211 +87,286 @@ function dayKey(date: Date): string {
 
 const calendar = computed(() => {
   const counts = new Map<string, number>();
-
   for (const card of props.cards) {
     const key = dayKey(new Date(card.createdAt));
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
 
   const today = new Date();
-  // Back to the most recent Sunday, so every column is a whole week.
   today.setHours(0, 0, 0, 0);
+  // Forward to the coming Saturday, so every column is a whole week starting on Sunday.
   const end = new Date(today);
   end.setDate(end.getDate() - end.getDay() + 6);
 
-  const weeks: Array<Array<{ key: string; count: number; future: boolean }>> = [];
+  const weeks: Array<{ month: string; days: Array<{ key: string; date: Date; count: number; future: boolean }> }> = [];
+  let lastMonth = -1;
 
   for (let week = WEEKS - 1; week >= 0; week -= 1) {
-    const column: Array<{ key: string; count: number; future: boolean }> = [];
-
+    const days = [];
     for (let day = 0; day < 7; day += 1) {
       const date = new Date(end);
       date.setDate(end.getDate() - week * 7 - (6 - day));
       const key = dayKey(date);
-      column.push({ key, count: counts.get(key) ?? 0, future: date > today });
+      days.push({ key, date, count: counts.get(key) ?? 0, future: date > today });
     }
-
-    weeks.push(column);
+    /* A month is named over the first week that starts in it, the way a wall calendar heads its columns. */
+    const month = days[0]!.date.getMonth();
+    weeks.push({ month: month === lastMonth ? '' : monthFormatter.value.format(days[0]!.date), days });
+    lastMonth = month;
   }
 
   return weeks;
 });
 
-const busiestDay = computed(() => Math.max(1, ...calendar.value.flat().map((day) => day.count)));
+const monthFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { month: 'short' }));
+const dayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium' }));
 
-const addedThisWeek = computed(() => {
-  const last = calendar.value.at(-1) ?? [];
-  return last.reduce((total, day) => total + day.count, 0);
+/** Monday, Wednesday and Friday label their rows; seven labels on rows this small would crowd each other. */
+const weekdayLabels = computed(() => {
+  const formatter = new Intl.DateTimeFormat(locale.value, { weekday: 'short' });
+  const sunday = new Date(2024, 0, 7);
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(sunday);
+    date.setDate(sunday.getDate() + index);
+    return index % 2 === 1 ? formatter.format(date) : '';
+  });
 });
 
-/* ---- Composition: what kind of box this is ---- */
+const busiestDay = computed(() => Math.max(1, ...calendar.value.flatMap((week) => week.days.map((day) => day.count))));
+
+/** Four steps of ink. Any more and two busy days stop being told apart at this size. */
+function dayFill(count: number) {
+  if (count === 0) {
+    return 'transparent';
+  }
+  const step = Math.ceil((Math.min(count, busiestDay.value) / busiestDay.value) * 4);
+  return `color-mix(in oklab, var(--ui-text-highlighted) ${[0, 22, 44, 66, 88][step]}%, transparent)`;
+}
+
+const addedThisWeek = computed(() => (calendar.value.at(-1)?.days ?? []).reduce((sum, day) => sum + day.count, 0));
+
+/* ---- Composition ---- */
 
 const byType = computed(() => {
   const counts = new Map<string, number>();
-
   for (const card of props.cards) {
     const key = card.pos ?? 'unknown';
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-
   return [...counts.entries()]
     .map(([pos, count]) => ({
       key: pos,
       label: pos === 'unknown' ? t('chart.noType') : t(`pos.${pos}`),
       count,
-      color: pos === 'unknown' ? 'var(--ui-bg-accented)' : partOfSpeechColor(pos as never)
+      mark: pos === 'unknown' ? undefined : partOfSpeechColor(pos as PartOfSpeech)
     }))
     .sort((a, b) => b.count - a.count);
 });
 
-const byGroup = computed(() => {
-  const counts = new Map<number, number>();
+/** Empty groups are hidden until asked for: six rows of nothing buried the two that had cards. */
+const showAllGroups = ref(false);
 
+const allGroups = computed(() => {
+  const counts = new Map<number, number>();
   for (const card of props.cards) {
     for (const id of card.groupIds) {
       counts.set(id, (counts.get(id) ?? 0) + 1);
     }
   }
-
   const ungrouped = props.cards.filter((card) => card.groupIds.length === 0).length;
-
   return [
     ...props.groups.map((group) => ({
       key: String(group.id),
+      id: group.id as number | undefined,
       label: group.name,
       count: counts.get(group.id) ?? 0,
-      color: group.color
+      mark: group.color as string | undefined
     })),
     ...(ungrouped > 0
-      ? [{ key: 'none', label: t('chart.noGroup'), count: ungrouped, color: 'var(--ui-bg-accented)' }]
+      ? [{ key: 'none', id: undefined, label: t('chart.noGroup'), count: ungrouped, mark: undefined }]
       : [])
   ].sort((a, b) => b.count - a.count);
 });
 
-const total = computed(() => Math.max(1, props.cards.length));
+const byGroup = computed(() =>
+  showAllGroups.value ? allGroups.value : allGroups.value.filter((group) => group.count > 0)
+);
+const hiddenGroups = computed(() => allGroups.value.length - allGroups.value.filter((group) => group.count > 0).length);
 
-function percent(count: number) {
-  return Math.round((count / total.value) * 100);
-}
-
-const dayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium' }));
+const stats = computed(() => [
+  { label: t('chart.total'), value: total.value },
+  { label: t('chart.known'), value: known.value, hint: `${percent(known.value)}%` },
+  { label: t('chart.added'), value: addedThisWeek.value, hint: t('chart.thisWeekShort') },
+  { label: t('filter.unrated'), value: unrated.value }
+]);
 </script>
 
 <template>
-  <div class="mx-auto max-w-4xl space-y-8">
-    <!-- Ripeness -->
-    <section class="space-y-3">
-      <header class="flex items-baseline justify-between gap-3">
-        <h2 class="text-sm font-semibold text-highlighted">
-          {{ t('chart.ripeness') }}
-        </h2>
-        <p class="text-xs text-dimmed">
-          {{ t('chart.knownOf', { known, total: cards.length }) }}
+  <!-- On a wide screen the page fits the table: numbers across the top, then a two by two of paper, each section scrolling inside itself if it must, never the page. -->
+  <div class="flex flex-col gap-4 lg:h-full lg:min-h-0">
+    <!-- The answer first. -->
+    <div class="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
+      <div v-for="stat in stats" :key="stat.label" class="juka-paper px-4 py-2.5">
+        <p class="text-sm text-muted">{{ stat.label }}</p>
+        <p class="flex items-baseline gap-2">
+          <span class="font-[family-name:var(--font-display)] text-3xl font-bold text-highlighted tabular-nums">{{
+            stat.value
+          }}</span>
+          <span v-if="stat.hint" class="text-sm text-muted">{{ stat.hint }}</span>
         </p>
-      </header>
+      </div>
+    </div>
 
-      <div class="flex h-8 w-full overflow-hidden rounded-lg bg-elevated">
-        <UTooltip v-for="band in byRating" :key="band.rating" :text="`${band.label}: ${band.count}`">
+    <div class="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-flow-col lg:grid-cols-2 lg:grid-rows-2">
+      <!-- Ripeness -->
+      <section class="juka-section">
+        <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.ripeness') }}</h2>
+
+        <div
+          class="flex h-4 overflow-hidden rounded-sm bg-elevated"
+          role="img"
+          :aria-label="t('chart.knownOf', { known, total })"
+        >
           <div
-            v-if="band.count > 0"
-            class="h-full transition-[width] duration-300"
-            :style="{
-              width: `${(band.count / total) * 100}%`,
-              backgroundColor: band.color,
-              opacity: band.opacity
-            }"
+            v-for="level in byRating"
+            v-show="level.count > 0"
+            :key="level.rating"
+            :style="{ width: `${percent(level.count)}%`, backgroundColor: level.fill }"
           />
-        </UTooltip>
-      </div>
-
-      <div class="flex flex-wrap gap-x-4 gap-y-1">
-        <div v-for="band in byRating" :key="band.rating" class="flex items-center gap-1.5 text-xs">
-          <span class="size-2.5 rounded-sm" :style="{ backgroundColor: band.color, opacity: band.opacity }" />
-          <span class="text-muted">{{ band.label }}</span>
-          <span class="font-medium text-highlighted tabular-nums">{{ band.count }}</span>
         </div>
-      </div>
-    </section>
 
-    <!-- Habit -->
-    <section class="space-y-3">
-      <header class="flex items-baseline justify-between gap-3">
-        <h2 class="text-sm font-semibold text-highlighted">
-          {{ t('chart.added') }}
-        </h2>
-        <p class="text-xs text-dimmed">
-          {{ t('chart.thisWeek', { count: addedThisWeek }) }}
-        </p>
-      </header>
+        <ul class="juka-section-body grid content-start gap-x-3 sm:grid-cols-2">
+          <li v-for="level in byRating" :key="level.rating">
+            <button
+              type="button"
+              class="flex min-h-9 w-full items-center gap-3 rounded-sm px-2 text-left hover:bg-elevated"
+              :class="level.count === 0 && 'opacity-50'"
+              :aria-label="`${level.label}: ${level.count}`"
+              @click="showInBox({ ratings: [level.rating] })"
+            >
+              <span class="flex w-20 shrink-0 gap-0.5" aria-hidden="true">
+                <UIcon
+                  v-for="index in 5"
+                  :key="index"
+                  :name="RATING_ICON"
+                  class="size-3.5"
+                  :class="index <= level.rating ? 'text-rating' : 'text-dimmed'"
+                />
+              </span>
+              <span class="flex-1 text-sm text-highlighted first-letter:uppercase">{{ level.label }}</span>
+              <span class="text-sm font-bold text-highlighted tabular-nums">{{ level.count }}</span>
+            </button>
+          </li>
+        </ul>
+      </section>
 
-      <div class="no-scrollbar flex gap-1 overflow-x-auto pb-1">
-        <div v-for="(week, index) in calendar" :key="index" class="flex shrink-0 flex-col gap-1">
-          <UTooltip
-            v-for="day in week"
-            :key="day.key"
-            :text="`${dayFormatter.format(new Date(`${day.key}T00:00`))}: ${day.count}`"
+      <!-- Habit -->
+      <section class="juka-section">
+        <div class="flex items-baseline justify-between gap-3">
+          <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.added') }}</h2>
+          <p class="text-sm text-muted">{{ t('chart.thisWeek', { count: addedThisWeek }) }}</p>
+        </div>
+
+        <div class="juka-section-body flex flex-1 gap-2 overflow-x-auto pb-1 lg:overflow-y-hidden">
+          <div
+            class="grid shrink-0 grid-rows-[1rem_repeat(7,minmax(0,1fr))] gap-1 text-xs text-muted"
+            aria-hidden="true"
           >
+            <span />
+            <span v-for="(label, index) in weekdayLabels" :key="index" class="flex items-center leading-none">{{
+              label
+            }}</span>
+          </div>
+          <div class="grid flex-1 auto-cols-[minmax(0.75rem,1fr)] grid-flow-col gap-1">
             <div
-              class="size-3.5 rounded-sm"
-              :class="day.future && 'invisible'"
-              :style="{
-                backgroundColor: day.count > 0 ? 'var(--ui-color-primary-500)' : 'var(--ui-bg-elevated)',
-                // Four visible steps.
-                // Any more and the difference between two busy days stops being readable at this size.
-                opacity: day.count > 0 ? 0.35 + Math.min(1, day.count / busiestDay) * 0.65 : 1
-              }"
-            />
-          </UTooltip>
-        </div>
-      </div>
-    </section>
-
-    <!-- Composition -->
-    <div class="grid gap-8 sm:grid-cols-2">
-      <section class="space-y-3">
-        <h2 class="text-sm font-semibold text-highlighted">
-          {{ t('chart.byType') }}
-        </h2>
-
-        <div class="space-y-2">
-          <div v-for="row in byType" :key="row.key" class="space-y-1">
-            <div class="flex items-baseline justify-between gap-2 text-xs">
-              <span class="truncate text-muted">{{ row.label }}</span>
-              <span class="shrink-0 text-dimmed tabular-nums">{{ row.count }} · {{ percent(row.count) }}%</span>
-            </div>
-            <div class="h-2 w-full overflow-hidden rounded-full bg-elevated">
-              <div
-                class="h-full rounded-full transition-[width] duration-300"
-                :style="{ width: `${(row.count / total) * 100}%`, backgroundColor: row.color }"
-              />
+              v-for="(week, index) in calendar"
+              :key="index"
+              class="grid grid-rows-[1rem_repeat(7,minmax(0,1fr))] gap-1"
+            >
+              <span class="text-xs whitespace-nowrap text-muted">{{ week.month }}</span>
+              <UTooltip
+                v-for="day in week.days"
+                :key="day.key"
+                :text="`${dayFormatter.format(day.date)}: ${day.count}`"
+              >
+                <div
+                  class="juka-day h-full min-h-2"
+                  :class="day.future && 'invisible'"
+                  :style="{ backgroundColor: dayFill(day.count) }"
+                />
+              </UTooltip>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="space-y-3">
-        <h2 class="text-sm font-semibold text-highlighted">
-          {{ t('chart.byGroup') }}
-        </h2>
+      <!-- Composition -->
+      <section class="juka-section">
+        <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.byType') }}</h2>
+        <ul class="juka-section-body">
+          <li v-for="row in byType" :key="row.key">
+            <button
+              type="button"
+              class="w-full space-y-1 rounded-sm px-2 py-1.5 text-left hover:bg-elevated disabled:cursor-default disabled:hover:bg-transparent"
+              :disabled="row.key === 'unknown'"
+              @click="showInBox({ parts: [row.key as PartOfSpeech] })"
+            >
+              <span class="flex items-center gap-2 text-sm">
+                <span
+                  v-if="row.mark"
+                  class="size-2.5 rounded-xs"
+                  :style="{ backgroundColor: row.mark }"
+                  aria-hidden="true"
+                />
+                <span class="flex-1 text-highlighted">{{ row.label }}</span>
+                <span class="font-bold text-highlighted tabular-nums">{{ row.count }}</span>
+                <span class="w-10 text-right text-muted tabular-nums">{{ percent(row.count) }}%</span>
+              </span>
+              <span class="block h-1.5 overflow-hidden rounded-full bg-elevated">
+                <span class="juka-ink-bar block h-full rounded-full" :style="{ width: `${percent(row.count)}%` }" />
+              </span>
+            </button>
+          </li>
+        </ul>
+      </section>
 
-        <p v-if="byGroup.length === 0" class="text-xs text-muted">
-          {{ t('chart.noGroupsYet') }}
-        </p>
-
-        <div v-else class="space-y-2">
-          <div v-for="row in byGroup" :key="row.key" class="space-y-1">
-            <div class="flex items-baseline justify-between gap-2 text-xs">
-              <span class="truncate text-muted">{{ row.label }}</span>
-              <span class="shrink-0 text-dimmed tabular-nums">{{ row.count }} · {{ percent(row.count) }}%</span>
-            </div>
-            <div class="h-2 w-full overflow-hidden rounded-full bg-elevated">
-              <div
-                class="h-full rounded-full transition-[width] duration-300"
-                :style="{ width: `${(row.count / total) * 100}%`, backgroundColor: row.color }"
-              />
-            </div>
-          </div>
-        </div>
+      <section class="juka-section">
+        <h2 class="juka-subheading shrink-0 text-base">{{ t('chart.byGroup') }}</h2>
+        <p v-if="allGroups.length === 0" class="text-sm text-muted">{{ t('chart.noGroupsYet') }}</p>
+        <ul v-else class="juka-section-body">
+          <li v-for="row in byGroup" :key="row.key">
+            <button
+              type="button"
+              class="w-full space-y-1 rounded-sm px-2 py-1.5 text-left hover:bg-elevated disabled:cursor-default disabled:hover:bg-transparent"
+              :disabled="row.id === undefined"
+              @click="row.id !== undefined && showInBox({ groups: [row.id] })"
+            >
+              <span class="flex items-center gap-2 text-sm">
+                <span
+                  v-if="row.mark"
+                  class="size-2.5 rounded-xs"
+                  :style="{ backgroundColor: row.mark }"
+                  aria-hidden="true"
+                />
+                <span class="flex-1 text-highlighted">{{ row.label }}</span>
+                <span class="font-bold text-highlighted tabular-nums">{{ row.count }}</span>
+                <span class="w-10 text-right text-muted tabular-nums">{{ percent(row.count) }}%</span>
+              </span>
+              <span class="block h-1.5 overflow-hidden rounded-full bg-elevated">
+                <span class="juka-ink-bar block h-full rounded-full" :style="{ width: `${percent(row.count)}%` }" />
+              </span>
+            </button>
+          </li>
+        </ul>
+        <UButton
+          v-if="hiddenGroups > 0 || showAllGroups"
+          color="neutral"
+          variant="link"
+          size="sm"
+          @click="showAllGroups = !showAllGroups"
+        >
+          {{ showAllGroups ? t('chart.hideEmptyGroups') : t('chart.showAllGroups', { count: hiddenGroups }) }}
+        </UButton>
       </section>
     </div>
   </div>

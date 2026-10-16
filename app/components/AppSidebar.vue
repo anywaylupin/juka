@@ -12,8 +12,7 @@ defineProps<{
 
 const { t } = useI18n();
 const localePath = useLocalePath();
-const session = useSession();
-const { openEditor, filtersOpen } = useCardActions();
+const { openEditor } = useCardActions();
 </script>
 
 <template>
@@ -51,11 +50,6 @@ const { openEditor, filtersOpen } = useCardActions();
 
     <USeparator />
 
-    <button type="button" class="juka-side-link" @click="filtersOpen = true">
-      <UIcon name="i-lucide-sliders-horizontal" class="size-5" />
-      <span class="juka-rail-label">{{ t('dock.title') }}</span>
-    </button>
-
     <div class="flex flex-col gap-1">
       <NuxtLink
         :to="tabs.at(-1)?.to"
@@ -65,15 +59,6 @@ const { openEditor, filtersOpen } = useCardActions();
       >
         <UIcon :name="tabs.at(-1)?.icon ?? ''" class="size-5" />
         <span class="juka-rail-label">{{ tabs.at(-1)?.label }}</span>
-      </NuxtLink>
-      <NuxtLink
-        v-if="!session.signedIn.value"
-        :to="localePath('/login')"
-        class="juka-side-link"
-        active-class="juka-side-link-active"
-      >
-        <UIcon name="i-lucide-log-in" class="size-5" />
-        <span class="juka-rail-label">{{ t('auth.signIn') }}</span>
       </NuxtLink>
     </div>
   </nav>

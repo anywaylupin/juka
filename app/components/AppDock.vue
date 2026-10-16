@@ -15,8 +15,19 @@ const groupStore = useGroups();
 const flipMode = useFlipMode();
 const { style: cardStyle, set: setStyle } = useCardStyle();
 const { theme, themes, setTheme } = useJukaTheme();
-const { groupsOpen } = useCardActions();
-const { filters, toggle, clearGroup, clearAll } = useCardFilters(store.cards);
+const { groupsOpen, bulk, updateFromDictionary } = useCardActions();
+const { filters, results, toggle, clearGroup, clearAll } = useCardFilters(store.cards);
+
+/**
+ * Looking cards up again sits under the filters because it acts on exactly the cards they show.
+ * It overwrites wording the user edited, so it asks first and says how many cards it will touch.
+ */
+const confirmOpen = ref(false);
+
+function startUpdate() {
+  confirmOpen.value = false;
+  updateFromDictionary([...results.value]);
+}
 
 const tab = useState<'filters' | 'settings'>('juka:dock-tab', () => 'filters');
 const tabs = computed(() => [
@@ -72,19 +83,35 @@ async function choose(name: ThemeName) {
 
     <!-- Only this part scrolls; the gutter is reserved so a scrollbar appearing never narrows the content. -->
     <div class="min-h-0 flex-1 overflow-y-auto px-4 pt-5 pb-6 [scrollbar-gutter:stable] sm:px-6">
-      <FilterDrawer
-        v-if="tab === 'filters'"
-        :filters="filters"
-        :cards="store.cards.value"
-        :groups="groupStore.groups.value"
-        @toggle-rating="toggle('ratings', $event)"
-        @toggle-part="toggle('parts', $event)"
-        @toggle-length="toggle('lengths', $event)"
-        @toggle-group="toggle('groups', $event)"
-        @clear-group="clearGroup"
-        @clear-all="clearAll"
-        @manage-groups="groupsOpen = true"
-      />
+      <template v-if="tab === 'filters'">
+        <FilterDrawer
+          :filters="filters"
+          :cards="store.cards.value"
+          :groups="groupStore.groups.value"
+          @toggle-rating="toggle('ratings', $event)"
+          @toggle-part="toggle('parts', $event)"
+          @toggle-length="toggle('lengths', $event)"
+          @toggle-group="toggle('groups', $event)"
+          @clear-group="clearGroup"
+          @clear-all="clearAll"
+          @manage-groups="groupsOpen = true"
+        />
+
+        <section class="mt-6 space-y-2 border-t border-default pt-5">
+          <h3 class="juka-dock-heading"><UIcon name="i-lucide-refresh-cw" />{{ t('bulk.title') }}</h3>
+          <p class="text-xs text-muted">{{ t('bulk.hint') }}</p>
+          <UButton
+            color="neutral"
+            variant="outline"
+            block
+            icon="i-lucide-refresh-cw"
+            :disabled="results.length === 0 || bulk.running"
+            @click="confirmOpen = true"
+          >
+            {{ t('bulk.button', results.length) }}
+          </UButton>
+        </section>
+      </template>
 
       <div v-else class="space-y-6">
         <section class="space-y-2.5">
@@ -207,6 +234,20 @@ async function choose(name: ThemeName) {
           </div>
         </section>
       </div>
+
+      <UModal v-model:open="confirmOpen" :ui="JUKA_PANEL" :title="t('bulk.button', results.length)">
+        <template #body>
+          <p class="text-sm text-muted">{{ t('bulk.confirm', results.length) }}</p>
+        </template>
+        <template #footer>
+          <div class="flex w-full justify-end gap-2">
+            <UButton color="neutral" variant="ghost" @click="confirmOpen = false">{{ t('common.cancel') }}</UButton>
+            <UButton class="juka-seal-button" icon="i-lucide-refresh-cw" @click="startUpdate">{{
+              t('bulk.button', results.length)
+            }}</UButton>
+          </div>
+        </template>
+      </UModal>
     </div>
   </div>
 </template>

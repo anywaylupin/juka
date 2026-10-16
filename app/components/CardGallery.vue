@@ -87,37 +87,41 @@ function setFlipped(card: CardRecord, value: boolean) {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col gap-6">
+  <div class="flex flex-1 flex-col gap-6 lg:min-h-0">
     <TransitionGroup
       tag="div"
       name="juka-card"
-      class="grid grid-cols-[repeat(auto-fill,minmax(max(15rem,calc((100%-3rem)/4)),1fr))] gap-4"
+      class="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-4 lg:grid-rows-3"
     >
-      <CardFace
-        v-for="(card, position) in visible"
-        :key="card.id"
-        :card="card"
-        :flipped="isFlipped(card)"
-        size="md"
-        :style="{ '--juka-stagger': `${Math.min(position, 11) * 18}ms` }"
-        @update:flipped="setFlipped(card, $event)"
-        @edit="emit('edit', card)"
-        @remove="emit('remove', card)"
-        @rate="emit('rate', card, $event)"
-      />
+      <!--
+        Each card sits in a slot sized by the grid row, and is as large as fits it, so a page of three rows always fits the table above the pager with nothing to scroll.
+      -->
+      <div v-for="(card, position) in visible" :key="card.id" class="juka-slot">
+        <CardFace
+          :card="card"
+          :flipped="isFlipped(card)"
+          size="md"
+          :style="{ '--juka-stagger': `${Math.min(position, 11) * 18}ms` }"
+          @update:flipped="setFlipped(card, $event)"
+          @edit="emit('edit', card)"
+          @remove="emit('remove', card)"
+          @rate="emit('rate', card, $event)"
+        />
+      </div>
     </TransitionGroup>
 
     <!--
       UPagination carries its own previous and next arrows, so there are no extra ones around it.
-      It sits at the foot of the table even when a page has fewer than three rows, and sticks there as the cards scroll, above the tab bar on a phone.
+      On a wide screen it rises out of the frame into the bottom edge of the table as a tab, curved where it meets the table, so it is part of the border rather than a bar or a sheet over the cards; on a phone it sticks above the tab bar.
       Pages are ink chops and the current one is the red seal, with the page written the way a Chinese book numbers it beside them.
     -->
     <nav
-      v-if="pageCount > 1"
-      class="juka-pages sticky bottom-20 z-20 mx-auto mt-auto flex w-fit items-center gap-3 lg:bottom-2"
+      v-if="cards.length > 0"
+      class="juka-pages juka-notch-bottom sticky bottom-20 z-20 mx-auto mt-auto flex w-fit items-center gap-3"
       :aria-label="t('cards.pagination')"
     >
       <UPagination
+        v-if="pageCount > 1"
         :page="page"
         :total="cards.length"
         :items-per-page="pageSize"
@@ -128,7 +132,10 @@ function setFlipped(card: CardRecord, value: boolean) {
         active-variant="solid"
         @update:page="emit('update:page', $event)"
       />
-      <span class="font-hanzi text-sm text-muted" lang="zh" aria-hidden="true">第{{ page }}页</span>
+      <span v-if="pageCount > 1" class="font-hanzi text-sm text-muted" lang="zh" aria-hidden="true"
+        >第{{ page }}页</span
+      >
+      <span class="text-sm text-muted tabular-nums">{{ t('cards.count', cards.length) }}</span>
     </nav>
   </div>
 </template>

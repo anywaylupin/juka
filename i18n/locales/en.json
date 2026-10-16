@@ -56,11 +56,15 @@
     }
   },
   "stack": {
-    "hint": "Tap the card to turn it over. On a keyboard, arrow keys move and space turns.",
-    "practice": "Practice order",
     "practiceOn": "Dealing weaker cards more often",
     "practiceOff": "Dealing in box order",
-    "reshuffle": "Shuffle again"
+    "reshuffle": "Shuffle again",
+    "order": "Deal order",
+    "weighted": "Weaker first",
+    "inOrder": "Box order",
+    "keyBack": "Back",
+    "keyTurn": "Turn over",
+    "keyNext": "Next"
   },
   "pos": {
     "noun": "Noun",
@@ -221,7 +225,12 @@
     "byGroup": "By group",
     "noType": "No type",
     "noGroup": "Not in a group",
-    "noGroupsYet": "No groups yet. Make one from the filters panel."
+    "noGroupsYet": "No groups yet. Make one from the filters panel.",
+    "total": "Cards in the box",
+    "known": "Known well",
+    "thisWeekShort": "this week",
+    "showAllGroups": "Show {count} empty groups",
+    "hideEmptyGroups": "Hide empty groups"
   },
   "reminder": {
     "welcomeTitle": "Your cards live in this browser",
@@ -236,7 +245,9 @@
     "confirm": "Nothing to look up. | This replaces the reading, meaning and word type of 1 card with the dictionary's, including any wording you edited. | This replaces the reading, meaning and word type of {count} cards with the dictionary's, including any wording you edited. It takes about a second per card.",
     "progress": "Looking up {done} of {total}",
     "stop": "Stop",
-    "finished": "Updated {updated} of {total} cards"
+    "finished": "Updated {updated} of {total} cards",
+    "title": "Dictionary",
+    "hint": "Fill the reading and meaning of the cards shown above from the dictionary again. Edited wording is replaced."
   },
   "practice": {
     "empty": "Clear the filters on the box to practice every card."

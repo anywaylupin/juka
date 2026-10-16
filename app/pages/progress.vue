@@ -9,9 +9,9 @@ const { results } = useCardFilters(store.cards);
 </script>
 
 <template>
-  <div class="space-y-6">
-    <h1 class="juka-heading">{{ t('nav.progress') }}</h1>
+  <div class="flex flex-col gap-4 lg:h-full lg:min-h-0">
+    <PageTitle glyph="进" :title="t('nav.progress')" class="shrink-0" />
     <div v-if="!store.loaded.value" class="juka-skeleton-card max-w-xl rounded-sm" />
-    <CardChart v-else :cards="results" :groups="groupStore.groups.value" />
+    <CardChart v-else class="lg:min-h-0 lg:flex-1" :cards="results" :groups="groupStore.groups.value" />
   </div>
 </template>

@@ -108,102 +108,136 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 </script>
 
 <template>
-  <div v-if="current" class="space-y-5">
-    <div class="flex items-center justify-center gap-2">
-      <UTooltip :text="practice ? t('stack.practiceOn') : t('stack.practiceOff')">
-        <UButton
-          icon="i-lucide-shuffle"
-          color="neutral"
-          :variant="practice ? 'solid' : 'outline'"
-          size="sm"
+  <!--
+    A practice session laid out like a desk: how the deck is dealt and where you are in it along the top, the deck in the middle as large as the table allows with a step either side of it, and the keys underneath.
+    The earlier version stacked a pill, a small card, two round arrows, a "1 of 8" and a sentence of instructions down the center line, every piece the same small size, which read as generated rather than designed.
+  -->
+  <div v-if="current" class="flex flex-col gap-4 lg:h-full lg:min-h-0">
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="juka-segment w-full grid-cols-2 sm:w-80" role="group" :aria-label="t('stack.order')">
+        <button
+          type="button"
           :aria-pressed="practice"
-          @click="emit('update:practice', !practice)"
+          :title="t('stack.practiceOn')"
+          @click="emit('update:practice', true)"
         >
-          {{ t('stack.practice') }}
-        </UButton>
-      </UTooltip>
-
-      <UTooltip v-if="practice" :text="t('stack.reshuffle')">
-        <UButton
-          icon="i-lucide-rotate-cw"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          :aria-label="t('stack.reshuffle')"
-          @click="emit('reshuffle')"
-        />
-      </UTooltip>
-    </div>
-
-    <!--
-      The deck.
-      Cards to come sit behind and above, so the top of each one shows as a colored edge the way a stack of index cards does on a desk.
-    -->
-    <div class="mx-auto w-full max-w-[36rem] px-1 pt-7">
-      <div class="relative">
-        <div
-          v-for="(card, depth) in behind"
-          :key="card.id"
-          class="juka-deck-edge pointer-events-none absolute inset-x-0 top-0"
-          :style="{
-            transform: `translateY(${-(depth + 1) * 13}px) scale(${1 - (depth + 1) * 0.055})`,
-            // Further back reads as further away, so the two edges show as two cards rather than one thick band.
-            backgroundColor: `color-mix(in oklab, var(--ui-text) ${depth === 0 ? 14 : 8}%, var(--ui-bg))`,
-            zIndex: 2 - depth
-          }"
-          aria-hidden="true"
-        />
-
-        <Transition :name="dealName" :css="direction !== null" @after-enter="direction = null">
-          <CardFace
-            :key="current.id"
-            v-model:flipped="flipped"
-            :card="current"
-            size="lg"
-            class="relative z-10"
-            @edit="emit('edit', current)"
-            @remove="emit('remove', current)"
-            @rate="emit('rate', current, $event)"
-          />
-        </Transition>
+          <UIcon name="i-lucide-shuffle" />{{ t('stack.weighted') }}
+        </button>
+        <button
+          type="button"
+          :aria-pressed="!practice"
+          :title="t('stack.practiceOff')"
+          @click="emit('update:practice', false)"
+        >
+          <UIcon name="i-lucide-list-ordered" />{{ t('stack.inOrder') }}
+        </button>
       </div>
+      <UButton
+        v-if="practice"
+        icon="i-lucide-rotate-cw"
+        color="neutral"
+        variant="ghost"
+        :aria-label="t('stack.reshuffle')"
+        @click="emit('reshuffle')"
+      >
+        <span class="hidden sm:inline">{{ t('stack.reshuffle') }}</span>
+      </UButton>
+
+      <p class="ml-auto font-[family-name:var(--font-display)] text-highlighted tabular-nums" aria-live="polite">
+        <span class="text-2xl font-bold">{{ modelValue + 1 }}</span>
+        <span class="text-muted"> / {{ cards.length }}</span>
+      </p>
     </div>
 
-    <!--
-      The arrows sit under the deck, centered, where a thumb rests.
-      They were beside the card while a swipe still existed and the card could move sideways under them; now that stepping is the only way through, they belong together.
-    -->
-    <div class="flex items-center justify-center gap-3">
-      <UTooltip :text="t('cards.previous')">
+    <div class="flex flex-1 items-center gap-3 lg:min-h-0 lg:gap-6">
+      <UButton
+        icon="i-lucide-chevron-left"
+        color="neutral"
+        variant="outline"
+        size="xl"
+        class="hidden shrink-0 sm:flex"
+        :aria-label="t('cards.previous')"
+        @click="back"
+      />
+
+      <!--
+        The stage is a size container, so the deck takes the largest index card that fits the table, leaving room above for the edges of the cards to come.
+        Cards to come sit behind and above in ink, the way a stack of index cards shows its edges on a desk.
+      -->
+      <div class="juka-deck-stage flex-1 self-stretch">
+        <div class="juka-deck relative mx-auto">
+          <div
+            v-for="(card, depth) in behind"
+            :key="card.id"
+            class="juka-deck-edge pointer-events-none absolute inset-x-0 top-0"
+            :style="{
+              transform: `translateY(${-(depth + 1) * 13}px) scale(${1 - (depth + 1) * 0.04})`,
+              backgroundColor: `color-mix(in oklab, var(--ui-text) ${depth === 0 ? 14 : 8}%, var(--ui-bg))`,
+              zIndex: 2 - depth
+            }"
+            aria-hidden="true"
+          />
+
+          <Transition :name="dealName" :css="direction !== null" @after-enter="direction = null">
+            <CardFace
+              :key="current.id"
+              v-model:flipped="flipped"
+              :card="current"
+              size="lg"
+              class="relative z-10"
+              @edit="emit('edit', current)"
+              @remove="emit('remove', current)"
+              @rate="emit('rate', current, $event)"
+            />
+          </Transition>
+        </div>
+      </div>
+
+      <UButton
+        icon="i-lucide-chevron-right"
+        color="neutral"
+        variant="outline"
+        size="xl"
+        class="hidden shrink-0 sm:flex"
+        :aria-label="t('cards.next')"
+        @click="advance"
+      />
+    </div>
+
+    <div class="shrink-0 space-y-3">
+      <!-- How far through the deck, as a hairline of ink rather than a second counter. -->
+      <div class="h-0.5 overflow-hidden rounded-full bg-elevated" aria-hidden="true">
+        <div
+          class="juka-ink-bar h-full transition-[width] duration-300"
+          :style="{ width: `${((modelValue + 1) / cards.length) * 100}%` }"
+        />
+      </div>
+
+      <!-- On a phone the arrows sit here, under the thumb; on a keyboard the keys are shown as keys. -->
+      <div class="flex items-center justify-center gap-3 sm:hidden">
         <UButton
-          icon="i-lucide-arrow-left"
+          icon="i-lucide-chevron-left"
           color="neutral"
           variant="outline"
           size="xl"
           :aria-label="t('cards.previous')"
           @click="back"
         />
-      </UTooltip>
-
-      <p class="min-w-16 text-center text-sm text-muted tabular-nums">
-        {{ t('cards.position', { index: modelValue + 1, total: cards.length }) }}
-      </p>
-
-      <UTooltip :text="t('cards.next')">
         <UButton
-          icon="i-lucide-arrow-right"
+          icon="i-lucide-chevron-right"
           color="neutral"
           variant="outline"
           size="xl"
           :aria-label="t('cards.next')"
           @click="advance"
         />
-      </UTooltip>
+      </div>
+      <p class="hidden items-center justify-center gap-5 text-xs text-muted sm:flex">
+        <span class="flex items-center gap-1.5"><UKbd value="←" />{{ t('stack.keyBack') }}</span>
+        <span class="flex items-center gap-1.5"><UKbd value="Space" />{{ t('stack.keyTurn') }}</span>
+        <span class="flex items-center gap-1.5"><UKbd value="→" />{{ t('stack.keyNext') }}</span>
+      </p>
     </div>
-
-    <p class="text-center text-xs text-muted">
-      {{ t('stack.hint') }}
-    </p>
   </div>
 </template>
 

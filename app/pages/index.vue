@@ -12,7 +12,7 @@ useSeoMeta({ title: () => `${t('nav.box')} · Juka`, description: () => t('tagli
 const store = useCardStore();
 const flipMode = useFlipMode();
 const { results, activeCount, clearAll } = useCardFilters(store.cards);
-const { filtersOpen, bulk, openEditor, rate, remove, updateFromDictionary } = useCardActions();
+const { filtersOpen, openEditor, rate, remove } = useCardActions();
 
 const page = ref(1);
 const PAGE_SIZE = 12;
@@ -20,38 +20,25 @@ const PAGE_SIZE = 12;
 watch(results, () => {
   page.value = 1;
 });
-
-/** Overwrites wording the user edited, so it asks first and says how many cards it will touch. */
-const confirmOpen = ref(false);
-
-function startUpdate() {
-  confirmOpen.value = false;
-  updateFromDictionary([...results.value]);
-}
 </script>
 
 <template>
-  <div class="flex min-h-full flex-col gap-5">
-    <div class="flex flex-wrap items-end gap-x-4 gap-y-3">
-      <h1 class="juka-heading mr-auto">
-        {{ t('nav.box') }}
-        <span class="ml-1 text-base font-normal text-muted tabular-nums">{{ t('cards.count', results.length) }}</span>
-      </h1>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <UButton color="neutral" variant="outline" icon="i-lucide-sliders-horizontal" @click="filtersOpen = true">
-          {{ t('filter.title') }}
-          <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
-        </UButton>
-
+  <div class="flex min-h-full flex-col gap-5 lg:h-full lg:min-h-0">
+    <!-- Title, search and actions share one row, level with the frame tab, so the cards start high on the table. -->
+    <div class="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-3">
+      <PageTitle glyph="盒" :title="t('nav.box')" />
+      <SearchField class="juka-table-search hidden lg:flex" />
+      <div class="ml-auto flex items-center gap-2">
+        <!-- A phone has no frame tab, so the button stays here below the wide breakpoint. -->
         <UButton
           color="neutral"
           variant="outline"
-          icon="i-lucide-refresh-cw"
-          :disabled="results.length === 0 || bulk.running"
-          @click="confirmOpen = true"
+          icon="i-lucide-sliders-horizontal"
+          class="lg:hidden"
+          @click="filtersOpen = true"
         >
-          {{ t('bulk.button', results.length) }}
+          {{ t('filter.title') }}
+          <UBadge v-if="activeCount > 0" color="primary" size="sm" :label="String(activeCount)" />
         </UButton>
       </div>
     </div>
@@ -111,17 +98,5 @@ function startUpdate() {
       @remove="remove"
       @rate="rate"
     />
-
-    <UModal v-model:open="confirmOpen" :title="t('bulk.button', results.length)">
-      <template #body>
-        <p class="text-sm text-muted">{{ t('bulk.confirm', results.length) }}</p>
-      </template>
-      <template #footer>
-        <div class="flex w-full justify-end gap-2">
-          <UButton color="neutral" variant="ghost" @click="confirmOpen = false">{{ t('common.cancel') }}</UButton>
-          <UButton icon="i-lucide-refresh-cw" @click="startUpdate">{{ t('bulk.button', results.length) }}</UButton>
-        </div>
-      </template>
-    </UModal>
   </div>
 </template>

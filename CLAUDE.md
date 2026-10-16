@@ -283,7 +283,9 @@ Implementation:
   which could leave a dark theme rendering light, so `useJukaTheme` applies the theme's mode again on `onNuxtReady`.
 - Generated into `app/assets/css/themes.css`. Edit `shared/constants/themes.ts` and run
   `node scripts/generate-theme-css.ts`.
-- Neutral is one warm taupe shared by every theme. Never stock gray.
+- Neutral is one warm taupe shared by every theme. Never stock gray. In light mode muted and dimmed text sit one step
+  darker than Nuxt UI's, because its grays measured 3.95:1 and 2.18:1 on the ink wash, under WCAG's 4.5:1; muted now
+  reads 6.29:1 there.
 - The cookie is the source of truth for rendering, because it is the only thing readable during SSR. A signed in account
   mirrors it so the choice follows you to another browser.
 
@@ -319,35 +321,54 @@ made problems hard to place, because a wrong border could have come from the the
 The metaphor is a real box of index cards, and the layout is built around that rather than around a dashboard:
 
 - **A rail, a table and a drawer.** On a wide screen `AppSidebar` is a 4.5rem rail of icons (logo, add card, Box `/`,
-  Practice `/practice`, Progress `/progress`, filters and settings, Profile `/settings`, Sign in `/login`) that widens
-  to 15rem on hover or focus while the table's rounded edge (`juka-table-surface`, a layer under the content) slides
-  right with it, so the sidebar grows out of the frame rather than lying over it as a sheet, and the cards never reflow.
-  The table keeps an 11rem gutter on both sides, so the open sidebar never covers a card and the content stays centered,
-  the card grid fills at most four columns of at least 15rem, so a page is four by three on a wide screen and each card
-  grows with the room, and the pager sits at the foot of the table even on a short page. Search sits at the top of the
-  table, not in the sidebar, which is for navigation. `AppDock` is a drawer from the right, closed until asked for, with
-  centered Filters and Settings tabs (the card face: hand kai, song or hei, practice grid 田, 米, box or none, character
-  size, opt-in tone colors; then how cards turn, language and theme, as icon-led rows of segmented choices; the card
-  face lives in `useCardStyle`, a cookie like the flip mode, so the server renders cards as they will look). The cards
-  lie between on `juka-table`, the ink wash sunk like the inside of a card box. On a phone the rail becomes `AppHeader`
-  plus a tab bar at the bottom. The profile holds the account, rating names and groups. Signing in is the `/login` page,
-  not a dialog, with the submit and provider buttons in one column; the forgotten password link is off for now, though
-  `/reset` still works. `/status` redirects to the profile. The box loads once in the default layout, and
-  `useCardActions` holds the editor, the drawer and the bulk dictionary update so any page can open them.
+  Practice `/practice`, Progress `/progress`, Profile `/settings`, Sign in `/login`) that widens to 15rem on hover or
+  focus while the table's rounded edge (`juka-table-surface`, a layer under the content) slides right with it, so the
+  sidebar grows out of the frame rather than lying over it as a sheet, and the cards never reflow. The table keeps a
+  12rem gutter on both sides, so the open sidebar never covers a card and the content stays centered, the card grid is a
+  fixed four by three on a wide screen, even on a short last page, and each card is the largest that fits its cell
+  (`juka-slot`, a size container), so a page always fits and the Box never scrolls. The pager, which also carries the
+  Box's card count, and the one filters and settings button are tabs of frame reaching into the table, the pager rising
+  from the bottom edge and the other hanging into the top right corner, each curved where it meets the table
+  (`juka-notch-top`, `juka-notch-bottom`), not bars and not sheets over the cards. Every page opens on one row level
+  with that tab: the title as `PageTitle`, its own character in the logo's seal (盒 Box, 习 Practice, 进 Progress, your
+  initial on the profile) with the name beside it and no count, at the same place and size on every page so the title
+  and the search never jump between views, then search (`juka-table-search`, short and set large because a word is a few
+  characters) and the page's actions. Search is not in the sidebar, which is for navigation. `AppDock` is a drawer from
+  the right, closed until asked for, with centered Filters and Settings tabs (the card face: hand kai, song or hei,
+  practice grid 田, 米, box or none, character size, opt-in tone colors; then how cards turn, language and theme, as
+  icon-led rows of segmented choices; the card face lives in `useCardStyle`, a cookie like the flip mode, so the server
+  renders cards as they will look). The cards lie between on `juka-table`, the ink wash sunk like the inside of a card
+  box. On a phone the rail becomes `AppHeader` plus a tab bar at the bottom. The profile holds the account, rating names
+  and groups in three sections that fit a desktop screen, rating names saving as you leave each field. It is only
+  offered once signed in: the last navigation item is Profile for an account and Sign in before that, and a signed out
+  visit to `/settings` goes to `/login`. Signing in is the `/login` page, not a dialog, with the submit and provider
+  buttons in one column; the forgotten password link is off for now, though `/reset` still works. `/status` redirects to
+  the profile. The box loads once in the default layout, and `useCardActions` holds the editor, the drawer and the bulk
+  dictionary update so any page can open them. Looking cards up again sits at the foot of the Filters tab, because it
+  acts on exactly the cards the filters show, and it asks before it overwrites edited wording.
 - **Box** is the browse view: the whole box laid out, paged. A toggle in the dock's settings tab decides whether turning
   one card turns the last one back (for testing yourself) or cards turn independently (for reading back through them).
   An edge-on deck was tried in between and removed: it looked like a card box and was miserable to read, because a
   vertical word in a 44px spine tells you almost nothing.
-- **Practice** is the one-at-a-time view, drawn as a deck: the two cards to come stand behind the top one and peek out
-  above it as ink edges, so you can see there is more without counting. Forward and back are arrows under the deck, with
-  the position between them; a click or the space bar turns the top card over. Stepping deals the old card up and away
-  and brings the next one out of the deck. Its order comes from `usePracticeOrder` unless practice mode is switched off.
+- **Practice** is the one-at-a-time view, laid out like a desk: the deal order (weaker first or box order) as a
+  segmented choice and the position as "3 / 8" along the top, the deck in the middle as the largest index card the table
+  fits (`juka-deck-stage`, a size container), previous and next as ink buttons either side of it, and under it a
+  hairline of progress and the keys shown as key caps. The two cards to come peek out above the top one as ink edges. A
+  click or the space bar turns the top card over; stepping deals the old card up and away. Its order comes from
+  `usePracticeOrder` unless box order is chosen. An earlier version stacked a pill, a small card, round arrows, a
+  counter and a sentence of instructions down the center line, all the same small size, and read as generated rather
+  than designed.
 - **There is no swipe, and adding one back needs a better argument than the first one had.** Dragging left to delete put
   the only destructive action in the app on the gesture most easily made by accident, on top of a card whose other
   gesture is a tap. It also cost a release to a silent binding bug. Every action on a card is a button now.
-- **Progress** is the box from above: a ripeness bar across the five named levels, a calendar heatmap of cards added per
-  day, and a split by word type and by group. Built from divs, not SVG and not a charting library, because everything on
-  it is a proportion or a count.
+- **Progress** is the box from above, and the answer comes first: four numbers in the display face (cards, known well,
+  added this week, unrated), then, on a wide screen, a two by two of paper sections (`juka-section`) that fits the table
+  without scrolling, each body scrolling inside its own card if it must: the ripeness bar, a half-year calendar of cards
+  added per day with month and weekday labels, and the split by word type and by group. Ink draws every bar and the
+  calendar; the tangerine mandarin marks mastery alone, a level is told apart by its count of mandarins rather than by
+  five near identical oranges, and type and group colors are a small mark by the label. Empty groups hide behind a link.
+  Every level, word type and group opens the Box filtered to it. Built from divs, not SVG and not a charting library,
+  because everything on it is a proportion or a count.
 - **A card shows only the hanzi on the front.** The back carries the reading above, the meaning large in the display
   face, and the part of speech as a small tag at the top, and nothing else. The meaning is the payoff of a turn, so it
   is sized like the word on the front. There is no flip button: clicking the card turns it.
