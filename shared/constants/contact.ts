@@ -5,5 +5,6 @@
 export const CONTACT_LINKS = [
   { key: 'source', icon: 'i-lucide-git-branch', href: 'https://github.com/anywaylupin/juka' },
   { key: 'github', icon: 'i-lucide-github', href: 'https://github.com/anywaylupin' },
-  { key: 'linkedin', icon: 'i-lucide-linkedin', href: 'https://www.linkedin.com/in/anywaylupin' }
+  { key: 'linkedin', icon: 'i-lucide-linkedin', href: 'https://www.linkedin.com/in/anywaylupin' },
+  { key: 'email', icon: 'i-lucide-mail', href: 'mailto:anywaylupin@proton.me' }
 ] as const;
